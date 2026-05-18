@@ -1,3 +1,9 @@
+extern "C" {
+#include "../../src/vendor/luajit/src/lua.h"
+#include "../../src/vendor/luajit/src/lualib.h"
+#include "../../src/vendor/luajit/src/lauxlib.h"
+}
+
 #include "game.h"
 #include "platform/git_version.h"
 
@@ -148,6 +154,18 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int fl
 
     // SFALL: Execute all code that should be executed BEFORE game init
     sfallOnBeforeGameInit();
+
+    // ==========================================
+    // LUA LANDING!!!!
+    // ==========================================
+    lua_State *L = luaL_newstate();
+    if (L != NULL) {
+        luaL_openlibs(L);
+        // Пробуем выполнить файл из корня игры
+        luaL_dofile(L, "../../mods/test.lua"); 
+        lua_close(L);
+    }
+    // ==========================================
 
     settingsInit(isMapper, argc, argv);
 
