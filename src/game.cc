@@ -1,8 +1,4 @@
-extern "C" {
-#include "../../src/vendor/luajit/src/lua.h"
-#include "../../src/vendor/luajit/src/lualib.h"
-#include "../../src/vendor/luajit/src/lauxlib.h"
-}
+#include "ck_scripting.h"
 
 #include "game.h"
 #include "platform/git_version.h"
@@ -158,13 +154,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int fl
     // ==========================================
     // LUA LANDING!!!!
     // ==========================================
-    lua_State *L = luaL_newstate();
-    if (L != NULL) {
-        luaL_openlibs(L);
-        // Пробуем выполнить файл из корня игры
-        luaL_dofile(L, "../../mods/test.lua"); 
-        lua_close(L);
-    }
+    ckScriptingInit();
     // ==========================================
 
     settingsInit(isMapper, argc, argv);
@@ -476,6 +466,12 @@ void gameExit()
     debugPrint("\nGame Exit\n");
 
     sfallOnGameModeChange(1, GameMode::getCurrentGameMode());
+
+    // ==========================================
+    // LUA exit!!!!
+    // ==========================================
+    ckScriptingExit();
+    //
 
     // SFALL
     scriptHooksExit();
