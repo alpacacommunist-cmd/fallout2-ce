@@ -761,3 +761,11 @@ if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 endif()
+
+
+# LUA LANDING
+target_link_libraries(fallout2-ce "${CMAKE_CURRENT_SOURCE_DIR}/../src/vendor/luajit/src/libluajit.a")
+target_link_libraries(fallout2-ce dl)
+
+target_link_libraries(mapper-ce "${CMAKE_CURRENT_SOURCE_DIR}/../src/vendor/luajit/src/libluajit.a")
+target_link_libraries(mapper-ce dl)
