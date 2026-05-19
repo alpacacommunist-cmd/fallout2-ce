@@ -4,4 +4,6 @@
 void ckScriptingInit();
 void ckScriptingExit();
 
+void ckHookOnGameStart();
+
 #endif // CK_SCRIPTING_H

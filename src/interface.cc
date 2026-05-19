@@ -1,3 +1,7 @@
+// fallout2-ck
+#include "ck_scripting.h"
+// fallout2-ck END
+
 #include "interface.h"
 
 #include "platform/ios/quick_toolbar.h"
@@ -615,6 +619,9 @@ int interfaceInit()
 
     quickToolbarSetEnabled(settings.ui.quick_toolbar_visible);
     quickToolbarInit();
+
+    // Tells Lua interface is ready!
+    ckHookOnGameStart();
 
     return 0;
 }
