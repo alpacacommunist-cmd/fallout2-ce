@@ -1,5 +1,9 @@
-#include "ck_scripting.h"
 #include <iostream>
+
+#include "ck_scripting.h"
+
+// bindings (requirements)
+#include "display_monitor.h"
 
 extern "C" {
 #include "../../src/vendor/luajit/src/lua.h"
@@ -10,12 +14,34 @@ extern "C" {
 // lua state global pointer, lives as long as game lives
 lua_State* gLuaState = nullptr;
 
+
+// bindings
+// C <-> Lua contract
+int l_ck_log_print(lua_State* L) {
+    // Safely extract a string we got from Lua
+    // example: fallout2.log.print(123), LuaJIT makes it '123'
+    const char* message = luaL_checkstring(L, 1);
+
+    if (message != nullptr) {
+        // try send message to monitor
+        fallout::displayMonitorAddMessage(message);
+    }
+
+    return 0; // nothing to return
+}
+
+
+// Init
+//
 void ckScriptingInit() {
     std::cout << "[CK] Initializing LuaJIT backend..." << std::endl;
 
     gLuaState = luaL_newstate();
     if (gLuaState != nullptr) {
         luaL_openlibs(gLuaState);
+
+        // bindings
+        lua_register(gLuaState, "ckLogPrint", l_ck_log_print);
 
         // try execute sample lua script
         int status = luaL_dofile(gLuaState, "mods/userspace/test.lua");
@@ -27,6 +53,8 @@ void ckScriptingInit() {
     }
 }
 
+// Exit
+//
 void ckScriptingExit() {
     if (gLuaState != nullptr) {
         std::cout << "[CK] Shutting down LuaJIT backend..." << std::endl;
@@ -34,3 +62,5 @@ void ckScriptingExit() {
         gLuaState = nullptr;
     }
 }
+
+
