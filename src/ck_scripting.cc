@@ -71,3 +71,27 @@ void ckScriptingExit() {
 }
 
 
+// this is called from fallout2-ce once interface is ready
+// work in progress chill
+void ckHookOnGameStart() {
+    if (gLuaState == nullptr) return;
+
+    // search global lua table for function "ckOnGameStart"
+    // and put it on top of lua stack
+    lua_getglobal(gLuaState, "ckOnGameStart");
+
+    // check if it's indeed a function
+    if (lua_isfunction(gLuaState, -1)) {
+        // run it!
+        // params lua_pcall: state, nargs (0), nresults (0), msgh (0)
+        int status = lua_pcall(gLuaState, 0, 0, 0);
+        
+        if (status != 0) {
+            std::cerr << "[CK] Hook Error (onGameStart): " << lua_tostring(gLuaState, -1) << std::endl;
+            lua_pop(gLuaState, 1); // clears error out of stack
+        }
+    } else {
+        // no such function, remove it from stack
+        lua_pop(gLuaState, 1);
+    }
+}
