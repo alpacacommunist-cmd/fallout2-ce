@@ -16,7 +16,9 @@ lua_State* gLuaState = nullptr;
 
 
 // bindings
-// C <-> Lua contract
+// C <-> Lua contract, raw -> registered -> lua api
+//
+// l_ck_log_print -> ckLogPrint -> fallout2.log.print
 int l_ck_log_print(lua_State* L) {
     // Safely extract a string we got from Lua
     // example: fallout2.log.print(123), LuaJIT makes it '123'
@@ -38,13 +40,18 @@ void ckScriptingInit() {
 
     gLuaState = luaL_newstate();
     if (gLuaState != nullptr) {
+        // Init global lua state
         luaL_openlibs(gLuaState);
 
-        // bindings
+        // expand path to include fallout2-ck/ck/fallout2
+        // Tells lua to search .lua files in ck/ (which is fallout2-ce/../ck)
+        luaL_dostring(gLuaState, "package.path = package.path .. ';../ck/?.lua'");
+
+        // bindings. registers c <-> lua functions
         lua_register(gLuaState, "ckLogPrint", l_ck_log_print);
 
         // try execute sample lua script
-        int status = luaL_dofile(gLuaState, "mods/userspace/test.lua");
+        int status = luaL_dofile(gLuaState, "../mods/username/test.lua");
         if (status != 0) {
             std::cerr << "[CK] Lua Error: " << lua_tostring(gLuaState, -1) << std::endl;
         }
