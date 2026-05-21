@@ -1,3 +1,4 @@
+#include "ck_scripting.h"
 #include "scripts.h"
 
 #include <assert.h>
@@ -443,6 +444,8 @@ int gameTimeEventProcess(Object* obj, void* data)
     if (movie_index != -1) {
         stopProcess = 1;
     }
+
+    ckHookOnDayPassed();
 
     return stopProcess;
 }
