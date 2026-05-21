@@ -95,3 +95,39 @@ void ckHookOnGameStart() {
         lua_pop(gLuaState, 1);
     }
 }
+
+int ckGetConfigInt(const char* key, int default_value) {
+    if (gLuaState == nullptr) return default_value;
+
+    // Search our global LUA function for managing configs
+    lua_getglobal(gLuaState, "ckOnGetConfig");
+
+    if (!lua_isfunction(gLuaState, -1)) {
+        lua_pop(gLuaState, 1); // clear stack if function not found
+        return default_value;
+    }
+
+    // Push arguments to stack
+    lua_pushstring(gLuaState, key);
+    lua_pushinteger(gLuaState, default_value);
+
+    // call function: 2 arguments, 1 return
+    int status = lua_pcall(gLuaState, 2, 1, 0);
+    if (status != 0) {
+        std::cerr << "[CK] Config Error (Int): " << lua_tostring(gLuaState, -1) << std::endl;
+        lua_pop(gLuaState, 1); // clears out an error
+        return default_value;
+    }
+
+    // Grab the result from stack
+    int result = default_value;
+    if (lua_isnumber(gLuaState, -1)) {
+        result = (int)lua_tointeger(gLuaState, -1);
+        std::cout << "[CK] Received new value for key " << key << ": " << result << "! " << std::endl;
+    }
+
+    // clear out the stack
+    lua_pop(gLuaState, 1);
+
+    return result;
+}

@@ -6,4 +6,6 @@ void ckScriptingExit();
 
 void ckHookOnGameStart();
 
+int ckGetConfigInt(const char* key, int default_value);
+
 #endif // CK_SCRIPTING_H
