@@ -55,8 +55,6 @@ set(FALLOUT_ENGINE_SOURCES
     "src/autorun.h"
     "src/cache.cc"
     "src/cache.h"
-    "src/ck_scripting.cc"
-    "src/ck_scripting.h"
     "src/character_editor.cc"
     "src/character_editor.h"
     "src/character_selector.cc"
@@ -765,9 +763,9 @@ if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
 endif()
 
 
-# LUA LANDING
-target_link_libraries(fallout2-ce "${CMAKE_CURRENT_SOURCE_DIR}/../src/vendor/luajit/src/libluajit.a")
-target_link_libraries(fallout2-ce dl)
+# LUA LANDING VIA CONSTRUCTION KIT
+target_include_directories(fallout2-ce PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+target_include_directories(mapper-ce PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
 
-target_link_libraries(mapper-ce "${CMAKE_CURRENT_SOURCE_DIR}/../src/vendor/luajit/src/libluajit.a")
-target_link_libraries(mapper-ce dl)
+target_link_libraries(fallout2-ce fallout2-ck)
+target_link_libraries(mapper-ce fallout2-ck)
