@@ -151,11 +151,8 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int fl
     // SFALL: Execute all code that should be executed BEFORE game init
     sfallOnBeforeGameInit();
 
-    // ==========================================
-    // LUA LANDING!!!!
-    // ==========================================
-    ckScriptingInit();
-    // ==========================================
+    // CK: Execute all code that should be executed BEFORE game init
+    ckScriptingInit(); // more like onEngineStart? CK_TODO: rename this
 
     settingsInit(isMapper, argc, argv);
 
