@@ -1,3 +1,5 @@
+#include "ck_scripting.h"
+
 #include "loadsave.h"
 
 #include <assert.h>
@@ -2010,6 +2012,9 @@ static int lsgLoadGameInSlot(int slot)
     sfall_gl_scr_exec_start_proc();
     // SFALL: Call "after start" event
     sfallOnAfterGameStarted();
+
+    ckHookOnGameLoaded();
+
     gGameLoaded = true;
 
     return 0;
