@@ -1,3 +1,5 @@
+#include "ck_scripting.h"
+
 #include "map.h"
 
 #include <assert.h>
@@ -1079,6 +1081,15 @@ err:
         scriptSoundStop(mapLoadSoundId);
         mapLoadSoundId = 0;
     }
+
+
+    // Possibly this?
+    // if (rc == 0) {
+    //     ckHookOnMapEnter();
+    // }
+
+    // But for now just this
+    ckHookOnMapEnter();
 
     return rc;
 }
