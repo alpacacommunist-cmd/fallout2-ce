@@ -1,3 +1,5 @@
+#include "ck_scripting.h"
+
 #include "pipboy.h"
 
 #include <algorithm>
@@ -2443,6 +2445,8 @@ static bool pipboyRest(int hours, int minutes, int duration)
     windowRefresh(gPipboyWindow);
 
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+
+    ckHookOnAfterRest(hours, minutes);
 
     return rc;
 }
