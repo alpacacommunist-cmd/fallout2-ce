@@ -1,3 +1,5 @@
+#include "ck_scripting.h"
+
 #include "proto_instance.h"
 
 #include <assert.h>
@@ -809,6 +811,13 @@ static UseItemResultCode _obj_use_book(Object* book)
 
     int intelligence = critterGetStat(gDude, STAT_INTELLIGENCE);
     gameTimeAddSeconds(3600 * (11 - intelligence));
+
+    // CK hook
+    int hoursToRead = 11 - intelligence;
+    if (hoursToRead < 1) hoursToRead = 1; // in case of drugs use?
+
+    ckHookOnTimeAdvance(hoursToRead, 0);
+    // CK hook END
 
     scriptsExecMapUpdateProc();
 
