@@ -251,8 +251,12 @@ void tile_hires_stencil_on_center_tile_or_elevation_change()
             // TODO: Maybe create new function in tile.cc and use it here
             int tile_x = HEX_GRID_WIDTH - 1 - tileInfo.tile % HEX_GRID_WIDTH;
             int tile_y = tileInfo.tile / HEX_GRID_WIDTH;
+
+
+            if (!settings.ui.ignore_map_edges) {
             if (tile_x <= gTileBorderMinX || tile_x >= gTileBorderMaxX || tile_y <= gTileBorderMinY || tile_y >= gTileBorderMaxY) {
                 continue;
+            }
             }
         }
 
@@ -369,7 +373,8 @@ void tile_hires_stencil_draw(Rect* rect, unsigned char* buffer, int windowWidth,
     int maxSquareY = maxYglobal / square_height;
     for (int x = minSquareX; x <= maxSquareX; x++) {
         for (int y = minSquareY; y <= maxSquareY; y++) {
-            if (!visible_squares[gElevation][x][y]) {
+            if (!visible_squares[gElevation][x][y] && !settings.ui.ignore_map_edges) {
+            // if (!visible_squares[gElevation][x][y]) {
                 int screenX = x * square_width + screen_diff.x;
                 int screenY = y * square_height + screen_diff.y;
 
@@ -407,8 +412,10 @@ void tile_hires_stencil_init()
             showMessageBox("Tile hires stencil is disabled because map edges are ignored.");
             isMessageShown = true;
         }
-        gIsTileHiresStencilEnabled = false;
-        return;
+
+        debugPrint("ignore_map_edges + stencil test\n");
+        // gIsTileHiresStencilEnabled = false;
+        // return;
     }
 
     debugPrint("tile_hires_stencil_init\n");
