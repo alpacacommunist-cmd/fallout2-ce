@@ -715,6 +715,124 @@ static void tileRefreshMapper(Rect* rect, int elevation)
     gTileWindowRefreshProc(&rectToUpdate);
 }
 
+static void fillRectSafe(
+    int left,
+    int top,
+    int right,
+    int bottom,
+    unsigned char color)
+{
+    Rect rect;
+    rect.left = left;
+    rect.top = top;
+    rect.right = right;
+    rect.bottom = bottom;
+
+    Rect viewportRect;
+    viewportRect.left = 0;
+    viewportRect.top = 0;
+    viewportRect.right = gTileWindowWidth - 1;
+    viewportRect.bottom = gTileWindowHeight - 1;
+
+    Rect intersection;
+    if (rectIntersection(&rect, &viewportRect, &intersection) == -1) {
+        return;
+    }
+
+    bufferFill(
+        gTileWindowBuffer
+            + intersection.top * gTileWindowPitch
+            + intersection.left,
+        rectGetWidth(&intersection),
+        rectGetHeight(&intersection),
+        gTileWindowPitch,
+        color);
+}
+
+// magenta square
+// static void drawTestOutskirts(Rect* rect)
+// {
+//     if (mapGetCurrentMap() != 126) {
+//         return;
+//     }
+//
+//     int anchorTile = 17290;
+//
+//     int screenX;
+//     int screenY;
+//     tileToScreenXY(anchorTile, &screenX, &screenY);
+//
+//     // чуть левее храма
+//     screenX -= 180;
+//     screenY -= 80;
+//
+//     Rect massRect;
+//     massRect.left = screenX;
+//     massRect.top = screenY;
+//     massRect.right = screenX + 180;
+//     massRect.bottom = screenY + 120;
+//
+//     Rect intersection;
+//     if (rectIntersection(
+//             rect,
+//             &massRect,
+//             &intersection) == -1) {
+//         return;
+//     }
+//
+//     bufferFill(
+//         gTileWindowBuffer
+//             + intersection.top * gTileWindowPitch
+//             + intersection.left,
+//         rectGetWidth(&intersection),
+//         rectGetHeight(&intersection),
+//         gTileWindowPitch,
+//         50 // magenta-ish
+//     );
+// }
+//
+
+static void drawTestOutskirts(Rect* rect)
+{
+    if (mapGetCurrentMap() != 126) {
+        return;
+    }
+
+    int anchorTile = 17290;
+
+    int screenX;
+    int screenY;
+    tileToScreenXY(anchorTile, &screenX, &screenY);
+
+    screenX -= 330;
+    screenY -= 80;
+
+    int fid = buildFid(
+        OBJ_TYPE_TILE,
+        2, // what
+        0,
+        0,
+        0
+    );
+
+    tileRenderFloor(
+        fid,
+        screenX,
+        screenY,
+        // rect
+        &gTileWindowRect
+    );
+
+    // magenta on top
+    fillRectSafe(
+        screenX,
+        screenY,
+        screenX + 24,
+        screenY + 24,
+        50
+    );
+}
+
 // 0x4B15E8 refresh_game
 static void tileRefreshGame(Rect* rect, int elevation)
 {
@@ -741,6 +859,9 @@ static void tileRefreshGame(Rect* rect, int elevation)
     }
 
     tileRenderFloorsInRect(&rectToUpdate, elevation);
+
+    drawTestOutskirts(&rectToUpdate);
+
     _obj_render_pre_roof(&rectToUpdate, elevation);
     tileRenderRoofsInRect(&rectToUpdate, elevation);
     _obj_render_post_roof(&rectToUpdate, elevation);
