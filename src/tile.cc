@@ -729,28 +729,53 @@ static void drawTestOutskirts(Rect* rect)
 
     int fid = buildFid(
         OBJ_TYPE_TILE,
-        2, // what
+        1505, // what
         0,
         0,
         0
     );
 
+    Rect customRect;
+    customRect.left = screenX - 100;
+    customRect.top = screenY - 100;
+    customRect.right = screenX + 250;
+    customRect.bottom = screenY + 200;
+
     tileRenderFloor(
         fid,
         screenX,
         screenY,
+        &customRect
         // rect
-        &gTileWindowRect
+        // &gTileWindowRect
+    );
+
+        // tile 2 (правее)
+    tileRenderFloor(
+        fid,
+        screenX - 80,
+        screenY,
+        &customRect
+        // &gTileWindowRect
+    );
+
+    // tile 3 (ниже-правее)
+    tileRenderFloor(
+        fid,
+        screenX - 40,
+        screenY - 40,
+        &customRect
+        // &gTileWindowRect
     );
 
     // magenta on top
-    fillRectSafe(
-        screenX,
-        screenY,
-        screenX + 24,
-        screenY + 24,
-        50
-    );
+    // fillRectSafe(
+    //     screenX,
+    //     screenY,
+    //     screenX + 24,
+    //     screenY + 24,
+    //     50
+    // );
 }
 
 // 0x4B15E8 refresh_game
@@ -771,7 +796,6 @@ static void tileRefreshGame(Rect* rect, int elevation)
         0);
 
     tileRenderFloorsInRect(&rectToUpdate, elevation);
-
     drawTestOutskirts(&rectToUpdate);
 
     _obj_render_pre_roof(&rectToUpdate, elevation);
