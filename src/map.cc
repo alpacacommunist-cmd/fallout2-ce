@@ -1,4 +1,5 @@
 #include "ck_scripting.h"
+#include "ck_rendering.h"
 
 #include "map.h"
 
@@ -1574,6 +1575,7 @@ static void isoWindowRefreshRectGame(Rect* rect)
     }
 
     tileRenderFloorsInRect(&rectToUpdate, gElevation);
+    ck_rendering_draw(&rectToUpdate);
     _obj_render_pre_roof(&rectToUpdate, gElevation);
     tileRenderRoofsInRect(&rectToUpdate, gElevation);
     _obj_render_post_roof(&rectToUpdate, gElevation);

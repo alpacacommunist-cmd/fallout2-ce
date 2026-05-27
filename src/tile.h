@@ -63,6 +63,10 @@ bool _square_roof_intersect(int x, int y, int elevation);
 void _grid_render(Rect* rect, int elevation);
 int _tile_scroll_to(int tile, int flags);
 
+void tileRenderFloorExternal(int fid, int x, int y, Rect* rect);
+unsigned char* tileGetWindowBuffer();
+int tileGetWindowPitch();
+
 static bool tileIsValid(int tile)
 {
     return tile >= 0 && tile < gHexGridSize;
