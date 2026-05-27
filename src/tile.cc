@@ -1,3 +1,5 @@
+#include "ck_rendering.h"
+
 #include "tile.h"
 
 #include <assert.h>
@@ -635,149 +637,6 @@ static void tileRefreshMapper(Rect* rect, int elevation)
     gTileWindowRefreshProc(&rectToUpdate);
 }
 
-static void fillRectSafe(
-    int left,
-    int top,
-    int right,
-    int bottom,
-    unsigned char color)
-{
-    Rect rect;
-    rect.left = left;
-    rect.top = top;
-    rect.right = right;
-    rect.bottom = bottom;
-
-    Rect viewportRect;
-    viewportRect.left = 0;
-    viewportRect.top = 0;
-    viewportRect.right = gTileWindowWidth - 1;
-    viewportRect.bottom = gTileWindowHeight - 1;
-
-    Rect intersection;
-    if (rectIntersection(&rect, &viewportRect, &intersection) == -1) {
-        return;
-    }
-
-    bufferFill(
-        gTileWindowBuffer
-            + intersection.top * gTileWindowPitch
-            + intersection.left,
-        rectGetWidth(&intersection),
-        rectGetHeight(&intersection),
-        gTileWindowPitch,
-        color);
-}
-
-// magenta square
-// static void drawTestOutskirts(Rect* rect)
-// {
-//     if (mapGetCurrentMap() != 126) {
-//         return;
-//     }
-//
-//     int anchorTile = 17290;
-//
-//     int screenX;
-//     int screenY;
-//     tileToScreenXY(anchorTile, &screenX, &screenY);
-//
-//     // чуть левее храма
-//     screenX -= 180;
-//     screenY -= 80;
-//
-//     Rect massRect;
-//     massRect.left = screenX;
-//     massRect.top = screenY;
-//     massRect.right = screenX + 180;
-//     massRect.bottom = screenY + 120;
-//
-//     Rect intersection;
-//     if (rectIntersection(
-//             rect,
-//             &massRect,
-//             &intersection) == -1) {
-//         return;
-//     }
-//
-//     bufferFill(
-//         gTileWindowBuffer
-//             + intersection.top * gTileWindowPitch
-//             + intersection.left,
-//         rectGetWidth(&intersection),
-//         rectGetHeight(&intersection),
-//         gTileWindowPitch,
-//         50 // magenta-ish
-//     );
-// }
-//
-
-static void drawTestOutskirts(Rect* rect)
-{
-    if (mapGetCurrentMap() != 126) {
-        return;
-    }
-
-    int anchorTile = 17290;
-
-    int screenX;
-    int screenY;
-    tileToScreenXY(anchorTile, &screenX, &screenY);
-
-    screenX -= 330;
-    screenY -= 80;
-
-    int fid = buildFid(
-        OBJ_TYPE_TILE,
-        1505, // what
-        0,
-        0,
-        0
-    );
-
-    Rect customRect;
-    customRect.left = screenX - 100;
-    customRect.top = screenY - 100;
-    customRect.right = screenX + 250;
-    customRect.bottom = screenY + 200;
-
-    tileRenderFloor(
-        fid,
-        screenX,
-        screenY,
-        &customRect
-        // rect
-        // &gTileWindowRect
-    );
-
-        // tile 2 (правее)
-    tileRenderFloor(
-        fid,
-        screenX - 80,
-        screenY,
-        &customRect
-        // &gTileWindowRect
-    );
-
-    // tile 3 (ниже-правее)
-    tileRenderFloor(
-        fid,
-        screenX - 40,
-        screenY - 40,
-        &customRect
-        // &gTileWindowRect
-    );
-
-    // magenta on top
-    // fillRectSafe(
-    //     screenX,
-    //     screenY,
-    //     screenX + 24,
-    //     screenY + 24,
-    //     50
-    // );
-}
-
 // 0x4B15E8 refresh_game
 static void tileRefreshGame(Rect* rect, int elevation)
 {
@@ -796,9 +655,9 @@ static void tileRefreshGame(Rect* rect, int elevation)
         0);
 
     tileRenderFloorsInRect(&rectToUpdate, elevation);
-    drawTestOutskirts(&rectToUpdate);
-
+    ck_rendering_draw(&rectToUpdate);
     _obj_render_pre_roof(&rectToUpdate, elevation);
+
     tileRenderRoofsInRect(&rectToUpdate, elevation);
     _obj_render_post_roof(&rectToUpdate, elevation);
 
@@ -1929,6 +1788,11 @@ out:
     artUnlock(cacheEntry);
 }
 
+void tileRenderFloorExternal(int fid, int x, int y, Rect* rect)
+{
+    tileRenderFloor(fid, x, y, rect);
+}
+
 // 0x4B372C tile_make_line
 static int _tile_make_line(int from, int to, int* tiles, int tilesCapacity)
 {
@@ -2078,5 +1942,8 @@ int _tile_scroll_to(int tile, int flags)
 
     return rc;
 }
+
+unsigned char* tileGetWindowBuffer() { return gTileWindowBuffer; }
+int tileGetWindowPitch() { return gTileWindowPitch; }
 
 } // namespace fallout
