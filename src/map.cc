@@ -1086,11 +1086,11 @@ err:
 
     // Possibly this?
     // if (rc == 0) {
-    //     ckHookOnMapEnter();
+    //     ck_scripting_on_map_enter();
     // }
 
     // But for now just this
-    ckHookOnMapEnter();
+    ck_scripting_on_map_enter();
 
     return rc;
 }

@@ -679,7 +679,7 @@ int skillUse(Object* obj, Object* target, int skill, int skillBonus)
 
         if (obj == gDude) {
             gameTimeAddSeconds(1800);
-            ckHookOnTimeAdvance(0, 30);
+            ck_scripting_on_time_advance(0, 30);
         }
 
         break;
@@ -841,7 +841,7 @@ int skillUse(Object* obj, Object* target, int skill, int skillBonus)
 
         if (obj == gDude) {
             gameTimeAddSeconds(3600 * damageHealingAttempts);
-            ckHookOnTimeAdvance(1, 0);
+            ck_scripting_on_time_advance(1, 0);
         }
 
         break;
@@ -1016,7 +1016,7 @@ int skillUse(Object* obj, Object* target, int skill, int skillBonus)
 
         if (obj == gDude) {
             gameTimeAddSeconds(1800 * damageHealingAttempts);
-            ckHookOnTimeAdvance(0, 30);
+            ck_scripting_on_time_advance(0, 30);
         }
 
         break;

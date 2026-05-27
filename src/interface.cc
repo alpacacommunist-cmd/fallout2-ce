@@ -649,7 +649,7 @@ int interfaceInit()
     quickToolbarInit();
 
     // Tells Lua interface is ready!
-    ckHookOnGameStart();
+    ck_scripting_on_game_start();
 
     return 0;
 }
