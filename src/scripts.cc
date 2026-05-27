@@ -439,7 +439,7 @@ int gameTimeEventProcess(Object* obj, void* data)
         stopProcess = 1;
     }
 
-    ckHookOnDayPassed();
+    ck_scripting_on_day_passed();
 
     return stopProcess;
 }

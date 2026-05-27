@@ -2013,7 +2013,7 @@ static int lsgLoadGameInSlot(int slot)
     // SFALL: Call "after start" event
     sfallOnAfterGameStarted();
 
-    ckHookOnGameLoaded();
+    ck_scripting_on_game_loaded();
 
     gGameLoaded = true;
 

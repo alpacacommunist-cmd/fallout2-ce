@@ -152,7 +152,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int fl
     sfallOnBeforeGameInit();
 
     // CK: Execute all code that should be executed BEFORE game init
-    ckScriptingInit(); // more like onEngineStart? CK_TODO: rename this
+    ck_scripting_init(); // more like on_engine_start? CK_TODO: rename this
 
     settingsInit(isMapper, argc, argv);
 
@@ -464,11 +464,7 @@ void gameExit()
 
     sfallOnGameModeChange(1, GameMode::getCurrentGameMode());
 
-    // ==========================================
-    // LUA exit!!!!
-    // ==========================================
-    ckScriptingExit();
-    //
+    ck_scripting_exit();
 
     // SFALL
     scriptHooksExit();

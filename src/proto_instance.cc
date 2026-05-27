@@ -816,7 +816,7 @@ static UseItemResultCode _obj_use_book(Object* book)
     int hoursToRead = 11 - intelligence;
     if (hoursToRead < 1) hoursToRead = 1; // in case of drugs use?
 
-    ckHookOnTimeAdvance(hoursToRead, 0);
+    ck_scripting_on_time_advance(hoursToRead, 0);
     // CK hook END
 
     scriptsExecMapUpdateProc();

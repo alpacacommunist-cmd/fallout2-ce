@@ -2446,7 +2446,7 @@ static bool pipboyRest(int hours, int minutes, int duration)
 
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
 
-    ckHookOnTimeAdvance(hours, minutes);
+    ck_scripting_on_time_advance(hours, minutes);
 
     return rc;
 }

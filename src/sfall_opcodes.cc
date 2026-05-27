@@ -212,7 +212,7 @@ static void op_get_year(Program* program)
     int years_passed = year - 2241;
 
     // Check if LUA wants to redefine default limit
-    int max_allowed_years = ckGetConfigInt("max_game_time_years", 13);
+    int max_allowed_years = ck_get_config_int("max_game_time_years", 13);
 
     // If we're past original 13 years but we're still in our custom limits
     if (years_passed >= 13 && years_passed < max_allowed_years) {
