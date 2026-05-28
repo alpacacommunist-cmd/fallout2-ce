@@ -655,7 +655,7 @@ static void tileRefreshGame(Rect* rect, int elevation)
         0);
 
     tileRenderFloorsInRect(&rectToUpdate, elevation);
-    ck_rendering_draw(&rectToUpdate);
+    ck_rendering_render(&rectToUpdate);
     _obj_render_pre_roof(&rectToUpdate, elevation);
 
     tileRenderRoofsInRect(&rectToUpdate, elevation);
