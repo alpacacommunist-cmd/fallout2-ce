@@ -886,6 +886,10 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
             debugPrint("\n ** Error calling LoadGame()! **\n");
         }
         break;
+    case KEY_CTRL_R:
+        debugPrint("[CK] Reloading mods...\n");
+        ck_reload_mods();
+        break;
     case KEY_F6:
         if (1) {
             soundPlayFile("ib1p1xx1");
