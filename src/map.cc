@@ -1022,6 +1022,7 @@ err:
     }
 
     sfallOnBeforeMapLoad();
+    ck_scripting_on_map_enter();
 
     _partyMemberRecoverLoad();
     interfaceBarShow();
@@ -1082,15 +1083,6 @@ err:
         scriptSoundStop(mapLoadSoundId);
         mapLoadSoundId = 0;
     }
-
-
-    // Possibly this?
-    // if (rc == 0) {
-    //     ck_scripting_on_map_enter();
-    // }
-
-    // But for now just this
-    ck_scripting_on_map_enter();
 
     return rc;
 }
