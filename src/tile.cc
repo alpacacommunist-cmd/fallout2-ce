@@ -2083,5 +2083,7 @@ int _tile_scroll_to(int tile, int flags)
 
 unsigned char* tileGetWindowBuffer() { return gTileWindowBuffer; }
 int tileGetWindowPitch() { return gTileWindowPitch; }
+int tileGetHexGridWidth() { return gHexGridWidth; }
+int tileGetHexGridHeight() { return gHexGridHeight; }
 
 } // namespace fallout
