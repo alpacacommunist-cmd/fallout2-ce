@@ -564,8 +564,12 @@ int tileSetCenter(int tile, int flags)
         }
 
         if (gTileScrollBlockingEnabled && !settings.ui.ignore_map_edges) {
-            if (_obj_scroll_blocking_at(tile, gElevation) == 0) {
-                return -1;
+            if (ck_rendering_has_camera_borders()) {
+                if (!ck_rendering_is_camera_position_allowed(tile)) { return -1; }
+            } else {
+                if (_obj_scroll_blocking_at(tile, gElevation) == 0) {
+                    return -1;
+                }
             }
         }
     }
@@ -1945,5 +1949,7 @@ int _tile_scroll_to(int tile, int flags)
 
 unsigned char* tileGetWindowBuffer() { return gTileWindowBuffer; }
 int tileGetWindowPitch() { return gTileWindowPitch; }
+int tileGetHexGridWidth() { return gHexGridWidth; }
+int tileGetHexGridHeight() { return gHexGridHeight; }
 
 } // namespace fallout

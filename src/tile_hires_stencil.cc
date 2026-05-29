@@ -1,3 +1,5 @@
+#include "ck_rendering.h"
+
 #include "tile_hires_stencil.h"
 #include "debug.h"
 #include "draw.h"
@@ -262,10 +264,8 @@ void tile_hires_stencil_on_center_tile_or_elevation_change()
             int tile_y = tileInfo.tile / HEX_GRID_WIDTH;
 
 
-            if (!settings.ui.ignore_map_edges) {
             if (tile_x <= gTileBorderMinX || tile_x >= gTileBorderMaxX || tile_y <= gTileBorderMinY || tile_y >= gTileBorderMaxY) {
                 continue;
-            }
             }
         }
 
@@ -382,8 +382,7 @@ void tile_hires_stencil_draw(Rect* rect, unsigned char* buffer, int windowWidth,
     int maxSquareY = maxYglobal / square_height;
     for (int x = minSquareX; x <= maxSquareX; x++) {
         for (int y = minSquareY; y <= maxSquareY; y++) {
-            if (!visible_squares[gElevation][x][y] && !settings.ui.ignore_map_edges) {
-            // if (!visible_squares[gElevation][x][y]) {
+            if (!visible_squares[gElevation][x][y]) {
                 int screenX = x * square_width + screen_diff.x;
                 int screenY = y * square_height + screen_diff.y;
 
@@ -397,6 +396,8 @@ void tile_hires_stencil_draw(Rect* rect, unsigned char* buffer, int windowWidth,
                 if (rectIntersection(rect, &squareRect, &intersection) == -1) {
                     continue;
                 };
+
+                if (ck_rendering_has_camera_borders()) { return; }
 
                 bufferFill(buffer + windowWidth * intersection.top + intersection.left,
                     intersection.right - intersection.left + 1,
