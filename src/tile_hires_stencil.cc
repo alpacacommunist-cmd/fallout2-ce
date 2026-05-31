@@ -414,9 +414,8 @@ void tile_hires_stencil_init()
             isMessageShown = true;
         }
 
-        debugPrint("ignore_map_edges + stencil test\n");
-        // gIsTileHiresStencilEnabled = false;
-        // return;
+        gIsTileHiresStencilEnabled = false;
+        return;
     }
 
     debugPrint("tile_hires_stencil_init\n");

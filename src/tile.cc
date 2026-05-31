@@ -594,8 +594,12 @@ int tileSetCenter(int tile, int flags)
         // Scroll-blocker object check only runs when no EDG is loaded.
         // EDG clamping above already enforces the boundary.
         if ((!mapEdgeIsLoaded() || !mapEdgeZoneIsSelected()) && gTileScrollBlockingEnabled) {
-            if (_obj_scroll_blocking_at(tile, gElevation) == 0) {
-                return -1;
+            if (ck_rendering_has_camera_borders()) {
+                if (!ck_rendering_is_camera_position_allowed(tile)) { return -1; }
+            } else {
+                if (_obj_scroll_blocking_at(tile, gElevation) == 0) {
+                    return -1;
+                }
             }
         }
     }
