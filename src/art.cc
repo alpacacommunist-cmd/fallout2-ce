@@ -654,6 +654,13 @@ int _art_get_code(int animation, int weaponType, char* weaponCodePtr, char* anim
 // 0x419428
 char* artBuildFilePath(int fid)
 {
+    // ck reserves interface fids 996, 997, 998, 999 for colored hexes
+    int artId = fid & 0xFFFF;
+    if (artId >= 996 && artId <= 999) {
+        snprintf(_art_name, sizeof(_art_name), "%sart\\intrface\\msef000.frm", _cd_path_base);
+        return _art_name;
+    }
+
     int baseFid = fid;
     int rotation = FID_ROTATION(fid);
 

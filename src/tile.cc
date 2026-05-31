@@ -1,4 +1,5 @@
 #include "ck_rendering.h"
+#include "ck_debug_overlay.h"
 
 #include "tile.h"
 
@@ -743,9 +744,11 @@ static void tileRefreshGame(Rect* rect, int elevation)
     }
 
     tileRenderFloorsInRect(&rectToUpdate, elevation);
-    ck_rendering_render(&rectToUpdate);
-    _obj_render_pre_roof(&rectToUpdate, elevation);
 
+    ck_rendering_render(&rectToUpdate);
+    ck_debug_overlay_render(&rectToUpdate);
+
+    _obj_render_pre_roof(&rectToUpdate, elevation);
     tileRenderRoofsInRect(&rectToUpdate, elevation);
     _obj_render_post_roof(&rectToUpdate, elevation);
 
@@ -754,6 +757,7 @@ static void tileRefreshGame(Rect* rect, int elevation)
     }
 
     gTileWindowRefreshProc(&rectToUpdate);
+
 }
 
 // 0x4B1634 tile_toggle_roof

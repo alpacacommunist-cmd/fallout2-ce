@@ -1,5 +1,6 @@
 #include "ck_scripting.h"
 #include "ck_rendering.h"
+#include "ck_debug_overlay.h"
 
 #include "map.h"
 
@@ -1568,6 +1569,7 @@ static void isoWindowRefreshRectGame(Rect* rect)
 
     tileRenderFloorsInRect(&rectToUpdate, gElevation);
     ck_rendering_render(&rectToUpdate);
+    ck_debug_overlay_render(&rectToUpdate);
     _obj_render_pre_roof(&rectToUpdate, gElevation);
     tileRenderRoofsInRect(&rectToUpdate, gElevation);
     _obj_render_post_roof(&rectToUpdate, gElevation);
