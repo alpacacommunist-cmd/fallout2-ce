@@ -1,5 +1,5 @@
 #include "ck_scripting.h"
-#include "ck_debug_overlay.h"
+#include "ck_debug_overlay/ck_debug_overlay.h"
 
 #include "game.h"
 #include "platform/git_version.h"
