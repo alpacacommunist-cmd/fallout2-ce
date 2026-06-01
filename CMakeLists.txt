@@ -266,6 +266,8 @@ set(FALLOUT_ENGINE_SOURCES
     "src/worldmap.h"
     "src/xfile.cc"
     "src/xfile.h"
+    "src/ck_input.cc"
+    "src/ck_input.h"
 )
 
 set(FALLOUT_PLATFORM_SOURCES

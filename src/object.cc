@@ -2417,7 +2417,8 @@ Object* _obj_blocking_at(Object* excludeObj, int tile, int elev)
             if ((obj->flags & OBJECT_HIDDEN) == 0 && (obj->flags & OBJECT_NO_BLOCK) == 0 && obj != excludeObj) {
                 // if (mapGetCurrentMap() == 126) {
                 //     debugPrint("Map 126 blocker found! PID: %d, Tile: %d\n", obj->pid, tile);
-                //     if (tile == 18320 || tile == 18321) {
+                //     return nullptr; // no collision
+                //     if (tile == 18320 || tile == 18321) { // disable blocking for select tiles
                 //         objectListNode = objectListNode->next;
                 //         continue;
                 //     }
