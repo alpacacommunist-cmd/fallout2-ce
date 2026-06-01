@@ -4,27 +4,19 @@
 static int ck_to_scancode(fallout::CkKey key) {
     switch (key) {
 
-    case fallout::CK_KEY_R:
-        return SDL_SCANCODE_R;
+        case fallout::CK_KEY_MINUS:     return 45; // -
+        case fallout::CK_KEY_EQUALS:    return 46; // =
+        case fallout::CK_KEY_COMMA:     return 54; // ,
+        case fallout::CK_KEY_PERIOD:    return 55; // .
 
-    case fallout::CK_KEY_E:
-        return SDL_SCANCODE_E;
-
-    case fallout::CK_KEY_P:
-        return SDL_SCANCODE_P;
-
-    case fallout::CK_KEY_F9:
-        return SDL_SCANCODE_F9;
-
-    default:
-        return SDL_SCANCODE_UNKNOWN;
+        default:                        return 0; // SDL_SCANCODE_UNKNOWN;
     }
 }
 
 bool fallout::ck_input_pressed(CkKey key) {
     int scancode = ck_to_scancode(key);
 
-    if (scancode == SDL_SCANCODE_UNKNOWN) return false;
+    if (scancode == 0) return false;
 
     return gPressedPhysicalKeys[scancode] != KEY_STATE_UP;
 }

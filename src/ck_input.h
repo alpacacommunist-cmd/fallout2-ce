@@ -5,11 +5,10 @@
 namespace fallout {
 
 enum CkKey {
-    CK_KEY_R,
-    CK_KEY_E,
-    CK_KEY_P,
-
-    CK_KEY_F9,
+    CK_KEY_MINUS,
+    CK_KEY_EQUALS,
+    CK_KEY_COMMA,
+    CK_KEY_PERIOD,
 
     CK_KEY_COUNT
 };

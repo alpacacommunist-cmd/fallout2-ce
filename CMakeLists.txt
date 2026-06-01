@@ -764,8 +764,6 @@ if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 endif()
 
-
-# LUA LANDING VIA CONSTRUCTION KIT
 target_include_directories(fallout2-ce PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
 target_include_directories(mapper-ce PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
 
