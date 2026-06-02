@@ -266,8 +266,6 @@ set(FALLOUT_ENGINE_SOURCES
     "src/worldmap.h"
     "src/xfile.cc"
     "src/xfile.h"
-    "src/ck_input.cc"
-    "src/ck_input.h"
 )
 
 set(FALLOUT_PLATFORM_SOURCES
@@ -764,8 +762,6 @@ if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 endif()
 
-target_include_directories(fallout2-ce PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
-target_include_directories(mapper-ce PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
-
+# fallout2-ck
 target_link_libraries(fallout2-ce fallout2-ck)
 target_link_libraries(mapper-ce fallout2-ck)
