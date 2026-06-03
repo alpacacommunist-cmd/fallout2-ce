@@ -761,7 +761,3 @@ if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 endif()
-
-# fallout2-ck
-target_link_libraries(fallout2-ce fallout2-ck)
-target_link_libraries(mapper-ce fallout2-ck)
