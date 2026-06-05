@@ -1,3 +1,4 @@
+#include "map/ck_map.h"
 #include "ck_rendering.h"
 #include "ck_debug_overlay/ck_debug_overlay.h"
 
@@ -594,8 +595,8 @@ int tileSetCenter(int tile, int flags)
         // Scroll-blocker object check only runs when no EDG is loaded.
         // EDG clamping above already enforces the boundary.
         if ((!mapEdgeIsLoaded() || !mapEdgeZoneIsSelected()) && gTileScrollBlockingEnabled) {
-            if (ck_rendering_has_camera_borders()) {
-                if (!ck_rendering_is_camera_position_allowed(tile)) { return -1; }
+            if (ck_map_has_camera_borders()) {
+                if (!ck_map_is_camera_position_allowed(tile)) { return -1; }
             } else {
                 if (_obj_scroll_blocking_at(tile, gElevation) == 0) {
                     return -1;

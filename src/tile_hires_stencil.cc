@@ -1,4 +1,4 @@
-#include "ck_rendering.h"
+#include "map/ck_map.h"
 
 #include "tile_hires_stencil.h"
 #include "debug.h"
@@ -388,7 +388,7 @@ void tile_hires_stencil_draw(Rect* rect, unsigned char* buffer, int windowWidth,
                     continue;
                 };
 
-                if (ck_rendering_has_camera_borders()) { return; }
+                if (ck_map_has_camera_borders()) { return; }
 
                 bufferFill(buffer + windowWidth * intersection.top + intersection.left,
                     intersection.right - intersection.left + 1,
