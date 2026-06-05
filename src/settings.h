@@ -62,6 +62,9 @@ struct UISettings {
 
     int splash_screen_size = 0;
 
+    // Whether to scale movies to fit the screen while preserving aspect ratio.
+    bool movie_aspect_fit = true;
+
     // Whether to load EDG files (HRP format) when loading maps. If loaded, they override default edge clipping and scroll blocking behavior.
     bool edg_support = true;
 
@@ -139,7 +142,7 @@ struct DebugSettings {
 };
 
 struct QolSettings {
-    int use_walk_distance = 5;
+    int use_walk_distance = 3;
     bool auto_open_doors = false;
     bool party_trade_from_menu = true;
     bool party_loot_and_barter = false;
