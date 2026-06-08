@@ -553,12 +553,7 @@ bool xbaseOpen(const char* path)
         }
     }
 
-    // Try mount as directory. On POSIX, fopen() can succeed for directories,
-    // so compat_file_exists() is not a reliable gate here.
-    // XXX: this might need to be also normalized to local path separators
-    char workingDirectory[COMPAT_MAX_PATH];
-    if (getcwd(workingDirectory, COMPAT_MAX_PATH) != nullptr && chdir(path) == 0) {
-        chdir(workingDirectory);
+    if (compat_is_dir(path)) {
         xbase->next = gXbaseHead;
         gXbaseHead = xbase;
         return true;
@@ -568,6 +563,33 @@ bool xbaseOpen(const char* path)
     free(xbase->path);
     free(xbase);
     return false; // return false to trigger messages on game load
+}
+
+bool xbaseIsValidDirectory(const char* path)
+{
+    if (path == nullptr || path[0] == '\0') {
+        return false;
+    }
+
+    auto trimmedLength = [](const char* p) {
+        size_t len = strlen(p);
+        while (len > 0 && (p[len - 1] == '\\' || p[len - 1] == '/')) {
+            len--;
+        }
+        return len;
+    };
+
+    size_t targetLen = trimmedLength(path);
+    for (XBase* curr = gXbaseHead; curr != nullptr; curr = curr->next) {
+        if (curr->isDbase || curr->path == nullptr) {
+            continue;
+        }
+        size_t currLen = trimmedLength(curr->path);
+        if (currLen == targetLen && compat_strnicmp(curr->path, path, targetLen) == 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 // 0x4DFB3C xenumfiles
