@@ -405,6 +405,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int fl
 
     // SFALL: Execute all code that should be executed AFTER game init
     sfallOnAfterGameInit();
+    ck_scripting_on_engine_ready();
 
     return 0;
 }
