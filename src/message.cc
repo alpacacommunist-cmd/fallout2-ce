@@ -1,3 +1,4 @@
+#include "ck_message_patch.h"
 #include "message.h"
 
 #include <algorithm>
@@ -294,6 +295,7 @@ err:
 
     fileClose(file_ptr);
 
+    ck_message_patch_apply(messageList, path);
     return success;
 }
 
@@ -812,5 +814,10 @@ static MessageList* messageListRepositoryLoad(const char* path)
 
     return messageList;
 }
+
+bool _message_addExternal(MessageList* msg, MessageListItem* new_entry) {
+    return _message_add(msg, new_entry);
+}
+
 
 } // namespace fallout

@@ -92,6 +92,9 @@ void messageListRepositorySetProtoMessageList(int messageListId, MessageList* me
 int messageListRepositoryAddExtra(const char* path);
 char* messageListRepositoryGetMsg(int messageListId, int messageId);
 
+
+bool _message_addExternal(MessageList* msg, MessageListItem* new_entry);
+
 } // namespace fallout
 
 #endif /* MESSAGE_H */
