@@ -1,3 +1,4 @@
+#include "ck_config_patch.h"
 #include "config.h"
 
 #include <ctype.h>
@@ -342,9 +343,11 @@ bool configRead(Config* config, const char* filePath, bool isDb)
         while (compat_fgets(string, sizeof(string), stream) != nullptr) {
             configParseLine(config, string);
         }
+
         fclose(stream);
     }
 
+    ck_config_patch_apply(config, filePath);
     return true;
 }
 
