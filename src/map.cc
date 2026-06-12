@@ -1,5 +1,6 @@
 #include "ck_scripting.h"
 #include "ck_rendering.h"
+#include "ck_map_patch.h"
 #include "ck_debug_overlay/ck_debug_overlay.h"
 
 #include "map.h"
@@ -718,6 +719,9 @@ const char* mapBuildPath(const char* name)
 {
     // 0x631E78
     static char map_path[COMPAT_MAX_PATH];
+
+    const char* ckPath = ck_map_resolve_path(name);
+    if (ckPath != nullptr) return ckPath;
 
     if (*name != '\\') {
         // NOTE: Uppercased from "maps".
