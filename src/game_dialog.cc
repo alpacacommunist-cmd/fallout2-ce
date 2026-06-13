@@ -1,3 +1,4 @@
+#include "dialog/ck_dialog.h"
 #include "game_dialog.h"
 
 #include <algorithm>
@@ -833,12 +834,23 @@ void gameDialogEnter(Object* speaker, int mode)
 
     _dialogue_just_started = 1;
 
+    if (ck::dialog_try_handle(speaker)) {
+        debugPrint("====== sid: %d ========\n", speaker->sid - 50000);
+
+        _dialogue_just_started = 0;
+        isoEnable();
+        scriptsExecMapUpdateProc();
+        _dialog_state_fix = 0;
+        return;
+    }
+
     // CE: Obtain and keep SID in a separate variable. This is needed because in
     // rare circumstates the speaker can destroy itself. So after executing it's
     // script |speaker| can point to freed memory. Dereferencing such pointer
     // can lead to crash depending on the environment (confirmed on Android and
     // MSVC debug builds).
     int sid = speaker->sid;
+
     if (sid != -1) {
         scriptExecProc(speaker->sid, SCRIPT_PROC_TALK);
     }
