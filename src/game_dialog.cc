@@ -776,6 +776,8 @@ void gameDialogEnter(Object* speaker, int mode)
         return;
     }
 
+    if (ck::dialog_try_handle(speaker)) return;
+
     _gdDialogWentOff = false;
 
     if (isInCombat()) {
@@ -833,16 +835,6 @@ void gameDialogEnter(Object* speaker, int mode)
     gGameDialogSpeakerIsPartyMember = objectIsPartyMember(speaker);
 
     _dialogue_just_started = 1;
-
-    if (ck::dialog_try_handle(speaker)) {
-        debugPrint("====== sid: %d ========\n", speaker->sid - 50000);
-
-        _dialogue_just_started = 0;
-        isoEnable();
-        scriptsExecMapUpdateProc();
-        _dialog_state_fix = 0;
-        return;
-    }
 
     // CE: Obtain and keep SID in a separate variable. This is needed because in
     // rare circumstates the speaker can destroy itself. So after executing it's
@@ -2184,6 +2176,7 @@ int _gdProcessChoice(int optionIndex)
     // same behaviour by extending gDialogReplyText to 2700 bytes or introduce
     // new 1800 bytes buffer in between, at least not in debug builds. In order
     // to preserve original behaviour this dummy dialog option entry is used.
+    ck::gLastDialogChoice = optionIndex;
     GameDialogOptionEntry dummy;
     memset(&dummy, 0, sizeof(dummy));
 
@@ -4883,6 +4876,39 @@ static void gameDialogHighlightsExit()
 
     _upperHighlightFrmImage.unlock();
     _lowerHighlightFrmImage.unlock();
+}
+
+int ckOpenDialogUI(Object* speaker) {
+    if (speaker == nullptr) return -1;
+
+    gGameDialogSpeaker = speaker;
+    gGameDialogSpeakerIsPartyMember = objectIsPartyMember(speaker);
+    gGameDialogOldCenterTile = gCenterTile;
+    gGameDialogOldDudeTile = gDude->tile;
+    isoDisable();
+
+    if (_gdialogInitFromScript(-1, 0) == -1) {
+        isoEnable();
+        return -1;
+    }
+
+    return 0;
+}
+
+void ckCloseDialogUI() {
+    _gdialogExitFromScript();
+
+    _gdialog_state = GAME_DIALOG_INACTIVE;
+    dialogMode     = GAME_DIALOG_MODE_NONE;
+
+    gameMouseObjectsShow();
+    gameMouseSetCursor(0);
+
+    touch_set_touchscreen_mode(false);
+
+    gameDialogRestoreCenterTile();
+    isoEnable();
+    scriptsExecMapUpdateProc();
 }
 
 } // namespace fallout
