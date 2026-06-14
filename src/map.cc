@@ -1,6 +1,6 @@
 #include "ck_scripting.h"
 #include "ck_rendering.h"
-#include "ck_map_patch.h"
+#include "ce_config/ck_map_patch.h"
 #include "ck_debug_overlay/ck_debug_overlay.h"
 
 #include "map.h"

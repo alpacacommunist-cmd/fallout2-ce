@@ -1,4 +1,4 @@
-#include "ck_config_patch.h"
+#include "ce_config/ck_config_patch.h"
 #include "config.h"
 
 #include <ctype.h>
