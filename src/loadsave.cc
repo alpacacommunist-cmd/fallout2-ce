@@ -1981,6 +1981,7 @@ static int lsgLoadGameInSlot(int slot)
         gameMouseSetCursor(MOUSE_CURSOR_WAIT_PLANET);
     }
 
+    ck_scripting_on_before_game_load();
     // SFALL: Call "before start" event
     sfallOnBeforeGameStart();
 
