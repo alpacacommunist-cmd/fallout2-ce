@@ -1,3 +1,4 @@
+#include "script/ck_script.h"
 #include "ck_scripting.h"
 #include "scripts.h"
 
@@ -1288,6 +1289,8 @@ int scriptExecProc(int sid, int proc)
     if (!gScriptsEnabled) {
         return -1;
     }
+
+    if (ck::script_try_handle(sid, proc)) return -1;
 
     Script* script;
     if (scriptGetScript(sid, &script) == -1) {
