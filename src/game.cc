@@ -413,6 +413,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int fl
 // 0x442B84
 void gameReset()
 {
+    ck_on_scripts_reset();
     tileDisable();
     paletteReset();
     randomReset();

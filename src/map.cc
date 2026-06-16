@@ -1,4 +1,4 @@
-#include "ck_scripting.h"
+#include "map/ck_map.h"
 #include "ck_rendering.h"
 #include "ce_config/ck_map_patch.h"
 #include "ck_debug_overlay/ck_debug_overlay.h"
@@ -1060,7 +1060,7 @@ err:
     }
 
     sfallOnBeforeMapLoad();
-    ck_scripting_on_map_enter();
+    ck_on_map_enter();
 
     _partyMemberRecoverLoad();
     interfaceBarShow();
@@ -1310,6 +1310,8 @@ int mapHandleTransition()
     if (gMapTransition.map == 0) {
         return 0;
     }
+
+    ck_on_before_map_enter();
 
     gameMouseObjectsHide();
 
