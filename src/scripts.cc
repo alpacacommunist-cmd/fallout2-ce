@@ -1290,7 +1290,7 @@ int scriptExecProc(int sid, int proc)
         return -1;
     }
 
-    if (ck::script_try_handle(sid, proc)) return -1;
+    if (ck::script_try_handle(sid, proc)) return 0;
 
     Script* script;
     if (scriptGetScript(sid, &script) == -1) {
@@ -1298,6 +1298,7 @@ int scriptExecProc(int sid, int proc)
     }
 
     script->scriptOverrides = 0;
+
 
     bool programLoaded = false;
     if ((script->flags & SCRIPT_FLAG_LOADED) == 0) {
@@ -2169,6 +2170,11 @@ int scriptGetScript(int sid, Script** scriptPtr)
     if (sid == 0xCCCCCCCC) {
         debugPrint("\nERROR: scr_ptr called with UN-SET id #!!!!");
         return -1;
+    }
+
+    if (ck::owns_sid(sid)) {
+        *scriptPtr = ck::script_get_dummy(sid);
+        return 0;
     }
 
     ScriptList* scriptList = &(gScriptLists[SID_TYPE(sid)]);
