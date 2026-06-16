@@ -40,10 +40,6 @@ void gameDialogSetBarterModifier(int modifier);
 int gameDialogBarter(int modifier);
 void gameDialogEndBarter();
 bool gameDialogIsBarterWindowExpanded();
-
-int ckOpenDialogUI(Object* speaker);
-void ckCloseDialogUI();
-
 } // namespace fallout
 
 #endif /* GAME_DIALOG_H */

@@ -1,4 +1,4 @@
-#include "dialog/ck_dialog.h"
+#include "script/ck_script.h"
 #include "game_dialog.h"
 
 #include <algorithm>
@@ -775,8 +775,6 @@ void gameDialogEnter(Object* speaker, int mode)
         debugPrint("\nError: gdialogEnter: target was NULL!");
         return;
     }
-
-    if (ck::dialog_try_handle(speaker)) return;
 
     _gdDialogWentOff = false;
 
@@ -4876,39 +4874,6 @@ static void gameDialogHighlightsExit()
 
     _upperHighlightFrmImage.unlock();
     _lowerHighlightFrmImage.unlock();
-}
-
-int ckOpenDialogUI(Object* speaker) {
-    if (speaker == nullptr) return -1;
-
-    gGameDialogSpeaker = speaker;
-    gGameDialogSpeakerIsPartyMember = objectIsPartyMember(speaker);
-    gGameDialogOldCenterTile = gCenterTile;
-    gGameDialogOldDudeTile = gDude->tile;
-    isoDisable();
-
-    if (_gdialogInitFromScript(-1, 0) == -1) {
-        isoEnable();
-        return -1;
-    }
-
-    return 0;
-}
-
-void ckCloseDialogUI() {
-    _gdialogExitFromScript();
-
-    _gdialog_state = GAME_DIALOG_INACTIVE;
-    dialogMode     = GAME_DIALOG_MODE_NONE;
-
-    gameMouseObjectsShow();
-    gameMouseSetCursor(0);
-
-    touch_set_touchscreen_mode(false);
-
-    gameDialogRestoreCenterTile();
-    isoEnable();
-    scriptsExecMapUpdateProc();
 }
 
 } // namespace fallout
