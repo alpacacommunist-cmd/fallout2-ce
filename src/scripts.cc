@@ -776,6 +776,8 @@ static void _doBkProcesses()
         if (!_gdialogActive() && !gameMovieIsPlaying()) {
             _script_chk_critters();
             _script_chk_timed_events();
+
+            ck::on_map_update(gameTimeGetTime()); // 10 ticks = 1 sec
         }
     }
 }
