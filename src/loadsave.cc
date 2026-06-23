@@ -1940,6 +1940,9 @@ static int lsgPerformSaveGame()
         }
     }
 
+    snprintf(_gmpath, sizeof(_gmpath), "%s\\%s%.2d\\%s", _patches, "SAVEGAME\\SLOT", _slot_cursor + 1, "ck_state.lua");
+    ck_scripting_on_game_save(_gmpath);
+
     snprintf(_gmpath, sizeof(_gmpath), "%s\\%s%.2d\\", "SAVEGAME", "SLOT", _slot_cursor + 1);
     MapDirErase(_gmpath, "BAK");
 
@@ -2040,6 +2043,9 @@ static int lsgLoadGameInSlot(int slot)
             return -1;
         }
     }
+
+    snprintf(_gmpath, sizeof(_gmpath), "%s\\%s%.2d\\%s", _patches, "SAVEGAME\\SLOT", _slot_cursor + 1, "ck_state.lua");
+    ck_scripting_on_game_state_load(_gmpath);
 
     snprintf(_str, sizeof(_str), "%s\\", "MAPS");
     MapDirErase(_str, "BAK");
