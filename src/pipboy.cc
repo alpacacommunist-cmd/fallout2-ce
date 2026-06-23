@@ -1,4 +1,4 @@
-#include "ck_scripting.h"
+#include "game_time/ck_game_time.h"
 
 #include "pipboy.h"
 
@@ -2446,7 +2446,7 @@ static bool pipboyRest(int hours, int minutes, int duration)
 
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
 
-    ck_scripting_on_time_advance(hours, minutes);
+    ck::on_time_advance(hours, minutes);
 
     return rc;
 }

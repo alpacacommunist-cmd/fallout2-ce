@@ -1,5 +1,5 @@
 #include "script/ck_script.h"
-#include "ck_scripting.h"
+#include "game_time/ck_game_time.h"
 #include "scripts.h"
 
 #include <assert.h>
@@ -446,7 +446,7 @@ int gameTimeEventProcess(Object* obj, void* data)
         stopProcess = 1;
     }
 
-    ck_scripting_on_day_passed();
+    ck::on_day_passed();
 
     return stopProcess;
 }

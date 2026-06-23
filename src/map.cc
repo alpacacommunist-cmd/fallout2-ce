@@ -1060,7 +1060,6 @@ err:
     }
 
     sfallOnBeforeMapLoad();
-    ck_on_map_enter();
 
     _partyMemberRecoverLoad();
     interfaceBarShow();
@@ -1080,6 +1079,8 @@ err:
     tileEnable();
 
     if (gMapTransition.map > 0) {
+        ck::on_map_enter();
+
         if (gMapTransition.rotation >= 0) {
             objectSetRotation(gDude, gMapTransition.rotation, nullptr);
         }
@@ -1311,7 +1312,7 @@ int mapHandleTransition()
         return 0;
     }
 
-    ck_on_before_map_enter();
+    ck::on_before_map_enter();
 
     gameMouseObjectsHide();
 

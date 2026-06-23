@@ -1,4 +1,4 @@
-#include "ck_scripting.h"
+#include "game_time/ck_game_time.h"
 
 #include "proto_instance.h"
 
@@ -816,7 +816,7 @@ static UseItemResultCode _obj_use_book(Object* book)
     int hoursToRead = 11 - intelligence;
     if (hoursToRead < 1) hoursToRead = 1; // in case of drugs use?
 
-    ck_scripting_on_time_advance(hoursToRead, 0);
+    ck::on_time_advance(hoursToRead, 0);
     // CK hook END
 
     scriptsExecMapUpdateProc();
