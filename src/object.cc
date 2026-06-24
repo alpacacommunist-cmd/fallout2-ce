@@ -1,3 +1,4 @@
+#include "ck_scripting.h"
 #include "object.h"
 
 #include <assert.h>
@@ -1994,6 +1995,8 @@ int objectDestroy(Object* object, Rect* rect)
         if (_obj_remove(node, previousNode) != 0) {
             return -1;
         }
+
+        ck_scripting_on_object_destroyed(object);
 
         return 0;
     }
