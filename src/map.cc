@@ -1059,6 +1059,7 @@ err:
         _obj_preload_art_cache(gMapHeader.flags);
     }
 
+    ck::on_before_map_enter();
     sfallOnBeforeMapLoad();
 
     _partyMemberRecoverLoad();
@@ -1079,8 +1080,6 @@ err:
     tileEnable();
 
     if (gMapTransition.map > 0) {
-        ck::on_map_enter();
-
         if (gMapTransition.rotation >= 0) {
             objectSetRotation(gDude, gMapTransition.rotation, nullptr);
         }
@@ -1122,6 +1121,8 @@ err:
         scriptSoundStop(mapLoadSoundId);
         mapLoadSoundId = 0;
     }
+
+    ck::on_map_enter();
 
     return rc;
 }
@@ -1311,8 +1312,6 @@ int mapHandleTransition()
     if (gMapTransition.map == 0) {
         return 0;
     }
-
-    ck::on_before_map_enter();
 
     gameMouseObjectsHide();
 

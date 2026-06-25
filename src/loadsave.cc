@@ -1984,7 +1984,9 @@ static int lsgLoadGameInSlot(int slot)
         gameMouseSetCursor(MOUSE_CURSOR_WAIT_PLANET);
     }
 
-    ck_scripting_on_before_game_load();
+    char local_gmpath[512];
+    snprintf(local_gmpath, sizeof(local_gmpath), "%s\\%s%.2d\\%s", _patches, "SAVEGAME\\SLOT", _slot_cursor + 1, "ck_state.lua");
+    ck_scripting_on_before_game_load(local_gmpath);
     // SFALL: Call "before start" event
     sfallOnBeforeGameStart();
 
@@ -2043,9 +2045,6 @@ static int lsgLoadGameInSlot(int slot)
             return -1;
         }
     }
-
-    snprintf(_gmpath, sizeof(_gmpath), "%s\\%s%.2d\\%s", _patches, "SAVEGAME\\SLOT", _slot_cursor + 1, "ck_state.lua");
-    ck_scripting_on_game_state_load(_gmpath);
 
     snprintf(_str, sizeof(_str), "%s\\", "MAPS");
     MapDirErase(_str, "BAK");
