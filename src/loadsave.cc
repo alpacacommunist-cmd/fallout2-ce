@@ -1940,8 +1940,10 @@ static int lsgPerformSaveGame()
         }
     }
 
-    snprintf(_gmpath, sizeof(_gmpath), "%s\\%s%.2d\\%s", _patches, "SAVEGAME\\SLOT", _slot_cursor + 1, "ck_state.lua");
-    ck_scripting_on_game_save(_gmpath);
+    char local_ck_path[512];
+    snprintf(local_ck_path, sizeof(local_ck_path), "%s\\%s%.2d\\%s", _patches,
+            "SAVEGAME\\SLOT", _slot_cursor + 1, "ck_state.json");
+    ck_scripting_on_game_save(local_ck_path);
 
     snprintf(_gmpath, sizeof(_gmpath), "%s\\%s%.2d\\", "SAVEGAME", "SLOT", _slot_cursor + 1);
     MapDirErase(_gmpath, "BAK");
@@ -1984,9 +1986,10 @@ static int lsgLoadGameInSlot(int slot)
         gameMouseSetCursor(MOUSE_CURSOR_WAIT_PLANET);
     }
 
-    char local_gmpath[512];
-    snprintf(local_gmpath, sizeof(local_gmpath), "%s\\%s%.2d\\%s", _patches, "SAVEGAME\\SLOT", _slot_cursor + 1, "ck_state.lua");
-    ck_scripting_on_before_game_load(local_gmpath);
+    char local_ck_path[512];
+    snprintf(local_ck_path, sizeof(local_ck_path), "%s\\%s%.2d\\%s", _patches,
+            "SAVEGAME\\SLOT", _slot_cursor + 1, "ck_state.json");
+    ck_scripting_on_before_game_load(local_ck_path);
     // SFALL: Call "before start" event
     sfallOnBeforeGameStart();
 
