@@ -80,6 +80,7 @@
 #include <TargetConditionals.h>
 #endif
 
+namespace ck { void init_ffi_manifest(); }
 namespace fallout {
 
 #define HELP_SCREEN_WIDTH (640)
@@ -152,7 +153,8 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int fl
     sfallOnBeforeGameInit();
 
     // CK: Execute all code that should be executed BEFORE game init
-    ck_scripting_init(); // more like on_engine_start? CK_TODO: rename this
+    ck::init_ffi_manifest();
+    ck_scripting_init();    // more like on_engine_start? CK_TODO: rename this
 
     settingsInit(isMapper, argc, argv);
 
