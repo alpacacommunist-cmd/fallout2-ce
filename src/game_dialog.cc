@@ -3498,6 +3498,11 @@ bool gameDialogIsBarterWindowExpanded()
     return gBarterWindowExpanded;
 }
 
+int gameDialogGetWindow()
+{
+    return windowGetWindow(gGameDialogWindow) != nullptr ? gGameDialogWindow : -1;
+}
+
 // 0x448660 gdialog_barter_cleanup_tables
 void gameDialogBarterCleanupTables()
 {
