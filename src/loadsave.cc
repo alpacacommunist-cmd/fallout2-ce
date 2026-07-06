@@ -68,6 +68,7 @@
 #include <emscripten.h>
 #endif
 
+namespace ck { void on_map_enter(); }
 namespace fallout {
 
 #define LOAD_SAVE_SIGNATURE "FALLOUT SAVE FILE"
@@ -2068,6 +2069,7 @@ static int lsgLoadGameInSlot(int slot)
     // SFALL: Call "after start" event
     sfallOnAfterGameStarted();
 
+    ck::on_map_enter();
     ck_scripting_on_game_loaded();
 
     gGameLoaded = true;

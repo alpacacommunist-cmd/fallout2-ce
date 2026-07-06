@@ -1122,7 +1122,7 @@ err:
         mapLoadSoundId = 0;
     }
 
-    ck::on_map_enter();
+    if (!_isLoadingGame()) ck::on_map_enter();
 
     return rc;
 }

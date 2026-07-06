@@ -2219,36 +2219,78 @@ int combatLoad(File* stream)
     return 0;
 }
 
+static bool _combatShouldSaveObject(Object* obj) {
+    if (obj == nullptr) return false;
+    if (obj == gDude) return true;
+    if (objectIsPartyMember(obj)) return true;
+    return (obj->flags & OBJECT_NO_SAVE) == 0;
+}
+
 // 0x421244
 int combatSave(File* stream)
 {
     if (fileWriteInt32(stream, gCombatState) == -1) return -1;
-
     if (!isInCombat()) return 0;
 
     if (fileWriteInt32(stream, _combat_turn_running) == -1) return -1;
     if (fileWriteInt32(stream, _combat_free_move) == -1) return -1;
     if (fileWriteInt32(stream, _combat_exps) == -1) return -1;
-    if (fileWriteInt32(stream, _list_com) == -1) return -1;
-    if (fileWriteInt32(stream, _list_noncom) == -1) return -1;
-    if (fileWriteInt32(stream, _list_total) == -1) return -1;
+
+    int valid_total = 0;
+    int valid_noncom = 0;
+    int valid_com = 0;
+
+    for (int index = 0; index < _list_noncom; index++) {
+        if (_combatShouldSaveObject(_combat_list[index])) {
+            valid_noncom++;
+            valid_total++;
+        }
+    }
+    for (int index = _list_noncom; index < _list_total; index++) {
+        if (_combatShouldSaveObject(_combat_list[index])) {
+            valid_com++;
+            valid_total++;
+        }
+    }
+
+    if (fileWriteInt32(stream, valid_com) == -1) return -1;
+    if (fileWriteInt32(stream, valid_noncom) == -1) return -1;
+    if (fileWriteInt32(stream, valid_total) == -1) return -1;
+
     if (fileWriteInt32(stream, gDude->cid) == -1) return -1;
 
     for (int index = 0; index < _list_total; index++) {
-        if (fileWriteInt32(stream, _combat_list[index]->cid) == -1) return -1;
-    }
-
-    if (_aiInfoList == nullptr) {
-        return -1;
+        Object* obj = _combat_list[index];
+        if (_combatShouldSaveObject(obj)) {
+            if (fileWriteInt32(stream, obj->cid) == -1) return -1;
+        }
     }
 
     for (int index = 0; index < _list_total; index++) {
-        CombatAiInfo* aiInfo = &(_aiInfoList[index]);
+        Object* obj = _combat_list[index];
+        if (!_combatShouldSaveObject(obj)) continue;
 
-        if (fileWriteInt32(stream, aiInfo->friendlyDead != nullptr ? aiInfo->friendlyDead->id : -1) == -1) return -1;
-        if (fileWriteInt32(stream, aiInfo->lastTarget != nullptr ? aiInfo->lastTarget->id : -1) == -1) return -1;
-        if (fileWriteInt32(stream, aiInfo->lastItem != nullptr ? aiInfo->lastItem->id : -1) == -1) return -1;
-        if (fileWriteInt32(stream, aiInfo->lastMove) == -1) return -1;
+        int friendlyId = -1;
+        int targetId = -1;
+        int itemId = -1;
+        int lastMove = 0;
+
+        if (_aiInfoList != nullptr) {
+            CombatAiInfo* aiInfo = &(_aiInfoList[index]);
+
+            friendlyId = (aiInfo->friendlyDead != nullptr &&
+                    _combatShouldSaveObject(aiInfo->friendlyDead)) ? aiInfo->friendlyDead->id : -1;
+            targetId = (aiInfo->lastTarget != nullptr &&
+                    _combatShouldSaveObject(aiInfo->lastTarget)) ? aiInfo->lastTarget->id : -1;
+
+            itemId = aiInfo->lastItem != nullptr ? aiInfo->lastItem->id : -1;
+            lastMove = aiInfo->lastMove;
+        }
+
+        if (fileWriteInt32(stream, friendlyId) == -1) return -1;
+        if (fileWriteInt32(stream, targetId) == -1) return -1;
+        if (fileWriteInt32(stream, itemId) == -1) return -1;
+        if (fileWriteInt32(stream, lastMove) == -1) return -1;
     }
 
     return 0;
