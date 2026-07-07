@@ -6964,4 +6964,59 @@ Attack* combat_get_data()
     return &_main_ctd;
 }
 
+bool _combat_reload_map() {
+    if (!isInCombat()) return false;
+
+    int _previous_list_total = _list_total;
+
+    if (_combat_list != nullptr) {
+        objectListFree(_combat_list);
+        _combat_list = nullptr;
+    }
+
+    if (_aiInfoList != nullptr) internal_free(_aiInfoList);
+
+    _list_total = 0;
+    _combat_ai_over();
+
+    _list_total  = objectListCreate(-1, gElevation, OBJ_TYPE_CRITTER, &_combat_list);
+    _list_noncom = _list_noncom + (_list_total - _previous_list_total); // new arrivals
+
+    _aiInfoList = (CombatAiInfo*)internal_malloc(sizeof(*_aiInfoList) * _list_total);
+    if (_aiInfoList != nullptr) {
+        memset(_aiInfoList, 0, sizeof(CombatAiInfo) * _list_total);
+    }
+
+    int max_existing_cid = -1;
+    for (int index = 0; index < _list_total; index++) {
+        Object* critter = _combat_list[index];
+
+        if (critter != nullptr && _combatShouldSaveObject(critter)) {
+            if (critter->cid > max_existing_cid) max_existing_cid = critter->cid;
+        }
+    }
+
+    if (max_existing_cid == -1) max_existing_cid = 0;
+    int next_free_cid = max_existing_cid + 1;
+
+    for (int index = 0; index < _list_total; index++) {
+        Object* critter = _combat_list[index];
+
+        if (!_combatShouldSaveObject(critter)) { // OBJECT_NO_SAVE critters
+            critter->cid = next_free_cid++;
+
+            CritterCombatData* combatData = &(critter->data.critter.combat);
+            combatData->maneuver       = 0x00;
+            combatData->damageLastTurn = 0;
+            combatData->whoHitMe       = nullptr;
+
+            combatData->ap = critterGetStat(critter, STAT_MAXIMUM_ACTION_POINTS);
+        }
+    }
+
+    _combat_begin_extra(gDude);
+
+    return true;
+}
+
 } // namespace fallout
