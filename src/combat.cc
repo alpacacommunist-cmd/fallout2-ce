@@ -6986,6 +6986,7 @@ bool _combat_reload_map() {
     if (_aiInfoList != nullptr) {
         memset(_aiInfoList, 0, sizeof(CombatAiInfo) * _list_total);
     }
+    _combatInitAIInfoList();
 
     int max_existing_cid = -1;
     for (int index = 0; index < _list_total; index++) {
@@ -7011,6 +7012,8 @@ bool _combat_reload_map() {
             combatData->whoHitMe       = nullptr;
 
             combatData->ap = critterGetStat(critter, STAT_MAXIMUM_ACTION_POINTS);
+
+            _combatAIInfoSetLastMove(critter, 0);
         }
     }
 
