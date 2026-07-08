@@ -6967,6 +6967,17 @@ Attack* combat_get_data()
 bool _combat_reload_map() {
     if (!isInCombat()) return false;
 
+    Object** critters_currently_on_map = nullptr;
+    int critters_currently_on_map_count = objectListCreate(-1, gElevation, OBJ_TYPE_CRITTER,
+            &critters_currently_on_map);
+
+    if (critters_currently_on_map_count == _list_total) {
+        if (critters_currently_on_map != nullptr) objectListFree(critters_currently_on_map);
+
+        debugPrint("[_combat_map_reload]: critters count on map didn't change\n");
+        return false;
+    }
+
     int _previous_list_total = _list_total;
 
     if (_combat_list != nullptr) {
@@ -6979,10 +6990,11 @@ bool _combat_reload_map() {
         _aiInfoList = nullptr;
     }
 
-    _list_total = 0;
     _combat_ai_over();
 
-    _list_total  = objectListCreate(-1, gElevation, OBJ_TYPE_CRITTER, &_combat_list);
+    _combat_list = critters_currently_on_map;
+
+    _list_total  = critters_currently_on_map_count;
     _list_noncom = _list_noncom + (_list_total - _previous_list_total); // new arrivals
 
     _aiInfoList = (CombatAiInfo*)internal_malloc(sizeof(*_aiInfoList) * _list_total);
@@ -7008,6 +7020,7 @@ bool _combat_reload_map() {
         if (critter == nullptr) continue;
 
         if (critter->cid == -1) {
+            debugPrint("[_combat_map_reload]: assigning CID %d to critter PID: %d\n", next_free_cid, critter->pid);
             critter->cid = next_free_cid++;
 
             CritterCombatData* combatData = &(critter->data.critter.combat);
