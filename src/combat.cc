@@ -6974,7 +6974,10 @@ bool _combat_reload_map() {
         _combat_list = nullptr;
     }
 
-    if (_aiInfoList != nullptr) internal_free(_aiInfoList);
+    if (_aiInfoList != nullptr) {
+        internal_free(_aiInfoList);
+        _aiInfoList = nullptr;
+    }
 
     _list_total = 0;
     _combat_ai_over();
@@ -6992,7 +6995,7 @@ bool _combat_reload_map() {
     for (int index = 0; index < _list_total; index++) {
         Object* critter = _combat_list[index];
 
-        if (critter != nullptr && _combatShouldSaveObject(critter)) {
+        if (critter != nullptr && critter->cid != -1) {
             if (critter->cid > max_existing_cid) max_existing_cid = critter->cid;
         }
     }
@@ -7002,12 +7005,13 @@ bool _combat_reload_map() {
 
     for (int index = 0; index < _list_total; index++) {
         Object* critter = _combat_list[index];
+        if (critter == nullptr) continue;
 
-        if (!_combatShouldSaveObject(critter)) { // OBJECT_NO_SAVE critters
+        if (critter->cid == -1) {
             critter->cid = next_free_cid++;
 
             CritterCombatData* combatData = &(critter->data.critter.combat);
-            combatData->maneuver       = 0x00;
+            combatData->maneuver       = CRITTER_MANEUVER_NONE;
             combatData->damageLastTurn = 0;
             combatData->whoHitMe       = nullptr;
 
