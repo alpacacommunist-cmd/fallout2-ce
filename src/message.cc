@@ -19,6 +19,13 @@
 #include "random.h"
 #include "settings.h"
 
+namespace ck {
+    void messages_on_list_loaded(fallout::MessageList* list, const char* path);
+    void messages_on_list_free(fallout::MessageList* list);
+
+    const char* messages_on_get_message(fallout::MessageList* list, int num, const char* default_text);
+}
+
 namespace fallout {
 
 #define BADWORD_LENGTH_MAX 80
@@ -184,6 +191,8 @@ bool messageListInit(MessageList* messageList)
 // 0x484964 message_exit
 bool messageListFree(MessageList* messageList)
 {
+    ck::messages_on_list_free(messageList);
+
     int i;
     MessageListItem* entry;
 
@@ -295,7 +304,8 @@ err:
 
     fileClose(file_ptr);
 
-    ck_message_patch_apply(messageList, path);
+    ck::messages_on_list_loaded(messageList, path);
+
     return success;
 }
 
@@ -539,6 +549,12 @@ static int _message_load_field(File* file, char* str)
 char* getmsg(MessageList* msg, MessageListItem* entry, int num)
 {
     entry->num = num;
+
+    const char* ck_text = ck::messages_on_get_message(msg, num, nullptr);
+    if (ck_text != nullptr) {
+        entry->text = const_cast<char*>(ck_text);
+        return entry->text;
+    }
 
     if (!messageListGetItem(msg, entry)) {
         entry->text = _message_error_str;

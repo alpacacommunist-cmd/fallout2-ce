@@ -1,4 +1,3 @@
-#include "map/ck_map.h"
 #include "ck_rendering.h"
 #include "ce_config/ck_map_patch.h"
 #include "ck_debug_overlay/ck_debug_overlay.h"
@@ -51,6 +50,7 @@
 #include "window_manager_private.h"
 #include "worldmap.h"
 
+namespace ck { void on_map_enter(); void on_before_map_enter(); }
 namespace fallout {
 
 const char* mapBuildPath(const char* name);
@@ -722,6 +722,7 @@ const char* mapBuildPath(const char* name)
     const char* ckPath = ck_map_resolve_path(name);
     if (ckPath != nullptr) return ckPath;
 
+    // const char* ck_path = ck::area_resolve_path(name); if (ck_path != nullptr) return ck_path;
     if (*name != '\\') {
         // NOTE: Uppercased from "maps".
         snprintf(map_path, sizeof(map_path), "MAPS\\%s", name);
@@ -845,6 +846,7 @@ int mapLoadByName(char* fileName)
 // 0x482B34
 int mapLoadById(int map)
 {
+    debugPrint("========== MAP ID: %d\n", map);
     scriptSetFixedParam(gMapSid, map);
 
     char name[16];
@@ -912,6 +914,8 @@ static int mapLoad(File* stream)
     if (gMapHeader.version != 19 && gMapHeader.version != 20) {
         goto err;
     }
+
+    // ck::area_on_header_loaded(&gMapHeader);
 
     if (gEnteringElevation == -1) {
         // NOTE: Uninline.
@@ -1099,6 +1103,8 @@ err:
     if (wmCheckGameAreaEvents() != 0) {
         rc = -1;
     }
+
+    if (!_isLoadingGame()) ck::on_map_enter();
 
     fileSetReadProgressHandler(nullptr, 0);
 
