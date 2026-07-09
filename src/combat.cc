@@ -109,6 +109,8 @@ static void combatAttemptEnd();
 static int _combat_input();
 static void _combat_set_move_all();
 static int combatTurnHooked(Object* obj, bool reloadedDuringCombat);
+static void queueGorisCombatBeginEndAnimation(Object* critter, int baseFrmId);
+static void waitForGorisAnimation(Object* critter);
 static int _combat_turn(Object* obj, bool reloadedDuringCombat);
 static bool _combat_should_end();
 static bool _check_ranged_miss(Attack* attack);
@@ -161,7 +163,7 @@ int _combatNumTurns = 0;
 static int combatTurnHookResult = 0;
 
 // 0x510944 combat_state
-unsigned int gCombatState = COMBAT_STATE_0x02;
+unsigned int gCombatState = COMBAT_STATE_PLAYER_TURN;
 
 // 0x510948 aiInfoList
 static CombatAiInfo* _aiInfoList = nullptr;
@@ -2011,7 +2013,7 @@ int combatInit()
     _list_total = 0;
     _gcsd = nullptr;
     _combat_call_display = 0;
-    gCombatState = COMBAT_STATE_0x02;
+    gCombatState = COMBAT_STATE_PLAYER_TURN;
 
     max_action_points = critterGetStat(gDude, STAT_MAXIMUM_ACTION_POINTS);
 
@@ -2060,7 +2062,7 @@ void combatReset()
     _list_total = 0;
     _gcsd = nullptr;
     _combat_call_display = 0;
-    gCombatState = COMBAT_STATE_0x02;
+    gCombatState = COMBAT_STATE_PLAYER_TURN;
 
     max_action_points = critterGetStat(gDude, STAT_MAXIMUM_ACTION_POINTS);
 
@@ -2633,7 +2635,7 @@ static void _combat_begin(Object* attacker)
         // NOTE: Uninline.
         _combatInitAIInfoList();
 
-        Object* v1 = nullptr;
+        Object* goris = nullptr;
         for (int index = 0; index < _list_total; index++) {
             Object* critter = _combat_list[index];
             CritterCombatData* combatData = &(critter->data.critter.combat);
@@ -2648,41 +2650,27 @@ static void _combat_begin(Object* attacker)
 
             scriptSetObjects(critter->sid, nullptr, nullptr);
             scriptSetFixedParam(critter->sid, 0);
-            if (critter->pid == 0x1000098) {
-                if (!critterIsDead(critter)) {
-                    v1 = critter;
-                }
+            if (critter->pid == PROTO_ID_GORIS && !critterIsDead(critter)) {
+                goris = critter;
             }
         }
 
-        gCombatState |= COMBAT_STATE_0x01;
+        gCombatState |= COMBAT_STATE_IN_COMBAT;
 
         tileWindowRefresh();
         gameUiDisable(0);
         gameMouseSetCursor(MOUSE_CURSOR_WAIT_WATCH);
         _combat_ending_guy = nullptr;
+        if (goris != nullptr && !_isLoadingGame()) {
+            queueGorisCombatBeginEndAnimation(goris, kGorisCombatBaseFid);
+        }
         _combat_begin_extra(attacker);
         _caiTeamCombatInit(_combat_list, _list_total);
         interfaceBarEndButtonsShow(true);
-        _gmouse_enable_scrolling();
-
-        if (v1 != nullptr && !_isLoadingGame()) {
-            int fid = buildFid(FID_TYPE(v1->fid),
-                100,
-                FID_ANIM_TYPE(v1->fid),
-                (v1->fid & 0xF000) >> 12,
-                FID_ROTATION(v1->fid));
-
-            reg_anim_clear(v1);
-            reg_anim_begin(ANIMATION_REQUEST_RESERVED);
-            animationRegisterAnimate(v1, ANIM_UP_STAIRS_RIGHT, -1);
-            animationRegisterSetFid(v1, fid, -1);
-            reg_anim_end();
-
-            while (animationIsBusy(v1)) {
-                _process_bk();
-            }
+        if (goris != nullptr && !_isLoadingGame()) {
+            waitForGorisAnimation(goris);
         }
+        _gmouse_enable_scrolling();
         sfallOnCombatStart();
     }
 }
@@ -2835,21 +2823,8 @@ static void _combat_over()
         scriptSetObjects(critter->sid, nullptr, nullptr);
         scriptSetFixedParam(critter->sid, 0);
 
-        if (critter->pid == 0x1000098 && !critterIsDead(critter) && !_isLoadingGame()) {
-            int fid = buildFid(FID_TYPE(critter->fid),
-                99,
-                FID_ANIM_TYPE(critter->fid),
-                (critter->fid & 0xF000) >> 12,
-                FID_ROTATION(critter->fid));
-            reg_anim_clear(critter);
-            reg_anim_begin(ANIMATION_REQUEST_RESERVED);
-            animationRegisterAnimate(critter, ANIM_UP_STAIRS_RIGHT, -1);
-            animationRegisterSetFid(critter, fid, -1);
-            reg_anim_end();
-
-            while (animationIsBusy(critter)) {
-                _process_bk();
-            }
+        if (critter->pid == PROTO_ID_GORIS && !critterIsDead(critter) && !_isLoadingGame()) {
+            waitForGorisAnimation(critter);
         }
     }
 
@@ -2870,8 +2845,8 @@ static void _combat_over()
 
     _combat_exps = 0;
 
-    gCombatState &= ~(COMBAT_STATE_0x01 | COMBAT_STATE_0x02);
-    gCombatState |= COMBAT_STATE_0x02;
+    gCombatState &= ~(COMBAT_STATE_IN_COMBAT | COMBAT_STATE_PLAYER_TURN);
+    gCombatState |= COMBAT_STATE_PLAYER_TURN;
 
     if (_list_total != 0) {
         objectListFree(_combat_list);
@@ -3178,7 +3153,7 @@ static void combatAttemptEnd()
         }
     }
 
-    gCombatState |= COMBAT_STATE_0x08;
+    gCombatState |= COMBAT_STATE_EXIT_REQUESTED;
     _caiTeamCombatExit();
 }
 
@@ -3200,10 +3175,10 @@ static int _combat_input()
 {
     ScopedGameMode gm(GameMode::kPlayerTurn);
 
-    while ((gCombatState & COMBAT_STATE_0x02) != 0) {
+    while ((gCombatState & COMBAT_STATE_PLAYER_TURN) != 0) {
         sharedFpsLimiter.mark();
 
-        if ((gCombatState & COMBAT_STATE_0x08) != 0) {
+        if ((gCombatState & COMBAT_STATE_EXIT_REQUESTED) != 0) {
             break;
         }
 
@@ -3253,8 +3228,8 @@ static int _combat_input()
         _game_user_wants_to_quit = GAME_QUIT_REQUEST_NONE;
     }
 
-    if ((gCombatState & COMBAT_STATE_0x08) != 0) {
-        gCombatState &= ~COMBAT_STATE_0x08;
+    if ((gCombatState & COMBAT_STATE_EXIT_REQUESTED) != 0) {
+        gCombatState &= ~COMBAT_STATE_EXIT_REQUESTED;
         return -1;
     }
 
@@ -3336,7 +3311,7 @@ static int _combat_turn(Object* obj, bool reloadedDuringCombat)
                 }
 
                 if (!reloadedDuringCombat) {
-                    gCombatState |= 0x02;
+                    gCombatState |= COMBAT_STATE_PLAYER_TURN;
                 }
 
                 interfaceBarEndButtonsRenderGreenLights();
@@ -3429,6 +3404,25 @@ static int combatTurnHooked(Object* obj, bool reloadedDuringCombat)
     return combatTurnHookResult;
 }
 
+static void queueGorisCombatBeginEndAnimation(Object* critter, int baseFrmId)
+{
+    reg_anim_clear(critter);
+    reg_anim_begin(ANIMATION_REQUEST_RESERVED);
+    animationRegisterAnimate(critter, ANIM_UP_STAIRS_RIGHT, -1);
+    animationRegisterSetFid(critter, critterBuildGorisFid(critter, baseFrmId), -1);
+    reg_anim_end();
+}
+
+static void waitForGorisAnimation(Object* critter)
+{
+    while (animationIsBusy(critter)) {
+        sharedFpsLimiter.mark();
+        _process_bk();
+        renderPresent();
+        sharedFpsLimiter.throttle();
+    }
+}
+
 // 0x422C60
 static bool _combat_should_end()
 {
@@ -3476,7 +3470,7 @@ void _combat(CombatStartData* csd)
     if (csd == nullptr
         || (csd->attacker == nullptr || csd->attacker->elevation == gElevation)
         || (csd->defender == nullptr || csd->defender->elevation == gElevation)) {
-        bool wasInCombat = (gCombatState & 0x01) != 0;
+        bool wasInCombat = (gCombatState & COMBAT_STATE_IN_COMBAT) != 0;
 
         _combat_begin(nullptr);
 
@@ -3543,6 +3537,18 @@ void _combat(CombatStartData* csd)
             gameUiEnable();
             gameMouseSetMode(GAME_MOUSE_MODE_MOVE);
         } else {
+            // CE: start Goris animation before iface animations to reduce wait time
+            for (int index = 0; index < _list_total; index++) {
+                Object* critter = _combat_list[index];
+                if (critter->pid == PROTO_ID_GORIS && !critterIsDead(critter) && !_isLoadingGame()) {
+                    if (animationIsBusy(critter)) {
+                        waitForGorisAnimation(critter);
+                    }
+
+                    queueGorisCombatBeginEndAnimation(critter, kGorisRobeBaseFid);
+                    break;
+                }
+            }
             _gmouse_disable_scrolling();
             interfaceBarEndButtonsHide(true);
             _gmouse_enable_scrolling();
@@ -5834,7 +5840,7 @@ void _combat_attack_this(Object* target)
         return;
     }
 
-    if ((gCombatState & 0x02) == 0) {
+    if ((gCombatState & COMBAT_STATE_PLAYER_TURN) == 0) {
         return;
     }
 
@@ -5972,7 +5978,7 @@ void _combat_outline_off()
     int v5;
     Object** v9;
 
-    if (gCombatState & 1) {
+    if ((gCombatState & COMBAT_STATE_IN_COMBAT) != 0) {
         for (i = 0; i < _list_total; i++) {
             objectDisableOutline(_combat_list[i], nullptr);
         }

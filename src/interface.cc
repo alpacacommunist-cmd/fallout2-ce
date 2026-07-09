@@ -1488,6 +1488,7 @@ void interfaceBarEndButtonsShow(bool animated)
         int frame = 0;
         while (frame < frameCount) {
             sharedFpsLimiter.mark();
+            tickersExecute();
 
             if (getTicksSince(time) >= delay) {
                 unsigned char* src = artGetFrameData(art, frame, 0);
@@ -1547,6 +1548,7 @@ void interfaceBarEndButtonsHide(bool animated)
 
         while (frame != 0) {
             sharedFpsLimiter.mark();
+            tickersExecute();
 
             if (getTicksSince(time) >= delay) {
                 unsigned char* src = artGetFrameData(art, frame - 1, 0);

@@ -302,7 +302,7 @@ int itemAttemptAdd(Object* owner, Object* itemToAdd, int quantity)
                 return -5;
             }
 
-            if ((proto->critter.flags & CRITTER_BARTER) == 0) {
+            if ((proto->critter.data.flags & CRITTER_BARTER) == 0) {
                 return -5;
             }
         }
@@ -695,6 +695,13 @@ static bool _item_identical(Object* item1, Object* item2)
         return false;
     }
 
+    bool sameFlags = item1->data.flags == item2->data.flags;
+
+    // empty weapons of the same types are always considered the same even the ammo was originally different
+    if (sameFlags && proto->item.type == ITEM_TYPE_WEAPON && item1->data.item.weapon.ammoQuantity < 1 && item2->data.item.weapon.ammoQuantity < 1) {
+        return true;
+    }
+
     int item2Quantity;
     if (proto->item.type == ITEM_TYPE_AMMO || item1->pid == PROTO_ID_MONEY) {
         item2Quantity = item2->data.item.ammo.quantity;
@@ -705,8 +712,7 @@ static bool _item_identical(Object* item1, Object* item2)
     // in the loop starting with `data` (which means it also checks `Inventory`
     // object). Objects with inventories are filtered a moment earlier, so it
     // should be safe to check only the item-specific data.
-    bool same = item1->data.flags == item2->data.flags
-        && memcmp(&(item1->data.item), &(item2->data.item), sizeof(ItemObjectData)) == 0;
+    bool same = sameFlags && memcmp(&(item1->data.item), &(item2->data.item), sizeof(ItemObjectData)) == 0;
 
     if (proto->item.type == ITEM_TYPE_AMMO || item1->pid == PROTO_ID_MONEY) {
         item2->data.item.ammo.quantity = item2Quantity;
@@ -3670,8 +3676,8 @@ void explosionSetMaxTargets(int maxTargets)
 
 static void healingItemsInit()
 {
-    configGetInt(&gContentConfig, CONTENT_CONFIG_ITEMS_SECTION, "stimpak", &gHealingItemPids[HEALING_ITEM_STIMPACK], PROTO_ID_STIMPACK);
-    configGetInt(&gContentConfig, CONTENT_CONFIG_ITEMS_SECTION, "super_stimpak", &gHealingItemPids[HEALING_ITEM_SUPER_STIMPACK], PROTO_ID_SUPER_STIMPACK);
+    configGetInt(&gContentConfig, CONTENT_CONFIG_ITEMS_SECTION, "stimpak", &gHealingItemPids[HEALING_ITEM_STIMPAK], PROTO_ID_STIMPAK);
+    configGetInt(&gContentConfig, CONTENT_CONFIG_ITEMS_SECTION, "super_stimpak", &gHealingItemPids[HEALING_ITEM_SUPER_STIMPAK], PROTO_ID_SUPER_STIMPAK);
     configGetInt(&gContentConfig, CONTENT_CONFIG_ITEMS_SECTION, "healing_powder", &gHealingItemPids[HEALING_ITEM_HEALING_POWDER], PROTO_ID_HEALING_POWDER);
 }
 
