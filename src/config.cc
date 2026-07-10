@@ -1,4 +1,3 @@
-#include "ce_config/ck_config_patch.h"
 #include "config.h"
 
 #include <ctype.h>
@@ -15,6 +14,10 @@
 #include "db.h"
 #include "memory.h"
 #include "platform_compat.h"
+
+namespace ck {
+    void ck_config_patch_apply(fallout::Config* config, const char* file_path);
+}
 
 namespace fallout {
 
