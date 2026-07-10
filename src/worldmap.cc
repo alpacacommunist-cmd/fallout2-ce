@@ -51,6 +51,7 @@
 #include "tile.h"
 #include "window_manager.h"
 
+namespace ck { int area_resolve_id_for_city_match(int map_index); }
 namespace fallout {
 
 #define CITY_NAME_SIZE (40)
@@ -6893,6 +6894,7 @@ int wmSetMapMusic(int mapIdx, const char* name)
 // 0x4C59A4 wmMatchAreaContainingMapIdx
 int wmMatchAreaContainingMapIdx(int mapIdx, int* areaIdxPtr)
 {
+    mapIdx = ck::area_resolve_id_for_city_match(mapIdx);
     *areaIdxPtr = 0;
 
     for (int areaIdx = 0; areaIdx < wmMaxAreaNum; areaIdx++) {

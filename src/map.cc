@@ -1,5 +1,4 @@
 #include "ck_rendering.h"
-#include "ce_config/ck_map_patch.h"
 #include "ck_debug_overlay/ck_debug_overlay.h"
 
 #include "map.h"
@@ -50,7 +49,13 @@
 #include "window_manager_private.h"
 #include "worldmap.h"
 
-namespace ck { void on_map_enter(); void on_before_map_enter(); }
+namespace ck {
+    void on_map_enter(); void on_before_map_enter();
+
+    const char* area_resolve_path(const char* name);
+    void        area_on_map_header_set(fallout::MapHeader* header);
+	int         area_resolve_map_id(int original_map_id);
+}
 namespace fallout {
 
 const char* mapBuildPath(const char* name);
@@ -719,10 +724,7 @@ const char* mapBuildPath(const char* name)
     // 0x631E78
     static char map_path[COMPAT_MAX_PATH];
 
-    const char* ckPath = ck_map_resolve_path(name);
-    if (ckPath != nullptr) return ckPath;
-
-    // const char* ck_path = ck::area_resolve_path(name); if (ck_path != nullptr) return ck_path;
+    const char* ck_path = ck::area_resolve_path(name); if (ck_path != nullptr) return ck_path;
     if (*name != '\\') {
         // NOTE: Uppercased from "maps".
         snprintf(map_path, sizeof(map_path), "MAPS\\%s", name);
@@ -846,7 +848,7 @@ int mapLoadByName(char* fileName)
 // 0x482B34
 int mapLoadById(int map)
 {
-    debugPrint("========== MAP ID: %d\n", map);
+    map = ck::area_resolve_map_id(map);
     scriptSetFixedParam(gMapSid, map);
 
     char name[16];
@@ -914,8 +916,6 @@ static int mapLoad(File* stream)
     if (gMapHeader.version != 19 && gMapHeader.version != 20) {
         goto err;
     }
-
-    // ck::area_on_header_loaded(&gMapHeader);
 
     if (gEnteringElevation == -1) {
         // NOTE: Uninline.
@@ -993,6 +993,8 @@ static int mapLoad(File* stream)
     objectSetLocation(gDude, gCenterTile, gElevation, nullptr);
     objectSetRotation(gDude, gEnteringRotation, nullptr);
     gMapHeader.index = wmMapMatchNameToIdx(gMapHeader.name);
+
+    ck::area_on_map_header_set(&gMapHeader);
 
     if ((gMapHeader.flags & 1) == 0) {
         char path[COMPAT_MAX_PATH];
@@ -1127,8 +1129,6 @@ err:
         scriptSoundStop(mapLoadSoundId);
         mapLoadSoundId = 0;
     }
-
-    if (!_isLoadingGame()) ck::on_map_enter();
 
     return rc;
 }
