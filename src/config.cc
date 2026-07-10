@@ -16,7 +16,7 @@
 #include "platform_compat.h"
 
 namespace ck {
-    void ck_config_patch_apply(fallout::Config* config, const char* file_path);
+    void config_patch_apply(fallout::Config* config, const char* file_path);
 }
 
 namespace fallout {
@@ -350,7 +350,7 @@ bool configRead(Config* config, const char* filePath, bool isDb)
         fclose(stream);
     }
 
-    ck_config_patch_apply(config, filePath);
+    ck::config_patch_apply(config, filePath);
     return true;
 }
 
