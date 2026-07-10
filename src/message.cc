@@ -314,6 +314,12 @@ bool messageListGetItem(MessageList* msg, MessageListItem* entry)
     int index;
     MessageListItem* ptr;
 
+    const char* ck_text = ck::messages_on_get_message(msg, entry->num, nullptr);
+    if (ck_text != nullptr) {
+        entry->text = const_cast<char*>(ck_text);
+        return true;
+    }
+
     if (msg == nullptr) {
         return false;
     }
@@ -548,12 +554,6 @@ static int _message_load_field(File* file, char* str)
 char* getmsg(MessageList* msg, MessageListItem* entry, int num)
 {
     entry->num = num;
-
-    const char* ck_text = ck::messages_on_get_message(msg, num, nullptr);
-    if (ck_text != nullptr) {
-        entry->text = const_cast<char*>(ck_text);
-        return entry->text;
-    }
 
     if (!messageListGetItem(msg, entry)) {
         entry->text = _message_error_str;
