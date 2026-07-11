@@ -830,9 +830,4 @@ static MessageList* messageListRepositoryLoad(const char* path)
     return messageList;
 }
 
-bool _message_addExternal(MessageList* msg, MessageListItem* new_entry) {
-    return _message_add(msg, new_entry);
-}
-
-
 } // namespace fallout
