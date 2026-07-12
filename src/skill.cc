@@ -32,6 +32,12 @@
 #include "stat.h"
 #include "trait.h"
 
+
+
+namespace ck::skills {
+	void on_use_complete(fallout::Object* obj, int skill, fallout::Object* target, int success_count, int bonus);
+}
+
 namespace fallout {
 
 #define SKILLS_MAX_USES_PER_DAY (3)
@@ -1036,6 +1042,8 @@ int skillUse(Object* obj, Object* target, int skill, int skillBonus)
     if (skill == SKILL_FIRST_AID || skill == SKILL_DOCTOR) {
         scriptsExecMapUpdateProc();
     }
+
+    ck::skills::on_use_complete(obj, skill, target, successCount, skillBonus);
 
     return 0;
 }
