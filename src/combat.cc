@@ -49,6 +49,10 @@
 #include "trait.h"
 #include "window_manager.h"
 
+namespace ck::skills {
+	void on_attack_complete(fallout::Object* attacker, int skill, fallout::Object* target, int roll_result, int accuracy);
+}
+
 namespace fallout {
 
 #define CALLED_SHOT_WINDOW_Y (20)
@@ -4105,6 +4109,9 @@ static int attackCompute(Attack* attack)
             _compute_explosion_on_extras(attack, 1, isGrenade, 0);
         }
     }
+
+    ck::skills::on_attack_complete(attack->attacker, weaponGetSkillForHitMode(attack->weapon, attack->hitMode),
+            attack->defender, roll, accuracy);
 
     attackComputeDeathFlags(attack);
 
