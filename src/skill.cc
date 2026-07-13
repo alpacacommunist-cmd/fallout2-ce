@@ -33,7 +33,6 @@
 #include "trait.h"
 
 
-
 namespace ck::skills {
 	void on_use_complete(fallout::Object* obj, int skill, fallout::Object* target, int success_count, int bonus);
 }

@@ -51,7 +51,10 @@
 #include "tile.h"
 #include "window_manager.h"
 
-namespace ck { int area_resolve_id_for_city_match(int map_index); }
+
+namespace ck         { int  area_resolve_id_for_city_match(int map_index); }
+namespace ck::skills { void on_encounter(int difficulty_modifier, int frequency, bool special); }
+
 namespace fallout {
 
 #define CITY_NAME_SIZE (40)
@@ -3575,6 +3578,8 @@ static int wmRndEncounterOccurred(int* mapToLoadPtr)
         debugPrint("\nEncounter Difficulty Mod: %d", tile->encounterDifficultyModifier);
 
         outdoorsman += tile->encounterDifficultyModifier;
+
+        ck::skills::on_encounter(tile->encounterDifficultyModifier, frequency, specialEncounter);
 
         if (randomBetween(1, 100) < outdoorsman) {
             randomEncounterIsDetected = true;
