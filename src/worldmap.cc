@@ -53,7 +53,10 @@
 
 
 namespace ck         { int  area_resolve_id_for_city_match(int map_index); }
-namespace ck::skills { void on_encounter(int difficulty_modifier, int frequency, bool special); }
+namespace ck::skills {
+    void on_encounter(int difficulty_modifier, int frequency, bool special);
+    void on_worldmap_step(int difficulty);
+}
 
 namespace fallout {
 
@@ -4499,6 +4502,8 @@ static void wmPartyWalkingStep()
                 nullptr,
                 false);
         }
+
+        ck::skills::on_worldmap_step(terrainDifficulty);
 
         wmGenData.walkDistance -= 1;
         if (wmGenData.walkDistance == 0) {
