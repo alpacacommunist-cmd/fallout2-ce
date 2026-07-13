@@ -51,6 +51,10 @@
 #include "tile.h"
 #include "window_manager.h"
 
+namespace ck::skills {
+	void on_use_complete(fallout::Object* obj, int skill, fallout::Object* target, int success_count, int bonus);
+}
+
 namespace fallout {
 
 #define INVENTORY_WINDOW_X 80
@@ -4882,6 +4886,8 @@ static int barterAttemptTransaction(Object* dude, Object* offerTable, Object* np
             return -1;
         }
     }
+
+    ck::skills::on_use_complete(dude, SKILL_BARTER, npc, economy, requestValue);
 
     itemMoveAll(barterTable, dude);
     itemMoveAll(offerTable, npc);
