@@ -51,6 +51,8 @@
 
 namespace ck {
     void on_map_enter(); void on_before_map_enter();
+    bool map_has_camera_borders();
+	bool map_is_camera_position_allowed(int tile);
 
     const char* area_resolve_path(const char* name);
     void        area_on_map_header_set(fallout::MapHeader* header);

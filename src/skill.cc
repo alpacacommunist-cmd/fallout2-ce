@@ -1,5 +1,3 @@
-#include "game_time/ck_game_time.h"
-
 #include "skill.h"
 
 #include <stdio.h>
@@ -33,6 +31,7 @@
 #include "trait.h"
 
 
+namespace ck { void on_time_advance(int hours, int minutes); }
 namespace ck::skills {
 	void on_use_complete(fallout::Object* obj, int skill, fallout::Object* target, int success_count, int bonus);
 }
@@ -1129,6 +1128,8 @@ SkillStealResult skillsPerformStealing(Object* thief, Object* target, Object* it
     if (catchRoll != ROLL_SUCCESS && catchRoll != ROLL_CRITICAL_SUCCESS) {
         // 571: You steal the %s.
         // 573: You plant the %s.
+        ck::skills::on_use_complete(thief, SKILL_STEAL, target, 1, stealModifier);
+
         messageListItem.num = isPlanting ? 573 : 571;
         if (!skipMessages && messageListGetItem(&gSkillsMessageList, &messageListItem)) {
             snprintf(text, sizeof(text), messageListItem.text, objectGetName(item));
@@ -1139,6 +1140,8 @@ SkillStealResult skillsPerformStealing(Object* thief, Object* target, Object* it
     } else {
         // 570: You're caught stealing the %s.
         // 572: You're caught planting the %s.
+        ck::skills::on_use_complete(thief, SKILL_STEAL, target, 0, stealModifier);
+
         messageListItem.num = isPlanting ? 572 : 570;
         if (!skipMessages && messageListGetItem(&gSkillsMessageList, &messageListItem)) {
             snprintf(text, sizeof(text), messageListItem.text, objectGetName(item));

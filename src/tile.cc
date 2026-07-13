@@ -565,6 +565,13 @@ int tileSetCenter(int tile, int flags)
     const bool edgeActive = mapEdgeIsEnabled();
     const bool isScroll = flags == 0;
 
+    if (ck::map_has_camera_borders()) {
+        const bool edgeActive      = false;
+        gTileScrollBlockingEnabled = false;
+
+        if (!ck::map_is_camera_position_allowed(tile)) return -1;
+    }
+
     if (edgeActive && !isScroll) {
         // Forced positioning (teleport, load): clamp to edge boundary.
         tile = mapEdgeSelectZoneAndClamp(tile, gElevation);
@@ -593,6 +600,7 @@ int tileSetCenter(int tile, int flags)
             }
         }
 
+
         // Must run after scroll limiting: mapEdgeSetBoundaryMods mutates the persistent
         // alignment mods, so a scroll the limiter rejects must not touch them.
         if (edgeActive && isScroll && mapEdgeZoneIsSelected()) {
@@ -607,13 +615,9 @@ int tileSetCenter(int tile, int flags)
                 flags |= TILE_SET_CENTER_REFRESH_WINDOW;
             }
         } else if ((!edgeActive || !mapEdgeZoneIsSelected()) && gTileScrollBlockingEnabled) {
-            if (ck_map_has_camera_borders()) {
-                if (!ck_map_is_camera_position_allowed(tile)) { return -1; }
-            } else {
             // Object scroll-blocker only applies when EDG isn't enforcing the boundary.
-                if (_obj_scroll_blocking_at(tile, gElevation) == 0) {
-                    return -1;
-                }
+            if (_obj_scroll_blocking_at(tile, gElevation) == 0) {
+                return -1;
             }
         }
     }

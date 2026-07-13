@@ -389,7 +389,7 @@ void tile_hires_stencil_draw(Rect* rect, unsigned char* buffer, int windowWidth,
                     continue;
                 };
 
-                if (ck_map_has_camera_borders()) { return; }
+                if (ck::map_has_camera_borders()) { return; }
 
                 bufferFill(buffer + windowWidth * intersection.top + intersection.left,
                     intersection.right - intersection.left + 1,
