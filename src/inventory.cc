@@ -4885,7 +4885,12 @@ static int barterAttemptTransaction(Object* dude, Object* offerTable, Object* np
             }
             return -1;
         }
+
     }
+
+    auto [requestValue, offerValue] = barterComputeTablesValue(dude, npc, true);
+    auto [rawRequest, rawOffer]     = barterComputeTablesValue(dude, npc, false);
+    int economy = rawRequest - requestValue;
 
     ck::skills::on_use_complete(dude, SKILL_BARTER, npc, economy, requestValue);
 
