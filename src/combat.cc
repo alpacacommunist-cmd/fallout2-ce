@@ -2276,17 +2276,19 @@ int combatSave(File* stream)
         int itemId = -1;
         int lastMove = 0;
 
-        if (_aiInfoList != nullptr) {
-            CombatAiInfo* aiInfo = &(_aiInfoList[index]);
-
-            friendlyId = (aiInfo->friendlyDead != nullptr &&
-                    _combatShouldSaveObject(aiInfo->friendlyDead)) ? aiInfo->friendlyDead->id : -1;
-            targetId = (aiInfo->lastTarget != nullptr &&
-                    _combatShouldSaveObject(aiInfo->lastTarget)) ? aiInfo->lastTarget->id : -1;
-
-            itemId = aiInfo->lastItem != nullptr ? aiInfo->lastItem->id : -1;
-            lastMove = aiInfo->lastMove;
+        if (_aiInfoList == nullptr) {
+            return -1;
         }
+
+        CombatAiInfo* aiInfo = &(_aiInfoList[index]);
+
+        friendlyId = (aiInfo->friendlyDead != nullptr &&
+                _combatShouldSaveObject(aiInfo->friendlyDead)) ? aiInfo->friendlyDead->id : -1;
+        targetId = (aiInfo->lastTarget != nullptr &&
+                _combatShouldSaveObject(aiInfo->lastTarget)) ? aiInfo->lastTarget->id : -1;
+
+        itemId = aiInfo->lastItem != nullptr ? aiInfo->lastItem->id : -1;
+        lastMove = aiInfo->lastMove;
 
         if (fileWriteInt32(stream, friendlyId) == -1) return -1;
         if (fileWriteInt32(stream, targetId) == -1) return -1;
