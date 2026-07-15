@@ -2231,8 +2231,6 @@ static bool _combatShouldSaveObject(Object* obj) {
 // 0x421244
 int combatSave(File* stream)
 {
-    if (_aiInfoList == nullptr) return -1;
-
     if (fileWriteInt32(stream, gCombatState) == -1) return -1;
     if (!isInCombat()) return 0;
 
@@ -2261,6 +2259,8 @@ int combatSave(File* stream)
     if (fileWriteInt32(stream, valid_noncom) == -1) return -1;
     if (fileWriteInt32(stream, valid_total) == -1) return -1;
     if (fileWriteInt32(stream, gDude->cid) == -1) return -1;
+
+    if (_aiInfoList == nullptr) return -1;
 
     for (int index = 0; index < _list_total; index++) {
         Object* obj = _combat_list[index];
