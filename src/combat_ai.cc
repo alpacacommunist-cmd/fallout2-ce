@@ -1011,7 +1011,7 @@ static int _ai_check_drugs(Object* critter)
 
             int drugPid = drug->pid;
             if (itemIsHealing(drugPid)) {
-                if (itemRemove(critter, drug, 1) == 0) {
+                if (itemRemoveWithReason(critter, drug, 1, RemoveInventoryObjectHookReason::AIUseDrugOn) == 0) {
                     if (drugItemTakeDrug(critter, drug) == -1) {
                         itemAdd(critter, drug, 1);
                     } else {
@@ -1108,7 +1108,7 @@ static int _ai_check_drugs(Object* critter)
                     availableDrugs[index] = availableDrugs[*availableDrugsCountPtr - 1];
                     *availableDrugsCountPtr -= 1;
 
-                    if (itemRemove(critter, drug, 1) == 0) {
+                    if (itemRemoveWithReason(critter, drug, 1, RemoveInventoryObjectHookReason::AIUseDrugOn) == 0) {
                         if (drugItemTakeDrug(critter, drug) == -1) {
                             itemAdd(critter, drug, 1);
                         } else {
@@ -1153,7 +1153,7 @@ static int _ai_check_drugs(Object* critter)
                 break;
             }
 
-            if (itemRemove(critter, lastItem, 1) == 0) {
+            if (itemRemoveWithReason(critter, lastItem, 1, RemoveInventoryObjectHookReason::AIUseDrugOn) == 0) {
                 if (drugItemTakeDrug(critter, lastItem) == -1) {
                     itemAdd(critter, lastItem, 1);
                 } else {
