@@ -2225,7 +2225,8 @@ int combatLoad(File* stream)
     return 0;
 }
 
-static bool _combatShouldSaveObject(Object* obj) {
+static bool _combatShouldSaveObject(Object* obj)
+{
     if (obj == nullptr) return false;
     if (obj == gDude) return true;
     if (objectIsPartyMember(obj)) return true;
@@ -2262,8 +2263,9 @@ int combatSave(File* stream)
     if (fileWriteInt32(stream, valid_com) == -1) return -1;
     if (fileWriteInt32(stream, valid_noncom) == -1) return -1;
     if (fileWriteInt32(stream, valid_total) == -1) return -1;
-
     if (fileWriteInt32(stream, gDude->cid) == -1) return -1;
+
+    if (_aiInfoList == nullptr) return -1;
 
     for (int index = 0; index < _list_total; index++) {
         Object* obj = _combat_list[index];
@@ -2281,15 +2283,13 @@ int combatSave(File* stream)
         int itemId = -1;
         int lastMove = 0;
 
-        if (_aiInfoList != nullptr) {
-            CombatAiInfo* aiInfo = &(_aiInfoList[index]);
+        CombatAiInfo* aiInfo = &(_aiInfoList[index]);
 
-            friendlyId = _combatShouldSaveObject(aiInfo->friendlyDead) ? aiInfo->friendlyDead->id : -1;
-            targetId = _combatShouldSaveObject(aiInfo->lastTarget) ? aiInfo->lastTarget->id : -1;
+        friendlyId = _combatShouldSaveObject(aiInfo->friendlyDead) ? aiInfo->friendlyDead->id : -1;
+        targetId = _combatShouldSaveObject(aiInfo->lastTarget) ? aiInfo->lastTarget->id : -1;
 
-            itemId = aiInfo->lastItem != nullptr ? aiInfo->lastItem->id : -1;
-            lastMove = aiInfo->lastMove;
-        }
+        itemId = aiInfo->lastItem != nullptr ? aiInfo->lastItem->id : -1;
+        lastMove = aiInfo->lastMove;
 
         if (fileWriteInt32(stream, friendlyId) == -1) return -1;
         if (fileWriteInt32(stream, targetId) == -1) return -1;
