@@ -1215,11 +1215,12 @@ int wmWorldMap_load(File* stream)
 
     for (int areaIdx = 0; areaIdx < numCities; areaIdx++) {
         CityInfo* city = nullptr;
-        CityInfo dummyCity = {0};
+        CityInfo dummyCity = {};
 
         if (areaIdx < wmMaxAreaNum) {
             city = &(wmAreaInfoList[areaIdx]);
         } else {
+            debugPrint("[WARNING] Reading extra city info [%d] into empty buffer\n", areaIdx);
             city = &dummyCity;
         }
 
@@ -1235,11 +1236,12 @@ int wmWorldMap_load(File* stream)
 
         for (int entranceIdx = 0; entranceIdx < entranceCount; entranceIdx++) {
             EntranceInfo* entrance = nullptr;
-            EntranceInfo dummyEntrance = {0};
+            EntranceInfo dummyEntrance = {};
 
-            if (areaIdx < wmMaxAreaNum) {
+            if (areaIdx < wmMaxAreaNum && entranceIdx < ENTRANCE_LIST_CAPACITY) {
                 entrance = &(city->entrances[entranceIdx]);
             } else {
+                debugPrint("[WARNING] Reading extra entrance info [%d] into empty buffer\n", entranceIdx);
                 entrance = &dummyEntrance;
             }
 
@@ -3344,7 +3346,7 @@ static int wmWorldMapFunc(int a1)
                            WM_TOWN_LIST_X + WM_TOWN_LIST_WIDTH,
                            WM_TOWN_LIST_Y + WM_TOWN_LIST_HEIGHT)) {
                 if (wheelY != 0) {
-                    wmInterfaceScrollTabsStart(wheelY > 0 ? WM_TOWN_LIST_SLOT_HEIGHT : -WM_TOWN_LIST_SLOT_HEIGHT);
+                    wmInterfaceScrollTabsStart(wheelY > 0 ? -WM_TOWN_LIST_SLOT_HEIGHT : WM_TOWN_LIST_SLOT_HEIGHT);
                 }
             }
         }
