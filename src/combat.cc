@@ -2246,15 +2246,15 @@ int combatSave(File* stream)
     int valid_noncom = 0;
     int valid_com = 0;
 
-    for (int index = 0; index < _list_noncom; index++) {
+    for (int index = 0; index < _list_com; index++) {
         if (_combatShouldSaveObject(_combat_list[index])) {
-            valid_noncom++;
+            valid_com++;
             valid_total++;
         }
     }
-    for (int index = _list_noncom; index < _list_total; index++) {
+    for (int index = _list_com; index < _list_total; index++) {
         if (_combatShouldSaveObject(_combat_list[index])) {
-            valid_com++;
+            valid_noncom++;
             valid_total++;
         }
     }
@@ -2284,10 +2284,8 @@ int combatSave(File* stream)
         if (_aiInfoList != nullptr) {
             CombatAiInfo* aiInfo = &(_aiInfoList[index]);
 
-            friendlyId = (aiInfo->friendlyDead != nullptr &&
-                    _combatShouldSaveObject(aiInfo->friendlyDead)) ? aiInfo->friendlyDead->id : -1;
-            targetId = (aiInfo->lastTarget != nullptr &&
-                    _combatShouldSaveObject(aiInfo->lastTarget)) ? aiInfo->lastTarget->id : -1;
+            friendlyId = _combatShouldSaveObject(aiInfo->friendlyDead) ? aiInfo->friendlyDead->id : -1;
+            targetId = _combatShouldSaveObject(aiInfo->lastTarget) ? aiInfo->lastTarget->id : -1;
 
             itemId = aiInfo->lastItem != nullptr ? aiInfo->lastItem->id : -1;
             lastMove = aiInfo->lastMove;
