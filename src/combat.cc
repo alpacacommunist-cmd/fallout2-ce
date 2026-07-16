@@ -2221,7 +2221,8 @@ int combatLoad(File* stream)
     return 0;
 }
 
-static bool _combatShouldSaveObject(Object* obj) {
+static bool _combatShouldSaveObject(Object* obj)
+{
     if (obj == nullptr) return false;
     if (obj == gDude) return true;
     if (objectIsPartyMember(obj)) return true;
@@ -2281,7 +2282,7 @@ int combatSave(File* stream)
         CombatAiInfo* aiInfo = &(_aiInfoList[index]);
 
         friendlyId = _combatShouldSaveObject(aiInfo->friendlyDead) ? aiInfo->friendlyDead->id : -1;
-        targetId =   _combatShouldSaveObject(aiInfo->lastTarget) ? aiInfo->lastTarget->id : -1;
+        targetId = _combatShouldSaveObject(aiInfo->lastTarget) ? aiInfo->lastTarget->id : -1;
 
         itemId = aiInfo->lastItem != nullptr ? aiInfo->lastItem->id : -1;
         lastMove = aiInfo->lastMove;
