@@ -1207,7 +1207,15 @@ int wmWorldMap_load(File* stream)
     }
 
     for (int areaIdx = 0; areaIdx < numCities; areaIdx++) {
-        CityInfo* city = &(wmAreaInfoList[areaIdx]);
+        CityInfo* city = nullptr;
+        CityInfo dummyCity = {};
+
+        if (areaIdx < wmMaxAreaNum) {
+            city = &(wmAreaInfoList[areaIdx]);
+        } else {
+            debugPrint("[WARNING] Reading extra city info [%d] into empty buffer\n", areaIdx);
+            city = &dummyCity;
+        }
 
         if (fileReadInt32(stream, &(city->x)) == -1) return -1;
         if (fileReadInt32(stream, &(city->y)) == -1) return -1;
@@ -1220,7 +1228,15 @@ int wmWorldMap_load(File* stream)
         }
 
         for (int entranceIdx = 0; entranceIdx < entranceCount; entranceIdx++) {
-            EntranceInfo* entrance = &(city->entrances[entranceIdx]);
+            EntranceInfo* entrance = nullptr;
+            EntranceInfo dummyEntrance = {};
+
+            if (areaIdx < wmMaxAreaNum && entranceIdx < ENTRANCE_LIST_CAPACITY) {
+                entrance = &(city->entrances[entranceIdx]);
+            } else {
+                debugPrint("[WARNING] Reading extra entrance info [%d] into empty buffer\n", entranceIdx);
+                entrance = &dummyEntrance;
+            }
 
             if (fileReadInt32(stream, &(entrance->state)) == -1) {
                 return -1;
