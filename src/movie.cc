@@ -669,7 +669,7 @@ static void movieRenderSubtitles()
         }
 
         int colorIndex = (gMovieSubtitlesColorR << 10) | (gMovieSubtitlesColorG << 5) | gMovieSubtitlesColorB;
-        windowWrapLine(gMovieWindow, gMovieSubtitleHead->text, subtitleW, subtitleHeight, subtitleX, subtitleY, _colorTable[colorIndex] | 0x2000000, TEXT_ALIGNMENT_CENTER);
+        windowWrapLine(gMovieWindow, gMovieSubtitleHead->text, subtitleW, subtitleHeight, subtitleX, subtitleY, _colorTable[colorIndex] | FONT_TRANSPARENT_BACKGROUND, TEXT_ALIGNMENT_CENTER);
 
         Rect rect;
         rect.right = subtitleX + subtitleW - 1;

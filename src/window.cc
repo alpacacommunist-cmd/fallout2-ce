@@ -240,7 +240,7 @@ void scriptWindowResetTextAttributes()
     scriptWindowSetTextColor(1.0, 1.0, 1.0);
 
     // NOTE: Uninline.
-    scriptWindowSetTextFlags(0x2000000 | 0x10000);
+    scriptWindowSetTextFlags(FONT_TRANSPARENT_BACKGROUND | FONT_SHADOW);
 }
 
 // 0x4B6160
@@ -1113,7 +1113,7 @@ void windowPrintBuf(int win, char* string, int stringLength, int width, int maxY
         stringHeight = windowGetHeight(win) - y;
     }
 
-    if ((flags & 0x2000000) != 0) {
+    if ((flags & FONT_TRANSPARENT_BACKGROUND) != 0) {
         blitBufferToBufferTrans(backgroundBufferPtr, width, stringHeight, stringWidth, windowGetBuffer(win) + windowGetWidth(win) * y + x, windowGetWidth(win));
     } else {
         blitBufferToBuffer(backgroundBufferPtr, width, stringHeight, stringWidth, windowGetBuffer(win) + windowGetWidth(win) * y + x, windowGetWidth(win));
@@ -1250,7 +1250,7 @@ bool scriptWindowPrintRect(char* string, int wrapWidth, int textAlignment)
     int height = windowGetHeight(managedWindow->window);
     int x = managedWindow->cursorX;
     int y = managedWindow->cursorY;
-    int flags = scriptWindowGetTextColor() | 0x2000000;
+    int flags = scriptWindowGetTextColor() | FONT_TRANSPARENT_BACKGROUND;
     windowWrapLineWithSpacing(managedWindow->window, string, width, height, x, y, flags, textAlignment, 0);
 
     return true;
@@ -1264,7 +1264,7 @@ bool scriptWindowFormatMessage(char* string, int x, int y, int width, int height
     }
 
     ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
-    int flags = scriptWindowGetTextColor() | 0x2000000;
+    int flags = scriptWindowGetTextColor() | FONT_TRANSPARENT_BACKGROUND;
     windowWrapLineWithSpacing(managedWindow->window, string, width, height, x, y, flags, textAlignment, 0);
 
     return true;

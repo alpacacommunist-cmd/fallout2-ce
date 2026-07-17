@@ -34,6 +34,7 @@ typedef struct FontManager {
 #define FONT_SHADOW (0x10000)
 #define FONT_UNDERLINE (0x20000)
 #define FONT_MONO (0x40000)
+#define FONT_TRANSPARENT_BACKGROUND (0x2000000)
 
 extern FontManager gTextFontManager;
 extern int gCurrentFont;

@@ -627,10 +627,10 @@ static void automapRenderInMapWindow(int window, int elevation, unsigned char* b
 
     if (mapGetCurrentMap() != -1) {
         char* areaName = mapGetCityName(mapGetCurrentMap());
-        windowDrawText(window, areaName, 240, 150, 380, textColor | 0x2000000);
+        windowDrawText(window, areaName, 240, 150, 380, textColor | FONT_TRANSPARENT_BACKGROUND);
 
         char* mapName = mapGetName(mapGetCurrentMap(), elevation);
-        windowDrawText(window, mapName, 240, 150, 396, textColor | 0x2000000);
+        windowDrawText(window, mapName, 240, 150, 396, textColor | FONT_TRANSPARENT_BACKGROUND);
     }
 
     windowRefresh(window);

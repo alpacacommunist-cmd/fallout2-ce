@@ -6300,7 +6300,7 @@ static int wmTownMapRefresh()
                     width,
                     wmGenData.hotspotNormalFrmImage.getWidth() / 2 + entrance->x - width / 2,
                     wmGenData.hotspotNormalFrmImage.getHeight() + entrance->y + 4,
-                    COLOR_GREEN | 0x2000000 | FONT_SHADOW);
+                    COLOR_GREEN | FONT_TRANSPARENT_BACKGROUND | FONT_SHADOW);
             }
         }
     }
