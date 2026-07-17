@@ -8,7 +8,7 @@ namespace fallout {
 
 void mapperShowTimedMsg(const char* msg)
 {
-    win_timed_msg(msg, _colorTable[31744] | FONT_SHADOW);
+    win_timed_msg(msg, COLOR_RED | FONT_SHADOW);
 }
 
 bool mapperYesNoDialog(const char* msg)
@@ -18,7 +18,7 @@ bool mapperYesNoDialog(const char* msg)
 
 void mapperShowMessage(const char* msg)
 {
-    _win_msg(msg, 80, 80, _colorTable[31744] | FONT_SHADOW);
+    _win_msg(msg, 80, 80, COLOR_RED | FONT_SHADOW);
 }
 
 } // namespace fallout

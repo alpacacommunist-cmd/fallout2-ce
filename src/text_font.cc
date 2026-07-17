@@ -323,7 +323,7 @@ static void textFontDrawImpl(unsigned char* buf, const char* string, int length,
 {
     if ((color & FONT_SHADOW) != 0) {
         color &= ~FONT_SHADOW;
-        fontDrawText(buf + pitch + 1, string, length, pitch, _colorTable[0]);
+        fontDrawText(buf + pitch + 1, string, length, pitch, COLOR_BLACK);
     }
 
     int monospacedCharacterWidth;
