@@ -89,7 +89,7 @@ namespace {
         fillRect(buffer, pitch, x, y, 1, h, border);
         fillRect(buffer, pitch, x + w - 1, y, 1, h, border);
 
-        drawCenteredLabel(buffer, pitch, x, y, w, h, label, intensityColorTable[COLOR_LIGHT_YELLOW ][48]);
+        drawCenteredLabel(buffer, pitch, x, y, w, h, label, intensityColorTable[COLOR_LIGHT_YELLOW][48]);
     }
 
     void paintAll()
