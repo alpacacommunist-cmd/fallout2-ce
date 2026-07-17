@@ -472,7 +472,7 @@ void automapShow(bool isInGame, bool isUsingScanner)
                     // 17 - The motion sensor is not installed.
                     // 18 - The motion sensor has no charges remaining.
                     const char* title = getmsg(&gMiscMessageList, &messageListItem, scanner != nullptr ? 18 : 17);
-                    showDialogBox(title, nullptr, 0, 165, 140, COLOR_YELLOW, nullptr, COLOR_YELLOW, 0);
+                    showDialogBox(title, nullptr, 0, 165, 140, COLOR_AMBER, nullptr, COLOR_AMBER, 0);
                 }
             }
 
@@ -553,13 +553,13 @@ static void automapRenderInMapWindow(int window, int elevation, unsigned char* b
                 }
 
                 if (object->pid == PROTO_ID_EXIT_GRID_MAP_MARKER) {
-                    objectColor = COLOR_YELLOW;
+                    objectColor = COLOR_AMBER;
                 } else if (objectType == OBJ_TYPE_WALL) {
                     objectColor = COLOR_GREEN;
                 } else if (objectType == OBJ_TYPE_SCENERY
                     && (flags & AUTOMAP_WTH_HIGH_DETAILS) != 0
                     && object->pid != PROTO_ID_BLOCK_HEX_AUTO_INVISO) {
-                    objectColor = COLOR_DARK_GREEN ;
+                    objectColor = COLOR_DARK_GREEN;
                 } else if (object == gDude) {
                     objectColor = COLOR_RED;
                 } else {
@@ -572,7 +572,7 @@ static void automapRenderInMapWindow(int window, int elevation, unsigned char* b
         if ((flags & AUTOMAP_IN_GAME) == 0) {
             switch (objectType) {
             case OBJ_TYPE_ITEM:
-                objectColor = COLOR_LIGHT_BLUE ;
+                objectColor = COLOR_LIGHT_BLUE;
                 break;
             case OBJ_TYPE_CRITTER:
                 objectColor = COLOR_RED_2;
@@ -581,7 +581,7 @@ static void automapRenderInMapWindow(int window, int elevation, unsigned char* b
                 objectColor = COLOR_LIGHT_GREEN;
                 break;
             case OBJ_TYPE_WALL:
-                objectColor = COLOR_LIGHT_BROWN;
+                objectColor = COLOR_DARK_BROWN;
                 break;
             case OBJ_TYPE_MISC:
                 objectColor = COLOR_LIGHT_GOLD;
@@ -594,7 +594,7 @@ static void automapRenderInMapWindow(int window, int elevation, unsigned char* b
         if (objectColor != COLOR_BLACK) {
             unsigned char* pixel = windowBuffer + pixelOffset;
             if ((flags & AUTOMAP_IN_GAME) != 0) {
-                if (*pixel != COLOR_GREEN || objectColor != COLOR_DARK_GREEN ) {
+                if (*pixel != COLOR_GREEN || objectColor != COLOR_DARK_GREEN) {
                     pixel[0] = objectColor;
                     pixel[1] = objectColor;
                 }
@@ -622,7 +622,7 @@ static void automapRenderInMapWindow(int window, int elevation, unsigned char* b
     if ((flags & AUTOMAP_IN_GAME) != 0) {
         textColor = COLOR_GREEN;
     } else {
-        textColor = COLOR_LIGHT_BROWN;
+        textColor = COLOR_DARK_BROWN;
     }
 
     if (mapGetCurrentMap() != -1) {
@@ -644,7 +644,7 @@ int automapRenderInPipboyWindow(int window, int map, int elevation)
     unsigned char* windowBuffer = windowGetBuffer(window) + 640 * AUTOMAP_PIPBOY_VIEW_Y + AUTOMAP_PIPBOY_VIEW_X;
 
     unsigned char wallColor = COLOR_GREEN;
-    unsigned char sceneryColor = COLOR_DARK_GREEN ;
+    unsigned char sceneryColor = COLOR_DARK_GREEN;
 
     gAutomapEntry.data = (unsigned char*)internal_malloc(11024);
     if (gAutomapEntry.data == nullptr) {

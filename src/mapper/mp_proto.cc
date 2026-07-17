@@ -131,21 +131,14 @@ int proto_choose_container_flags(Proto* proto)
             50,
             125,
             15,
-            COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+            COLOR_LIGHT_YELLOW | FONT_SHADOW);
     } else {
         windowDrawText(win,
             yesno[NO],
             50,
             125,
             15,
-            COLOR_LIGHT_YELLOW  | FONT_SHADOW);
-    } else {
-        windowDrawText(win,
-            yesno[NO],
-            50,
-            125,
-            15,
-            COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+            COLOR_LIGHT_YELLOW | FONT_SHADOW);
     }
 
     _win_register_text_button(win,
@@ -164,14 +157,14 @@ int proto_choose_container_flags(Proto* proto)
             50,
             125,
             36,
-            COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+            COLOR_LIGHT_YELLOW | FONT_SHADOW);
     } else {
         windowDrawText(win,
             yesno[NO],
             50,
             125,
             36,
-            COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+            COLOR_LIGHT_YELLOW | FONT_SHADOW);
     }
 
     windowDrawBorder(win);
@@ -196,14 +189,14 @@ int proto_choose_container_flags(Proto* proto)
                     50,
                     125,
                     15,
-                    COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+                    COLOR_LIGHT_YELLOW | FONT_SHADOW);
             } else {
                 windowDrawText(win,
                     yesno[NO],
                     50,
                     125,
                     15,
-                    COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+                    COLOR_LIGHT_YELLOW | FONT_SHADOW);
             }
 
             windowRefresh(win);
@@ -216,14 +209,14 @@ int proto_choose_container_flags(Proto* proto)
                     50,
                     125,
                     36,
-                    COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+                    COLOR_LIGHT_YELLOW | FONT_SHADOW);
             } else {
                 windowDrawText(win,
                     yesno[NO],
                     50,
                     125,
                     36,
-                    COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+                    COLOR_LIGHT_YELLOW | FONT_SHADOW);
             }
 
             windowRefresh(win);
@@ -274,7 +267,7 @@ int proto_subdata_setup_int_button(const char* title, int key, int value, int mi
             38,
             button_x + value_offset_x,
             *y + 4,
-            COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+            COLOR_LIGHT_YELLOW | FONT_SHADOW);
     } else {
         windowDrawText(subwin,
             "<ERROR>",
@@ -330,7 +323,7 @@ int proto_subdata_setup_fid_button(const char* title, int key, int fid, int* y, 
             80,
             button_x + value_offset_x,
             *y + 4,
-            COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+            COLOR_LIGHT_YELLOW | FONT_SHADOW);
     } else {
         windowDrawText(subwin,
             "None",
@@ -379,7 +372,7 @@ int proto_subdata_setup_pid_button(const char* title, int key, int pid, int* y, 
             49,
             button_x + value_offset_x,
             *y + 4,
-            COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+            COLOR_LIGHT_YELLOW | FONT_SHADOW);
     } else {
         windowDrawText(subwin,
             "None",
@@ -451,7 +444,7 @@ int proto_critter_flags_modify(int pid)
         return -1;
     }
 
-    rc = win_yes_no("Can't be stolen from?", 340, 200, COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+    rc = win_yes_no("Can't be stolen from?", 340, 200, COLOR_LIGHT_YELLOW | FONT_SHADOW);
     if (rc == -1) {
         return -1;
     }
@@ -460,7 +453,7 @@ int proto_critter_flags_modify(int pid)
         flags |= CRITTER_NO_STEAL;
     }
 
-    rc = win_yes_no("Can't Drop items?", 340, 200, COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+    rc = win_yes_no("Can't Drop items?", 340, 200, COLOR_LIGHT_YELLOW | FONT_SHADOW);
     if (rc == -1) {
         return -1;
     }
@@ -469,7 +462,7 @@ int proto_critter_flags_modify(int pid)
         flags |= CRITTER_NO_DROP;
     }
 
-    rc = win_yes_no("Can't lose limbs?", 340, 200, COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+    rc = win_yes_no("Can't lose limbs?", 340, 200, COLOR_LIGHT_YELLOW | FONT_SHADOW);
     if (rc == -1) {
         return -1;
     }
@@ -478,7 +471,7 @@ int proto_critter_flags_modify(int pid)
         flags |= CRITTER_NO_LIMBS;
     }
 
-    rc = win_yes_no("Dead Bodies Can't Age?", 340, 200, COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+    rc = win_yes_no("Dead Bodies Can't Age?", 340, 200, COLOR_LIGHT_YELLOW | FONT_SHADOW);
     if (rc == -1) {
         return -1;
     }
@@ -487,7 +480,7 @@ int proto_critter_flags_modify(int pid)
         flags |= CRITTER_NO_AGE;
     }
 
-    rc = win_yes_no("Can't Heal by Aging?", 340, 200, COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+    rc = win_yes_no("Can't Heal by Aging?", 340, 200, COLOR_LIGHT_YELLOW | FONT_SHADOW);
     if (rc == -1) {
         return -1;
     }
@@ -496,7 +489,7 @@ int proto_critter_flags_modify(int pid)
         flags |= CRITTER_NO_HEAL;
     }
 
-    rc = win_yes_no("Is Invlunerable????", 340, 200, COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+    rc = win_yes_no("Is Invlunerable????", 340, 200, COLOR_LIGHT_YELLOW | FONT_SHADOW);
     if (rc == -1) {
         return -1;
     }
@@ -505,7 +498,7 @@ int proto_critter_flags_modify(int pid)
         flags |= CRITTER_INVULNERABLE;
     }
 
-    rc = win_yes_no("Can't Flatten on Death?", 340, 200, COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+    rc = win_yes_no("Can't Flatten on Death?", 340, 200, COLOR_LIGHT_YELLOW | FONT_SHADOW);
     if (rc == -1) {
         return -1;
     }
@@ -514,7 +507,7 @@ int proto_critter_flags_modify(int pid)
         flags |= CRITTER_FLAT;
     }
 
-    rc = win_yes_no("Has Special Death?", 340, 200, COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+    rc = win_yes_no("Has Special Death?", 340, 200, COLOR_LIGHT_YELLOW | FONT_SHADOW);
     if (rc == -1) {
         return -1;
     }
@@ -523,7 +516,7 @@ int proto_critter_flags_modify(int pid)
         flags |= CRITTER_SPECIAL_DEATH;
     }
 
-    rc = win_yes_no("Has Extra Hand-To-Hand Range?", 340, 200, COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+    rc = win_yes_no("Has Extra Hand-To-Hand Range?", 340, 200, COLOR_LIGHT_YELLOW | FONT_SHADOW);
     if (rc == -1) {
         return -1;
     }
@@ -532,7 +525,7 @@ int proto_critter_flags_modify(int pid)
         flags |= CRITTER_LONG_LIMBS;
     }
 
-    rc = win_yes_no("Can't be knocked back?", 340, 200, COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+    rc = win_yes_no("Can't be knocked back?", 340, 200, COLOR_LIGHT_YELLOW | FONT_SHADOW);
     if (rc == -1) {
         return -1;
     }
@@ -573,7 +566,7 @@ int mp_pick_kill_type()
         nullptr,
         50,
         100,
-        COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+        COLOR_LIGHT_YELLOW | FONT_SHADOW);
 }
 
 // 0x497568
@@ -601,7 +594,7 @@ int proto_pick_ai_packet(int* value)
         nullptr,
         50,
         100,
-        COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+        COLOR_LIGHT_YELLOW | FONT_SHADOW);
     if (rc != -1) {
         *value = rc;
     }
@@ -691,7 +684,7 @@ static void protoChooseMultiPidsUpdate(int win, int pidType, int scrollOffset, p
                 const char* name = protoGetName(pid);
                 int textY = cellY + kArtH + 5;
                 bufferFill(buf + textY * pitch + cellX, kCellPitchX, fontGetLineHeight(), pitch, edit_window_color);
-                windowDrawText(win, name, 80, cellX, textY, COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+                windowDrawText(win, name, 80, cellX, textY, COLOR_LIGHT_YELLOW | FONT_SHADOW);
             }
         }
     }

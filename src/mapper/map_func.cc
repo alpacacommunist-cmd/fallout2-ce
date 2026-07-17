@@ -82,7 +82,7 @@ void place_entrance_hex()
                 if (tileSetCenter(tile, TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS) == 0) {
                     mapSetEnteringLocation(gElevation, tile, rotation);
                 } else {
-                    win_timed_msg("ERROR: Entrance out of range!", COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+                    win_timed_msg("ERROR: Entrance out of range!", COLOR_LIGHT_YELLOW | FONT_SHADOW);
                 }
             }
         }
@@ -123,7 +123,7 @@ void pick_region(Rect* rect)
         if (x != temp.right || y != temp.bottom) {
             erase_rect(rect);
             sort_rect(rect, &temp);
-            draw_rect(rect, COLOR_LIGHT_YELLOW );
+            draw_rect(rect, COLOR_LIGHT_YELLOW);
         }
         renderPresent();
         sharedFpsLimiter.throttle();
@@ -264,7 +264,7 @@ void map_load_dialog()
     char** fileList;
     int count = fileNameListInit("maps\\*.map", &fileList);
     if (count == -1) {
-        win_timed_msg("No maps found!", COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+        win_timed_msg("No maps found!", COLOR_LIGHT_YELLOW | FONT_SHADOW);
         return;
     }
 
@@ -418,7 +418,7 @@ int pickToolbar(int topY)
         items[i] = names[i];
     }
 
-    return _win_pull_down(items, kTypeCount, 0, topY, COLOR_LIGHT_YELLOW  | FONT_SHADOW);
+    return _win_pull_down(items, kTypeCount, 0, topY, COLOR_LIGHT_YELLOW | FONT_SHADOW);
 }
 
 // place_object_

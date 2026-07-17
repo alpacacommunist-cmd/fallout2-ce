@@ -3614,7 +3614,7 @@ static int wmRndEncounterOccurred(int* mapToLoadPtr)
 
         title = getmsg(&wmMsgFile, &messageListItem, 2999);
         body = getmsg(&wmMsgFile, &messageListItem, 3000 + 50 * wmGenData.encounterTableId + wmGenData.encounterEntryId);
-        if (showDialogBox(title, &body, 1, 169, 116, COLOR_YELLOW, nullptr, COLOR_YELLOW, DIALOG_BOX_LARGE | DIALOG_BOX_YES_NO) == 0) {
+        if (showDialogBox(title, &body, 1, 169, 116, COLOR_AMBER, nullptr, COLOR_AMBER, DIALOG_BOX_LARGE | DIALOG_BOX_YES_NO) == 0) {
             wmClearRandomEncounterState();
             return 0;
         }

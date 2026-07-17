@@ -286,7 +286,7 @@ static int endgameEndingHandleContinuePlaying()
     MessageListItem messageListItem;
     messageListItem.num = 30;
     if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
-        rc = showDialogBox(messageListItem.text, nullptr, 0, 169, 117, COLOR_YELLOW, nullptr, COLOR_YELLOW, DIALOG_BOX_YES_NO);
+        rc = showDialogBox(messageListItem.text, nullptr, 0, 169, 117, COLOR_AMBER, nullptr, COLOR_AMBER, DIALOG_BOX_YES_NO);
         if (rc == 0) {
             _game_user_wants_to_quit = GAME_QUIT_REQUEST_MAIN_MENU;
         }

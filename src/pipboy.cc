@@ -497,7 +497,7 @@ int pipboyOpen(int intent)
     if (!wmMapPipboyActive() && !pipboy_available_at_game_start) {
         // You aren't wearing the pipboy!
         const char* text = getmsg(&gMiscMessageList, &gPipboyMessageListItem, 7000);
-        showDialogBox(text, nullptr, 0, 192, 135, COLOR_YELLOW, nullptr, COLOR_YELLOW, 1);
+        showDialogBox(text, nullptr, 0, 192, 135, COLOR_AMBER, nullptr, COLOR_AMBER, 1);
         return 0;
     }
 
@@ -764,7 +764,7 @@ static int pipboyWindowInit(int intent)
             soundPlayFile("iisxxxx1");
 
             const char* text = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, 215);
-            showDialogBox(text, nullptr, 0, 192, 135, COLOR_YELLOW, nullptr, COLOR_YELLOW, DIALOG_BOX_LARGE);
+            showDialogBox(text, nullptr, 0, 192, 135, COLOR_AMBER, nullptr, COLOR_AMBER, DIALOG_BOX_LARGE);
 
             intent = PIPBOY_OPEN_INTENT_UNSPECIFIED;
         }
@@ -1424,7 +1424,7 @@ static void pipboyWindowRenderQuestLocationList(int selectedQuestLocation)
     for (int index = startIndex; index < endIndex; index++) {
         // Render the location at index
         const char* questLocation = gPipboyQuestLocations[index];
-        int color = (gPipboyCurrentLine - 1) / 2 == (selectedQuestLocation - 1) ? COLOR_LIGHT_YELLOW  : COLOR_GREEN;
+        int color = (gPipboyCurrentLine - 1) / 2 == (selectedQuestLocation - 1) ? COLOR_LIGHT_YELLOW : COLOR_GREEN;
         pipboyDrawText(questLocation, 0, color);
         gPipboyCurrentLine += 1;
     }
@@ -1568,7 +1568,7 @@ static int pipboyWindowRenderHolodiskList(int selectedHolodiskEntry)
         if (gGameGlobalVars[holodisk->gvar] == 0) continue;
 
         if (currentIndex >= startIdx && currentIndex < startIdx + maxEntriesPerPage) {
-            int color = ((gPipboyCurrentLine - 1) / 2 == selectedHolodiskEntry - 1) ? COLOR_LIGHT_YELLOW  : COLOR_GREEN;
+            int color = ((gPipboyCurrentLine - 1) / 2 == selectedHolodiskEntry - 1) ? COLOR_LIGHT_YELLOW : COLOR_GREEN;
             const char* text = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, holodisk->name);
             pipboyDrawText(text, PIPBOY_TEXT_ALIGNMENT_RIGHT_COLUMN, color);
             gPipboyCurrentLine++;
@@ -1803,7 +1803,7 @@ static int _PrintAMelevList(int selectedMap)
 
         int color;
         if (gPipboyCurrentLine - 4 == selectedPipboyLine) {
-            color = COLOR_LIGHT_YELLOW ;
+            color = COLOR_LIGHT_YELLOW;
         } else {
             color = COLOR_GREEN;
         }
@@ -1914,7 +1914,7 @@ static int _PrintAMList(int selectedLocation)
 
     // Print paginated locations
     for (int index = startIdx; index < endIdx; index++) {
-        int color = (gPipboyCurrentLine - 1 == selectedLocation) ? COLOR_LIGHT_YELLOW  : COLOR_GREEN;
+        int color = (gPipboyCurrentLine - 1 == selectedLocation) ? COLOR_LIGHT_YELLOW : COLOR_GREEN;
         pipboyDrawText(_sortlist[index].name, 0, color);
         gPipboyCurrentLine++;
     }
@@ -2002,7 +2002,7 @@ static int pipboyRenderVideoArchive(int a1)
         if (gameMovieIsSeen(i)) {
             v8 = v5++;
             if (v8 == v12) {
-                v9 = COLOR_LIGHT_YELLOW ;
+                v9 = COLOR_LIGHT_YELLOW;
             } else {
                 v9 = COLOR_GREEN;
             }
@@ -2034,7 +2034,7 @@ static void pipboyHandleAlarmClock(int eventCode)
 
             // You cannot rest at this location!
             const char* text = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, 215);
-            showDialogBox(text, nullptr, 0, 192, 135, COLOR_YELLOW, nullptr, COLOR_YELLOW, DIALOG_BOX_LARGE);
+            showDialogBox(text, nullptr, 0, 192, 135, COLOR_AMBER, nullptr, COLOR_AMBER, DIALOG_BOX_LARGE);
 
             // CE: Restore previous tab to make sure clicks are processed by
             // appropriate handler (not the alarm clock).
@@ -2128,7 +2128,7 @@ static void pipboyWindowRenderRestOptions(int a1)
         // ...
         // 315 - Rest until party is healed
         text = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, 302 + option - 1);
-        int color = option == a1 ? COLOR_LIGHT_YELLOW  : COLOR_GREEN;
+        int color = option == a1 ? COLOR_LIGHT_YELLOW : COLOR_GREEN;
 
         pipboyDrawText(text, 0, color);
 

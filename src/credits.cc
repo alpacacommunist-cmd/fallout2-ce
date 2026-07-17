@@ -55,9 +55,9 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
         gCreditsWindowTitleColor = COLOR_DARK_YELLOW_3;
         gCreditsWindowNameFont = 103;
         gCreditsWindowTitleFont = 104;
-        gCreditsWindowNameColor = COLOR_DULL_BROWN ;
+        gCreditsWindowNameColor = COLOR_DULL_BROWN;
     } else {
-        gCreditsWindowTitleColor = COLOR_DULL_BROWN ;
+        gCreditsWindowTitleColor = COLOR_DULL_BROWN;
         gCreditsWindowNameFont = 104;
         gCreditsWindowTitleFont = 103;
         gCreditsWindowNameColor = COLOR_DARK_YELLOW_3;

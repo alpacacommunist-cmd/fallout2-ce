@@ -789,7 +789,7 @@ void gameMouseRefresh()
                             if (pointedObject->data.critter.combat.team != 0) {
                                 color = COLOR_WHITE;
                             } else {
-                                color = COLOR_DULL_YELLOW;
+                                color = COLOR_LIGHT_ORANGE;
                             }
                         } else {
                             color = COLOR_GREY;
@@ -801,7 +801,7 @@ void gameMouseRefresh()
                             if (pointedObject->data.critter.combat.team != 0) {
                                 color = COLOR_RED;
                             } else {
-                                color = COLOR_DULL_BLUE;
+                                color = COLOR_SAGE_GREEN;
                             }
                         } else {
                             color = COLOR_LIGHT_PINK;

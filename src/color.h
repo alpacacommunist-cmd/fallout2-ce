@@ -1,7 +1,7 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-namespace fallout { 
+namespace fallout {
 
 typedef unsigned char Color;
 typedef const char*(ColorFileNameManger)(const char*);
@@ -33,59 +33,80 @@ void colorSetBrightness(double value);
 bool _initColors();
 void _colorsClose();
 
-#define COLOR_LIGHT_RED _colorTable[0x7D4A]
-#define COLOR_RED _colorTable[0x7C00]
-#define COLOR_RED_2 _colorTable[0x7000]
-#define COLOR_DARK_RED _colorTable[0x5C48]
+// Converts a 24-bit 0xRRGGBB color to a 15-bit RGB555 index used by _colorTable.
+//
+// _colorTable maps RGB555 indices to the nearest 8-bit palette entry so that
+// callers can request a logical color without knowing the current palette layout.
+//
+// RGB555 packs three 5-bit channels into a 15-bit integer:
+//   bits 14-10 = R (red,   0-31)
+//   bits  9- 5 = G (green, 0-31)
+//   bits  4- 0 = B (blue,  0-31)
+//
+// Each 8-bit input channel is reduced to 5 bits by discarding the 3 least
+// significant bits (>> 3), which is equivalent to dividing by 8.
+// The three resulting 5-bit values are then packed into the RGB555 layout:
+//   R5 = (rgb >> 16 & 0xFF) >> 3  =  rgb >> 19  (masked to 5 bits with & 0x1F)
+//   G5 = (rgb >>  8 & 0xFF) >> 3  =  rgb >> 11  (masked to 5 bits with & 0x1F)
+//   B5 = (rgb >>  0 & 0xFF) >> 3  =  rgb >>  3  (masked to 5 bits with & 0x1F)
+constexpr int rgb555(int rgb)
+{
+    return ((rgb >> 19) & 0x1F) << 10 | ((rgb >> 11) & 0x1F) << 5 | ((rgb >> 3) & 0x1F);
+}
 
-#define COLOR_WHITE _colorTable[0x7FFF]
-#define COLOR_WHITE_2 _colorTable[0x635F]
+#define COLOR_LIGHT_RED    _colorTable[rgb555(0xFF5252)]
+#define COLOR_RED          _colorTable[rgb555(0xFF0000)]
+#define COLOR_RED_2        _colorTable[rgb555(0xE60000)]
+#define COLOR_DARK_RED     _colorTable[rgb555(0xBD1042)]
 
-#define COLOR_LIGHT_GREY _colorTable[0x5294]
-#define COLOR_LIGHT_GREY_2 _colorTable[0x4E54]
-#define COLOR_GREY _colorTable[0x4631]
-#define COLOR_GREY_2 _colorTable[0x3DEF]
-#define COLOR_DARK_GREY _colorTable[0x2108]
-#define COLOR_DARK_GREY_2 _colorTable[0x294A]
-#define COLOR_DARK_GREY_3 _colorTable[0x1084]
+#define COLOR_WHITE        _colorTable[rgb555(0xFFFFFF)]
+#define COLOR_PALE_BLUE    _colorTable[rgb555(0xC5D6FF)]
 
-#define COLOR_BLACK _colorTable[0x0000]
-#define COLOR_BLACK_2 _colorTable[0x0002]
+#define COLOR_LIGHT_GREY   _colorTable[rgb555(0xA5A5A5)]
+#define COLOR_LIGHT_GREY_2 _colorTable[rgb555(0x9C94A5)]
+#define COLOR_GREY         _colorTable[rgb555(0x8C8C8C)]
+#define COLOR_GREY_2       _colorTable[rgb555(0x7B7B7B)]
+#define COLOR_DARK_GREY    _colorTable[rgb555(0x424242)]
+#define COLOR_DARK_GREY_2  _colorTable[rgb555(0x525252)]
+#define COLOR_DARK_GREY_3  _colorTable[rgb555(0x212121)]
 
-#define COLOR_LIGHT_PURPLE _colorTable[0x27FF]
-#define COLOR_LIGHT_BLUE _colorTable[0x1971]
-#define COLOR_BLUE _colorTable[0x001F]
-#define COLOR_BLUE_2 _colorTable[0x0015]
-#define COLOR_DULL_BLUE _colorTable[0x46F1]
+#define COLOR_BLACK        _colorTable[rgb555(0x000000)]
+#define COLOR_BLACK_2      _colorTable[rgb555(0x000010)]
 
-#define COLOR_LIGHT_PINK _colorTable[0x7DEF]
-#define COLOR_PINK _colorTable[0x7C1F]
-#define COLOR_DULL_PINK _colorTable[0x79EF]
+#define COLOR_CYAN         _colorTable[rgb555(0x4AFFFF)]
+#define COLOR_LIGHT_BLUE   _colorTable[rgb555(0x315A8C)]
+#define COLOR_BLUE         _colorTable[rgb555(0x0000FF)]
+#define COLOR_BLUE_2       _colorTable[rgb555(0x0000AD)]
+#define COLOR_SAGE_GREEN   _colorTable[rgb555(0x8CBD8C)]
 
-#define COLOR_LIGHT_GREEN _colorTable[0x01C0]
-#define COLOR_LIGHT_GREEN_2 _colorTable[0x2264]
-#define COLOR_LIGHT_GREEN_3 _colorTable[0x0300]
-#define COLOR_GREEN _colorTable[0x03E0]
-#define COLOR_DARK_GREEN _colorTable[0x01E0]
-#define COLOR_DARK_GREEN_2 _colorTable[0x0521]
-#define COLOR_GRASS_GREEN _colorTable[0x3DE5]
+#define COLOR_LIGHT_PINK   _colorTable[rgb555(0xFF7B7B)]
+#define COLOR_MAGENTA      _colorTable[rgb555(0xFF00FF)]
+#define COLOR_LIGHT_PINK_2 _colorTable[rgb555(0xF77B7B)]
 
-#define COLOR_LIGHT_YELLOW _colorTable[0x7FEB]
-#define COLOR_LIGHT_GOLD _colorTable[0x7BA2]
-#define COLOR_LIGHT_GOLD_2 _colorTable[0x77A8]
-#define COLOR_YELLOW _colorTable[0x7E48]
-#define COLOR_YELLOW_2 _colorTable[0x5263]
-#define COLOR_SAND _colorTable[0x5609]
-#define COLOR_GOLD _colorTable[0x77E1]
-#define COLOR_DARK_YELLOW _colorTable[0x4A23]
-#define COLOR_DARK_YELLOW_2 _colorTable[0x3983]
-#define COLOR_DARK_YELLOW_3 _colorTable[0x49E5]
-#define COLOR_DARK_YELLOW_4 _colorTable[0x4A21]
-#define COLOR_DULL_YELLOW _colorTable[0x7EEF]
+#define COLOR_LIGHT_GREEN   _colorTable[rgb555(0x007300)]
+#define COLOR_LIGHT_GREEN_2 _colorTable[rgb555(0x429C21)]
+#define COLOR_LIGHT_GREEN_3 _colorTable[rgb555(0x00C500)]
+#define COLOR_GREEN         _colorTable[rgb555(0x00FF00)]
+#define COLOR_DARK_GREEN    _colorTable[rgb555(0x007B00)]
+#define COLOR_DARK_GREEN_2  _colorTable[rgb555(0x084A08)]
+#define COLOR_GRASS_GREEN   _colorTable[rgb555(0x7B7B29)]
 
-#define COLOR_LIGHT_BROWN _colorTable[0x3102]
-#define COLOR_LIGHT_BROWN_2 _colorTable[0x56AB]
-#define COLOR_DULL_BROWN _colorTable[0x3569]
+#define COLOR_LIGHT_YELLOW  _colorTable[rgb555(0xFFFF5A)]
+#define COLOR_LIGHT_GOLD    _colorTable[rgb555(0xF7EF10)]
+#define COLOR_LIGHT_GOLD_2  _colorTable[rgb555(0xEFEF42)]
+#define COLOR_AMBER         _colorTable[rgb555(0xFF9442)]
+#define COLOR_YELLOW_2      _colorTable[rgb555(0xA59C19)]
+#define COLOR_SAND          _colorTable[rgb555(0xAD844A)]
+#define COLOR_YELLOW_GREEN  _colorTable[rgb555(0xEFFF08)]
+#define COLOR_DARK_YELLOW   _colorTable[rgb555(0x948C19)]
+#define COLOR_DARK_YELLOW_2 _colorTable[rgb555(0x736319)]
+#define COLOR_DARK_YELLOW_3 _colorTable[rgb555(0x947B29)]
+#define COLOR_DARK_YELLOW_4 _colorTable[rgb555(0x948C08)]
+#define COLOR_LIGHT_ORANGE  _colorTable[rgb555(0xFFBD7B)]
+
+#define COLOR_DARK_BROWN    _colorTable[rgb555(0x634210)]
+#define COLOR_OLIVE         _colorTable[rgb555(0xADAD5A)]
+#define COLOR_DULL_BROWN    _colorTable[rgb555(0x6B5A4A)]
 
 } // namespace fallout
 

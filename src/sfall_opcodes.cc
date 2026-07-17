@@ -988,9 +988,9 @@ static void op_create_message_window(Program* program)
         count,
         192,
         116,
-        COLOR_YELLOW,
+        COLOR_AMBER,
         nullptr,
-        COLOR_YELLOW,
+        COLOR_AMBER,
         DIALOG_BOX_LARGE);
     showing = false;
 

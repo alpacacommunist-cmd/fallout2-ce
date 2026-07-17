@@ -2250,8 +2250,8 @@ void mf_message_box(OpcodeContext& ctx)
     }
 
     // note: most of the CE code uses colorTable indices, but this metarule expects palette values.
-    // Default: yellow (145) = COLOR_YELLOW
-    int color1 = COLOR_YELLOW, color2 = COLOR_YELLOW;
+    // Default: amber/orange (145) = COLOR_AMBER
+    int color1 = COLOR_AMBER, color2 = COLOR_AMBER;
     if (ctx.numArgs() > 2) {
         color1 = ctx.arg(2).asInt();
     }

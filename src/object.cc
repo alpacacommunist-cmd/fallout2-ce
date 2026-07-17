@@ -3509,10 +3509,10 @@ static void _obj_blend_table_init()
     _glassGrayTable[0] = 0;
     _commonGrayTable[0] = 0;
 
-    _wallBlendTable = _getColorBlendTable(COLOR_WHITE_2);
-    _glassBlendTable = _getColorBlendTable(COLOR_LIGHT_PURPLE);
+    _wallBlendTable = _getColorBlendTable(COLOR_PALE_BLUE);
+    _glassBlendTable = _getColorBlendTable(COLOR_CYAN);
     _steamBlendTable = _getColorBlendTable(COLOR_WHITE);
-    _energyBlendTable = _getColorBlendTable(COLOR_GOLD);
+    _energyBlendTable = _getColorBlendTable(COLOR_YELLOW_GREEN);
     _redBlendTable = _getColorBlendTable(COLOR_RED);
 }
 
@@ -3521,10 +3521,10 @@ static void _obj_blend_table_init()
 // 0x48D2E8 obj_blend_table_exit
 static void _obj_blend_table_exit()
 {
-    _freeColorBlendTable(COLOR_WHITE_2);
-    _freeColorBlendTable(COLOR_LIGHT_PURPLE);
+    _freeColorBlendTable(COLOR_PALE_BLUE);
+    _freeColorBlendTable(COLOR_CYAN);
     _freeColorBlendTable(COLOR_WHITE);
-    _freeColorBlendTable(COLOR_GOLD);
+    _freeColorBlendTable(COLOR_YELLOW_GREEN);
     _freeColorBlendTable(COLOR_RED);
 }
 
@@ -4789,7 +4789,7 @@ static void objectDrawOutline(Object* object, Rect* rect)
             v44 = frameHeight;
             break;
         default:
-            color = COLOR_PINK;
+            color = COLOR_MAGENTA;
             v53 = 0;
             v44 = 0;
             break;

@@ -1414,7 +1414,7 @@ static void fileDialogRenderFileList(unsigned char* buffer, char** fileList, int
         }
 
         for (int index = 0; index < fileListLength; index++) {
-            int color = index == selectedIndex ? COLOR_LIGHT_YELLOW  : COLOR_GREEN;
+            int color = index == selectedIndex ? COLOR_LIGHT_YELLOW : COLOR_GREEN;
             fontDrawText(buffer + pitch * y + FILE_DIALOG_FILE_LIST_X, fileList[pageOffset + index], FILE_DIALOG_FILE_LIST_WIDTH, pitch, color);
             y += lineHeight;
         }

@@ -1692,7 +1692,7 @@ void gameDialogReviewWindowUpdate(int win, int origin)
             nullptr,
             fontGetLineHeight(),
             640,
-            COLOR_LIGHT_GREEN_3  | 0x2000000);
+            COLOR_LIGHT_GREEN_3 | 0x2000000);
 
         // SFALL: Cosmetic fix to the dialog review interface to prevent the
         // player name from being displayed at the bottom of the window when the
@@ -2261,7 +2261,7 @@ void gameDialogOptionOnMouseEnter(int index)
         color = COLOR_LIGHT_YELLOW | 0x2000000;
         switch (dialogOptionEntry->reaction) {
         case GAME_DIALOG_REACTION_GOOD:
-            color = COLOR_PINK | 0x2000000;
+            color = COLOR_MAGENTA | 0x2000000;
             break;
         case GAME_DIALOG_REACTION_NEUTRAL:
             break;
@@ -2302,7 +2302,7 @@ void gameDialogOptionOnMouseExit(int index)
 
     int color = COLOR_GREEN | 0x2000000;
     if (perkGetRank(gDude, PERK_EMPATHY) != 0) {
-        color = COLOR_LIGHT_YELLOW  | 0x2000000;
+        color = COLOR_LIGHT_YELLOW | 0x2000000;
         switch (dialogOptionEntry->reaction) {
         case GAME_DIALOG_REACTION_GOOD:
             color = COLOR_BLUE | 0x2000000;
@@ -4255,7 +4255,7 @@ void _gdCustomSelectRedraw(unsigned char* dest, int pitch, int type, int selecte
             int color;
             if (enabled) {
                 if (index == selectedIndex) {
-                    color = COLOR_LIGHT_YELLOW ;
+                    color = COLOR_LIGHT_YELLOW;
                 } else {
                     color = COLOR_GREEN;
                 }
@@ -4855,7 +4855,7 @@ void gameDialogHighlightsInit()
     _dark_GrayTable[0] = 0;
 
     _light_BlendTable = _getColorBlendTable(COLOR_GREY);
-    _dark_BlendTable = _getColorBlendTable(COLOR_LIGHT_BROWN_2);
+    _dark_BlendTable = _getColorBlendTable(COLOR_OLIVE);
 
     // hilight1.frm - dialogue upper hilight
     int upperHighlightFid = buildFid(OBJ_TYPE_INTERFACE, 115, 0, 0, 0);
@@ -4872,7 +4872,7 @@ void gameDialogHighlightsInit()
 static void gameDialogHighlightsExit()
 {
     _freeColorBlendTable(COLOR_GREY);
-    _freeColorBlendTable(COLOR_LIGHT_BROWN_2);
+    _freeColorBlendTable(COLOR_OLIVE);
 
     _upperHighlightFrmImage.unlock();
     _lowerHighlightFrmImage.unlock();

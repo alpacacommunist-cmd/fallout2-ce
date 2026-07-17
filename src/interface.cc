@@ -2567,15 +2567,15 @@ static int indicatorBarTextColor(int color)
     case 2:
         return COLOR_WHITE;
     case 3:
-        return COLOR_YELLOW;
+        return COLOR_AMBER;
     case 4:
         return COLOR_DARK_RED;
     case 5:
         return COLOR_BLUE;
     case 6:
-        return COLOR_PINK;
+        return COLOR_MAGENTA;
     case 7:
-        return COLOR_DULL_PINK ;
+        return COLOR_LIGHT_PINK_2;
     default:
         return COLOR_GREEN;
     }

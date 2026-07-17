@@ -2313,7 +2313,7 @@ void print_toolbar_name(int object_type)
 
     sprintf(name, "%s", artGetObjectTypeName(object_type));
     name[0] = static_cast<char>(toupper(name[0]));
-    windowDrawText(tool_win, name, 0, 7, 7, COLOR_LIGHT_YELLOW  | DRAW_TEXT_FLAG_NO_BG);
+    windowDrawText(tool_win, name, 0, 7, 7, COLOR_LIGHT_YELLOW | DRAW_TEXT_FLAG_NO_BG);
     windowRefreshRect(tool_win, &rect);
 }
 
