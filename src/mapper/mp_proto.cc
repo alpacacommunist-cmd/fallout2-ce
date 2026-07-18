@@ -489,7 +489,7 @@ int proto_critter_flags_modify(int pid)
         flags |= CRITTER_NO_HEAL;
     }
 
-    rc = win_yes_no("Is Invlunerable????", 340, 200, COLOR_LIGHT_YELLOW | DRAW_TEXT_FLAG_SHADOWED);
+    rc = win_yes_no("Is Invulnerable????", 340, 200, COLOR_LIGHT_YELLOW | DRAW_TEXT_FLAG_SHADOWED);
     if (rc == -1) {
         return -1;
     }
