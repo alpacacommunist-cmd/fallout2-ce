@@ -1975,7 +1975,7 @@ void gameDialogRenderCaps()
     }
 
     windowDrawText(gGameDialogWindow, text, width, 38 - width / 2, 36, COLOR_GREEN | DRAW_TEXT_FLAG_REFRESH | DRAW_TEXT_FLAG_NO_BG | DRAW_TEXT_FLAG_OVERFLOW);
-    
+
     fontSetCurrent(oldFont);
 }
 
