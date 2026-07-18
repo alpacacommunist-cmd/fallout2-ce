@@ -1308,7 +1308,7 @@ UseItemResultCode objectUseItemOnInternal(Object* critter, Object* targetObj, Ob
     }
 
     if (skill == -1) {
-        // lets store the targetObject/item script id as there's no guarantee 
+        // lets store the targetObject/item script id as there's no guarantee
         // that targetObject/item is not destroyed and freed within the script
         const int targetObjectSid = targetObj->sid;
         const int itemSid = item->sid;
@@ -1329,7 +1329,7 @@ UseItemResultCode objectUseItemOnInternal(Object* critter, Object* targetObj, Ob
             }
         }
 
-        if (targetObjectSid== -1) {
+        if (targetObjectSid == -1) {
             return _protinst_default_use_item(critter, targetObj, item);
         }
 
