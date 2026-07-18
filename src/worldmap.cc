@@ -5627,7 +5627,7 @@ static int wmInterfaceDrawCircleOverlaySafe(CityInfo* city, CitySizeDescription*
         fontDrawText(
             wmOverlayOffscreenBuf + textDrawAbsY * WM_OVERLAY_BUFFER_SIZE + textDrawAbsX,
             name, textWidth, WM_OVERLAY_BUFFER_SIZE,
-            COLOR_GREEN | FONT_SHADOW);
+            COLOR_GREEN | DRAW_TEXT_FLAG_SHADOWED);
     }
 
     // 5. Final Blit to Screen (dest buffer)
@@ -5696,7 +5696,7 @@ static int wmInterfaceDrawCircleOverlay(CityInfo* city, CitySizeDescription* cit
             name,
             width,
             WM_WINDOW_WIDTH,
-            COLOR_GREEN | FONT_SHADOW);
+            COLOR_GREEN | DRAW_TEXT_FLAG_SHADOWED);
     }
 
     return 0;
@@ -6300,7 +6300,7 @@ static int wmTownMapRefresh()
                     width,
                     wmGenData.hotspotNormalFrmImage.getWidth() / 2 + entrance->x - width / 2,
                     wmGenData.hotspotNormalFrmImage.getHeight() + entrance->y + 4,
-                    COLOR_GREEN | FONT_TRANSPARENT_BACKGROUND | FONT_SHADOW);
+                    COLOR_GREEN | DRAW_TEXT_FLAG_NO_BG | DRAW_TEXT_FLAG_SHADOWED);
             }
         }
     }

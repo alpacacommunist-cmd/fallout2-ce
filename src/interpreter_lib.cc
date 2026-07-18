@@ -257,7 +257,7 @@ void opSelectFileList(Program* program)
             nullptr,
             320 - fontGetStringWidth(title) / 2,
             200,
-            COLOR_WHITE | FONT_SHADOW);
+            COLOR_WHITE | DRAW_TEXT_FLAG_SHADOWED);
 
         if (selectedIndex != -1) {
             programStackPushString(program, fileList[selectedIndex]);

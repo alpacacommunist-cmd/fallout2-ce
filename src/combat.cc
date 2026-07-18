@@ -5539,7 +5539,7 @@ static void _draw_loc_on_(int a1, int a2)
 // 0x4261CC
 static void _draw_loc_(int eventCode, int color)
 {
-    color |= 0x3000000;
+    color |= (DRAW_TEXT_FLAG_REFRESH | DRAW_TEXT_FLAG_NO_BG);
 
     if (eventCode >= 4) {
         char* name = hitLocationGetName(gCalledShotCritter, _hit_loc_right[eventCode - 4]);

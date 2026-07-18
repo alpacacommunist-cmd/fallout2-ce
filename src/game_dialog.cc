@@ -1150,7 +1150,7 @@ void gameDialogRenderSupplementaryMessage(const char* msg)
         &textOffset,
         lineHeight,
         379,
-        COLOR_GREEN | FONT_TRANSPARENT_BACKGROUND);
+        COLOR_GREEN | DRAW_TEXT_FLAG_NO_BG);
 
     windowShow(_gd_replyWin);
     windowRefresh(gGameDialogReplyWindow);
@@ -1670,7 +1670,7 @@ void gameDialogReviewWindowUpdate(int win, int origin)
 
         char name[60];
         snprintf(name, sizeof(name), "%s:", objectGetName(gGameDialogSpeaker));
-        windowDrawText(win, name, 180, 88, y, COLOR_GREEN | FONT_TRANSPARENT_BACKGROUND);
+        windowDrawText(win, name, 180, 88, y, COLOR_GREEN | DRAW_TEXT_FLAG_NO_BG);
         entriesRect.top += entrySpacing;
 
         char* replyText;
@@ -1692,7 +1692,7 @@ void gameDialogReviewWindowUpdate(int win, int origin)
             nullptr,
             fontGetLineHeight(),
             640,
-            COLOR_LIGHT_GREEN_3 | FONT_TRANSPARENT_BACKGROUND);
+            COLOR_LIGHT_GREEN_3 | DRAW_TEXT_FLAG_NO_BG);
 
         // SFALL: Cosmetic fix to the dialog review interface to prevent the
         // player name from being displayed at the bottom of the window when the
@@ -1703,7 +1703,7 @@ void gameDialogReviewWindowUpdate(int win, int origin)
 
         if (dialogReviewEntry->optionMessageListId != -3) {
             snprintf(name, sizeof(name), "%s:", objectGetName(gDude));
-            windowDrawText(win, name, 180, 88, y, COLOR_LIGHT_GREY | FONT_TRANSPARENT_BACKGROUND);
+            windowDrawText(win, name, 180, 88, y, COLOR_LIGHT_GREY | DRAW_TEXT_FLAG_NO_BG);
             entriesRect.top += entrySpacing;
 
             char* optionText;
@@ -1725,7 +1725,7 @@ void gameDialogReviewWindowUpdate(int win, int origin)
                 nullptr,
                 fontGetLineHeight(),
                 640,
-                COLOR_GREY_2 | FONT_TRANSPARENT_BACKGROUND);
+                COLOR_GREY_2 | DRAW_TEXT_FLAG_NO_BG);
         }
 
         if (y >= 407) {
@@ -1974,8 +1974,8 @@ void gameDialogRenderCaps()
         width = 60;
     }
 
-    windowDrawText(gGameDialogWindow, text, width, 38 - width / 2, 36, COLOR_GREEN | 0x7000000);
-
+    windowDrawText(gGameDialogWindow, text, width, 38 - width / 2, 36, COLOR_GREEN | DRAW_TEXT_FLAG_REFRESH | DRAW_TEXT_FLAG_NO_BG | DRAW_TEXT_FLAG_OVERFLOW);
+    
     fontSetCurrent(oldFont);
 }
 
@@ -2256,17 +2256,17 @@ void gameDialogOptionOnMouseEnter(int index)
     _optionRect.left = 5;
     _optionRect.right = 388;
 
-    int color = COLOR_LIGHT_YELLOW | FONT_TRANSPARENT_BACKGROUND;
+    int color = COLOR_LIGHT_YELLOW | DRAW_TEXT_FLAG_NO_BG;
     if (perkHasRank(gDude, PERK_EMPATHY)) {
-        color = COLOR_LIGHT_YELLOW | FONT_TRANSPARENT_BACKGROUND;
+        color = COLOR_LIGHT_YELLOW | DRAW_TEXT_FLAG_NO_BG;
         switch (dialogOptionEntry->reaction) {
         case GAME_DIALOG_REACTION_GOOD:
-            color = COLOR_MAGENTA | FONT_TRANSPARENT_BACKGROUND;
+            color = COLOR_MAGENTA | DRAW_TEXT_FLAG_NO_BG;
             break;
         case GAME_DIALOG_REACTION_NEUTRAL:
             break;
         case GAME_DIALOG_REACTION_BAD:
-            color = COLOR_LIGHT_RED | FONT_TRANSPARENT_BACKGROUND;
+            color = COLOR_LIGHT_RED | DRAW_TEXT_FLAG_NO_BG;
             break;
         default:
             debugPrint("\nError: dialog: Empathy Perk: invalid reaction!");
@@ -2300,18 +2300,18 @@ void gameDialogOptionOnMouseExit(int index)
     _optionRect.bottom = dialogOptionEntry->bottom;
     _gDialogRefreshOptionsRect(gGameDialogOptionsWindow, &_optionRect);
 
-    int color = COLOR_GREEN | FONT_TRANSPARENT_BACKGROUND;
+    int color = COLOR_GREEN | DRAW_TEXT_FLAG_NO_BG;
     if (perkGetRank(gDude, PERK_EMPATHY) != 0) {
-        color = COLOR_LIGHT_YELLOW | FONT_TRANSPARENT_BACKGROUND;
+        color = COLOR_LIGHT_YELLOW | DRAW_TEXT_FLAG_NO_BG;
         switch (dialogOptionEntry->reaction) {
         case GAME_DIALOG_REACTION_GOOD:
-            color = COLOR_BLUE | FONT_TRANSPARENT_BACKGROUND;
+            color = COLOR_BLUE | DRAW_TEXT_FLAG_NO_BG;
             break;
         case GAME_DIALOG_REACTION_NEUTRAL:
-            color = COLOR_GREEN | FONT_TRANSPARENT_BACKGROUND;
+            color = COLOR_GREEN | DRAW_TEXT_FLAG_NO_BG;
             break;
         case GAME_DIALOG_REACTION_BAD:
-            color = COLOR_RED | FONT_TRANSPARENT_BACKGROUND;
+            color = COLOR_RED | DRAW_TEXT_FLAG_NO_BG;
             break;
         default:
             debugPrint("\nError: dialog: Empathy Perk: invalid reaction!");
@@ -2357,7 +2357,7 @@ void gameDialogRenderReply()
         &gDialogReplyTextOffset,
         fontGetLineHeight(),
         379,
-        COLOR_GREEN | FONT_TRANSPARENT_BACKGROUND);
+        COLOR_GREEN | DRAW_TEXT_FLAG_NO_BG);
     windowRefresh(gGameDialogReplyWindow);
 }
 
@@ -2390,7 +2390,7 @@ void _gdProcessUpdate()
 
     gameDialogRenderReply();
 
-    int color = COLOR_GREEN | FONT_TRANSPARENT_BACKGROUND;
+    int color = COLOR_GREEN | DRAW_TEXT_FLAG_NO_BG;
 
     bool hasEmpathy = perkGetRank(gDude, PERK_EMPATHY) != 0;
 
@@ -2406,13 +2406,13 @@ void _gdProcessUpdate()
         if (hasEmpathy) {
             switch (dialogOptionEntry->reaction) {
             case GAME_DIALOG_REACTION_GOOD:
-                color = COLOR_BLUE | FONT_TRANSPARENT_BACKGROUND;
+                color = COLOR_BLUE | DRAW_TEXT_FLAG_NO_BG;
                 break;
             case GAME_DIALOG_REACTION_NEUTRAL:
-                color = COLOR_GREEN | FONT_TRANSPARENT_BACKGROUND;
+                color = COLOR_GREEN | DRAW_TEXT_FLAG_NO_BG;
                 break;
             case GAME_DIALOG_REACTION_BAD:
-                color = COLOR_RED | FONT_TRANSPARENT_BACKGROUND;
+                color = COLOR_RED | DRAW_TEXT_FLAG_NO_BG;
                 break;
             default:
                 debugPrint("\nError: dialog: Empathy Perk: invalid reaction!");

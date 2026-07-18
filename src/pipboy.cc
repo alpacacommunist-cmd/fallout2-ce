@@ -918,7 +918,7 @@ static void pipboyDrawDate()
 static void pipboyDrawText(const char* text, int flags, int color)
 {
     if ((flags & PIPBOY_TEXT_STYLE_UNDERLINE) != 0) {
-        color |= FONT_UNDERLINE;
+        color |= DRAW_TEXT_FLAG_UNDERLINED;
     }
 
     int left = 8;

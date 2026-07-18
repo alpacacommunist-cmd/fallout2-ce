@@ -240,7 +240,7 @@ void scriptWindowResetTextAttributes()
     scriptWindowSetTextColor(1.0, 1.0, 1.0);
 
     // NOTE: Uninline.
-    scriptWindowSetTextFlags(FONT_TRANSPARENT_BACKGROUND | FONT_SHADOW);
+    scriptWindowSetTextFlags(DRAW_TEXT_FLAG_NO_BG | DRAW_TEXT_FLAG_SHADOWED);
 }
 
 // 0x4B6160
@@ -1076,7 +1076,7 @@ void windowPrintBuf(int win, char* string, int stringLength, int width, int maxY
         return;
     }
 
-    if ((flags & FONT_SHADOW) != 0) {
+    if ((flags & DRAW_TEXT_FLAG_SHADOWED) != 0) {
         stringWidth++;
         stringHeight++;
     }
@@ -1113,7 +1113,7 @@ void windowPrintBuf(int win, char* string, int stringLength, int width, int maxY
         stringHeight = windowGetHeight(win) - y;
     }
 
-    if ((flags & FONT_TRANSPARENT_BACKGROUND) != 0) {
+    if ((flags & DRAW_TEXT_FLAG_NO_BG) != 0) {
         blitBufferToBufferTrans(backgroundBufferPtr, width, stringHeight, stringWidth, windowGetBuffer(win) + windowGetWidth(win) * y + x, windowGetWidth(win));
     } else {
         blitBufferToBuffer(backgroundBufferPtr, width, stringHeight, stringWidth, windowGetBuffer(win) + windowGetWidth(win) * y + x, windowGetWidth(win));
@@ -1250,7 +1250,7 @@ bool scriptWindowPrintRect(char* string, int wrapWidth, int textAlignment)
     int height = windowGetHeight(managedWindow->window);
     int x = managedWindow->cursorX;
     int y = managedWindow->cursorY;
-    int flags = scriptWindowGetTextColor() | FONT_TRANSPARENT_BACKGROUND;
+    int flags = scriptWindowGetTextColor() | DRAW_TEXT_FLAG_NO_BG;
     windowWrapLineWithSpacing(managedWindow->window, string, width, height, x, y, flags, textAlignment, 0);
 
     return true;
@@ -1264,7 +1264,7 @@ bool scriptWindowFormatMessage(char* string, int x, int y, int width, int height
     }
 
     ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
-    int flags = scriptWindowGetTextColor() | FONT_TRANSPARENT_BACKGROUND;
+    int flags = scriptWindowGetTextColor() | DRAW_TEXT_FLAG_NO_BG;
     windowWrapLineWithSpacing(managedWindow->window, string, width, height, x, y, flags, textAlignment, 0);
 
     return true;

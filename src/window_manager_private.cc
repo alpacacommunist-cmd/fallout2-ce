@@ -205,7 +205,7 @@ int _win_list_select_at(const char* title, const char* const* items, int itemsLe
         listViewWidth,
         listViewX,
         listViewY,
-        color | FONT_TRANSPARENT_BACKGROUND);
+        color | DRAW_TEXT_FLAG_NO_BG);
 
     _lighten_buf(listViewBuffer + windowWidth * selectedItemIndex * fontGetLineHeight(),
         listViewWidth,
@@ -461,7 +461,7 @@ int _win_list_select_at(const char* title, const char* const* items, int itemsLe
                 listViewWidth,
                 listViewX,
                 listViewY,
-                color | FONT_TRANSPARENT_BACKGROUND);
+                color | DRAW_TEXT_FLAG_NO_BG);
 
             _lighten_buf(listViewBuffer + windowWidth * selectedItemIndex * fontGetLineHeight(),
                 listViewWidth,
@@ -841,7 +841,7 @@ int _win_debug(const char* string)
             0,
             (winWidth - fontGetStringWidth("Debug")) / 2,
             8,
-            FONT_TRANSPARENT_BACKGROUND | 0x100 | 4);
+            DRAW_TEXT_FLAG_NO_BG | 0x100 | 4);
 
         bufferDrawRectShadowed(windowBuffer,
             winWidth,
@@ -918,7 +918,7 @@ int _win_debug(const char* string)
 
         if (*pch != '\n') {
             temp[0] = *pch;
-            windowDrawText(_wd, temp, 0, _currx, _curry, FONT_TRANSPARENT_BACKGROUND | 0x100 | 4);
+            windowDrawText(_wd, temp, 0, _currx, _curry, DRAW_TEXT_FLAG_NO_BG | 0x100 | 4);
             _currx += characterWidth + fontGetLetterSpacing();
         }
 
@@ -1028,7 +1028,7 @@ int _win_register_menu_pulldown(int win, int x, const char* title, int keyCode, 
         return -1;
     }
 
-    windowDrawText(win, title, 0, titleX, titleY, window->menuBar->foregroundColor | FONT_TRANSPARENT_BACKGROUND);
+    windowDrawText(win, title, 0, titleX, titleY, window->menuBar->foregroundColor | DRAW_TEXT_FLAG_NO_BG);
 
     MenuPulldown* pulldown = &(window->menuBar->pulldowns[window->menuBar->pulldownsLength]);
     pulldown->rect.left = titleX;
