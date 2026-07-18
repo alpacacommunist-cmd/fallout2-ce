@@ -1851,6 +1851,8 @@ EM_ASYNC_JS(void, do_save_idbfs_loadsave, (), {
 // 0x47D88C
 static int lsgPerformSaveGame()
 {
+    ck_scripting_on_before_game_save();
+
     _ls_error_code = 0;
     _map_backup_count = -1;
     gameMouseSetCursor(MOUSE_CURSOR_WAIT_PLANET);
