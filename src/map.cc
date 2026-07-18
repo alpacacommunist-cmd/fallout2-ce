@@ -50,7 +50,7 @@
 #include "worldmap.h"
 
 namespace ck {
-    void on_map_enter(); void on_before_map_enter();
+    void on_map_enter(); void on_before_map_load();
     bool map_has_camera_borders();
 	bool map_is_camera_position_allowed(int tile);
 
@@ -870,6 +870,8 @@ int mapLoadById(int map)
 // 0x482B74 map_load_file
 static int mapLoad(File* stream)
 {
+    ck::on_before_map_load();
+
     int mapLoadSoundId = 0;
     if (!settings.system.executableIsMapper()) {
         _map_save_in_game(true);
@@ -1067,7 +1069,6 @@ err:
         _obj_preload_art_cache(gMapHeader.flags);
     }
 
-    ck::on_before_map_enter();
     sfallOnBeforeMapLoad();
 
     _partyMemberRecoverLoad();
