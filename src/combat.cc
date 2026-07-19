@@ -6978,74 +6978,84 @@ Attack* combat_get_data()
 bool _combat_reload_map() {
     if (!isInCombat()) return false;
 
-    Object** critters_currently_on_map = nullptr;
-    int critters_currently_on_map_count = objectListCreate(-1, gElevation, OBJ_TYPE_CRITTER,
-            &critters_currently_on_map);
+    Object** critters_on_map = nullptr;
+    int critters_on_map_count = objectListCreate(-1, gElevation, OBJ_TYPE_CRITTER, &critters_on_map);
 
-    if (critters_currently_on_map_count == _list_total) {
-        if (critters_currently_on_map != nullptr) objectListFree(critters_currently_on_map);
-
-        debugPrint("[_combat_map_reload]: critters count on map didn't change\n");
+    if (critters_on_map_count <= _list_total) {
+        if (critters_on_map != nullptr) objectListFree(critters_on_map);
+        debugPrint("[_combat_map_reload]: No new critters found on map\n");
         return false;
     }
 
-    int _previous_list_total = _list_total;
-
-    if (_combat_list != nullptr) {
-        objectListFree(_combat_list);
-        _combat_list = nullptr;
+    Object** new_combat_list = (Object**)internal_malloc(sizeof(Object*) * critters_on_map_count);
+    if (new_combat_list == nullptr) {
+        objectListFree(critters_on_map);
+        return false;
     }
 
-    if (_aiInfoList != nullptr) {
-        internal_free(_aiInfoList);
-        _aiInfoList = nullptr;
+    for (int i = 0; i < _list_total; i++) {
+        new_combat_list[i] = _combat_list[i];
     }
 
-    _combat_ai_over();
+    int current_insert_index = _list_total;
+    for (int i = 0; i < critters_on_map_count; i++) {
+        Object* map_critter = critters_on_map[i];
+        if (map_critter == nullptr) continue;
 
-    _combat_list = critters_currently_on_map;
-
-    _list_total  = critters_currently_on_map_count;
-    _list_noncom = _list_noncom + (_list_total - _previous_list_total); // new arrivals
-
-    _aiInfoList = (CombatAiInfo*)internal_malloc(sizeof(*_aiInfoList) * _list_total);
-    if (_aiInfoList != nullptr) {
-        memset(_aiInfoList, 0, sizeof(CombatAiInfo) * _list_total);
-    }
-    _combatInitAIInfoList();
-
-    int max_existing_cid = -1;
-    for (int index = 0; index < _list_total; index++) {
-        Object* critter = _combat_list[index];
-
-        if (critter != nullptr && critter->cid != -1) {
-            if (critter->cid > max_existing_cid) max_existing_cid = critter->cid;
+        bool already_in_combat = false;
+        for (int j = 0; j < _list_total; j++) {
+            if (_combat_list[j] == map_critter) {
+                already_in_combat = true;
+                break;
+            }
         }
-    }
 
-    if (max_existing_cid == -1) max_existing_cid = 0;
-    int next_free_cid = max_existing_cid + 1;
+        if (!already_in_combat) {
+            new_combat_list[current_insert_index] = map_critter;
 
-    for (int index = 0; index < _list_total; index++) {
-        Object* critter = _combat_list[index];
-        if (critter == nullptr) continue;
+            map_critter->cid = current_insert_index;
 
-        if (critter->cid == -1) {
-            debugPrint("[_combat_map_reload]: assigning CID %d to critter PID: %d\n", next_free_cid, critter->pid);
-            critter->cid = next_free_cid++;
+            debugPrint("[_combat_map_reload]: Joining new arrival. Assigning CID/Index %d to PID: %d\n",
+                       current_insert_index, map_critter->pid);
 
-            CritterCombatData* combatData = &(critter->data.critter.combat);
+            CritterCombatData* combatData = &(map_critter->data.critter.combat);
             combatData->maneuver       = CRITTER_MANEUVER_NONE;
             combatData->damageLastTurn = 0;
             combatData->whoHitMe       = nullptr;
+            combatData->ap = critterGetStat(map_critter, STAT_MAXIMUM_ACTION_POINTS);
 
-            combatData->ap = critterGetStat(critter, STAT_MAXIMUM_ACTION_POINTS);
-
-            _combatAIInfoSetLastMove(critter, 0);
+            current_insert_index++;
         }
     }
 
-    _combat_begin_extra(gDude);
+    objectListFree(critters_on_map);
+
+    CombatAiInfo* new_aiInfoList = (CombatAiInfo*)internal_malloc(sizeof(CombatAiInfo) * critters_on_map_count);
+    if (new_aiInfoList != nullptr) {
+        memset(new_aiInfoList, 0, sizeof(CombatAiInfo) * critters_on_map_count);
+        if (_aiInfoList != nullptr) {
+            memcpy(new_aiInfoList, _aiInfoList, sizeof(CombatAiInfo) * _list_total);
+        }
+    }
+
+    if (_combat_list != nullptr) objectListFree(_combat_list);
+    if (_aiInfoList != nullptr) internal_free(_aiInfoList);
+
+    _combat_list = new_combat_list;
+    _aiInfoList  = new_aiInfoList;
+
+    int previous_list_total = _list_total;
+
+    _list_total  = critters_on_map_count;
+    _list_noncom = _list_noncom + (_list_total - previous_list_total);
+
+    int new_arrivals_count = _list_total - previous_list_total;
+    if (new_arrivals_count > 0) {
+        memset(&_aiInfoList[previous_list_total], 0, sizeof(CombatAiInfo) * new_arrivals_count);
+    }
+
+    _combat_turn_obj = gDude;
+    _combat_ai_begin(_list_total, _combat_list);
 
     return true;
 }
