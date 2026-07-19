@@ -237,7 +237,8 @@ static Object* objectPrepareWhoHitMeForSave(CritterCombatData* combatData)
         return whoHitMe;
     }
 
-    combatData->whoHitMeCid = whoHitMe != nullptr ? whoHitMe->cid : -1;
+    combatData->whoHitMeCid = objectShouldSave(whoHitMe) ? whoHitMe->cid : -1;
+
     return whoHitMe;
 }
 
@@ -477,6 +478,15 @@ int objectRead(Object* obj, File* stream)
     }
 
     return 0;
+}
+
+bool objectShouldSave(Object* obj)
+{
+    if (obj == nullptr) return false;
+    if (obj == gDude) return true;
+    if (objectIsPartyMember(obj)) return true;
+
+    return (obj->flags & OBJECT_NO_SAVE) == 0;
 }
 
 // 0x488CE4 obj_load
