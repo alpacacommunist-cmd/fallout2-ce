@@ -1317,52 +1317,46 @@ UseItemResultCode objectUseItemOnInternal(Object* critter, Object* targetObj, Ob
     }
 
     if (skill == -1) {
-        Script* script;
+        // store the item script id as there's no guarantee item is not deallocated within the script
+        const int itemSid = item->sid;
 
-        if (item->sid == -1) {
-            if (targetObj->sid == -1) {
-                return _protinst_default_use_item(critter, targetObj, item);
-            }
+        if (itemSid != -1) {
+            Script* itemScript;
 
-            scriptSetObjects(targetObj->sid, critter, item);
-            scriptExecProc(targetObj->sid, SCRIPT_PROC_USE_OBJ_ON);
+            scriptSetObjects(itemSid, critter, targetObj);
+            scriptExecProc(itemSid, SCRIPT_PROC_USE_OBJ_ON);
 
-            if (scriptGetScript(targetObj->sid, &script) == -1) {
+            if (scriptGetScript(itemSid, &itemScript) == -1) {
                 return USE_ITEM_RESULT_ERROR;
             }
 
-            if (!script->scriptOverrides) {
-                return _protinst_default_use_item(critter, targetObj, item);
-            }
-        } else {
-            scriptSetObjects(item->sid, critter, targetObj);
-            scriptExecProc(item->sid, SCRIPT_PROC_USE_OBJ_ON);
-
-            if (scriptGetScript(item->sid, &script) == -1) {
-                return USE_ITEM_RESULT_ERROR;
-            }
-
-            if (script->returnValue == 0) {
-                if (targetObj->sid == -1) {
-                    return _protinst_default_use_item(critter, targetObj, item);
-                }
-
-                scriptSetObjects(targetObj->sid, critter, item);
-                scriptExecProc(targetObj->sid, SCRIPT_PROC_USE_OBJ_ON);
-
-                Script* script;
-                if (scriptGetScript(targetObj->sid, &script) == -1) {
-                    return USE_ITEM_RESULT_ERROR;
-                }
-
-                if (!script->scriptOverrides) {
-                    return _protinst_default_use_item(critter, targetObj, item);
-                }
+            if (itemScript->returnValue != 0) {
+                // FO didn't have any check for return value, and it's probably not needed anyway.
+                return static_cast<UseItemResultCode>(itemScript->returnValue);
             }
         }
 
+        // store the target object script id as there's no guarantee target object is not deallocated within the script
+        const int targetObjectSid = targetObj->sid;
+        if (targetObjectSid == -1) {
+            return _protinst_default_use_item(critter, targetObj, item);
+        }
+
+        Script* targetScript;
+
+        scriptSetObjects(targetObjectSid, critter, item);
+        scriptExecProc(targetObjectSid, SCRIPT_PROC_USE_OBJ_ON);
+
+        if (scriptGetScript(targetObjectSid, &targetScript) == -1) {
+            return USE_ITEM_RESULT_ERROR;
+        }
+
+        if (!targetScript->scriptOverrides) {
+            return _protinst_default_use_item(critter, targetObj, item);
+        }
+
         // FO didn't have any check for return value, and it's probably not needed anyway.
-        return static_cast<UseItemResultCode>(script->returnValue);
+        return static_cast<UseItemResultCode>(targetScript->returnValue);
     }
 
     if (isInCombat()) {
