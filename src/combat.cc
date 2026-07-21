@@ -7024,6 +7024,25 @@ bool _combat_reload_map() {
             combatData->whoHitMe       = nullptr;
             combatData->ap = critterGetStat(map_critter, STAT_MAXIMUM_ACTION_POINTS);
 
+            bool outlineWasEnabled = map_critter->outline != 0 && (map_critter->outline & OUTLINE_DISABLED) == 0;
+
+            objectClearOutline(map_critter, nullptr);
+
+            int outlineType;
+            if (map_critter->data.critter.combat.team == gDude->data.critter.combat.team) {
+                outlineType = OUTLINE_TYPE_2;
+            } else {
+                outlineType = OUTLINE_TYPE_HOSTILE;
+            }
+
+            objectSetOutline(map_critter, outlineType, nullptr);
+
+            if (outlineWasEnabled) {
+                Rect rect;
+                objectEnableOutline(map_critter, &rect);
+                tileWindowRefreshRect(&rect, map_critter->elevation);
+            }
+
             current_insert_index++;
         }
     }
