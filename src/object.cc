@@ -237,8 +237,10 @@ static Object* objectPrepareWhoHitMeForSave(CritterCombatData* combatData)
         return whoHitMe;
     }
 
+    // NOTE: We only clear the cid for non-savable objects to prevent stale
+    // references in the save file. We must NOT nullify `whoHitMe` itself,
+    // otherwise the current combat AI logic will break.
     combatData->whoHitMeCid = objectIsSavable(whoHitMe) ? whoHitMe->cid : -1;
-
     return whoHitMe;
 }
 
