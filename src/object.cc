@@ -237,7 +237,7 @@ static Object* objectPrepareWhoHitMeForSave(CritterCombatData* combatData)
         return whoHitMe;
     }
 
-    combatData->whoHitMeCid = objectShouldSave(whoHitMe) ? whoHitMe->cid : -1;
+    combatData->whoHitMeCid = objectIsSavable(whoHitMe) ? whoHitMe->cid : -1;
 
     return whoHitMe;
 }
@@ -480,7 +480,7 @@ int objectRead(Object* obj, File* stream)
     return 0;
 }
 
-bool objectShouldSave(Object* obj)
+bool objectIsSavable(Object* obj)
 {
     if (obj == nullptr) return false;
     if (obj == gDude) return true;

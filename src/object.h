@@ -25,7 +25,7 @@ int objectsInit(unsigned char* buf, int width, int height, int pitch);
 void objectsReset();
 void objectsExit();
 int objectRead(Object* obj, File* stream);
-bool objectShouldSave(Object* obj);
+bool objectIsSavable(Object* obj);
 int objectLoadAll(File* stream);
 int objectSaveAll(File* stream);
 void _obj_render_pre_roof(Rect* rect, int elevation);
