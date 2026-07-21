@@ -984,8 +984,10 @@ static int mapLoad(File* stream)
         goto err;
     }
 
-    if (settings.system.executableIsMapper() || settings.ui.edg_support) {
-        mapEdgeLoad(gMapHeader.name);
+    if (!ck::map_has_camera_borders()) {
+        if (settings.system.executableIsMapper() || settings.ui.edg_support) {
+            mapEdgeLoad(gMapHeader.name);
+        }
     }
 
     error = "Error setting tile center";
