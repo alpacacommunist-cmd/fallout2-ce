@@ -273,16 +273,20 @@ namespace {
             attack->attacker = objectValue;
             return true;
         case AttackDataField::HitMode:
-            if (!intDataValue(data, intValue)) return false;
-            attack->hitMode = intValue;
+            if (!intDataValue(data, intValue) || !hitModeIsValid(intValue)) {
+                return false;
+            }
+            attack->hitMode = static_cast<HitMode>(intValue);
             return true;
         case AttackDataField::Weapon:
             if (!objectDataValue(data, objectValue)) return false;
             attack->weapon = objectValue;
             return true;
         case AttackDataField::Unused:
-            if (!intDataValue(data, intValue)) return false;
-            attack->attackHitLocation = intValue;
+            if (!intDataValue(data, intValue) || !hitLocationIsValid(intValue)) {
+                return false;
+            }
+            attack->attackHitLocation = static_cast<HitLocation>(intValue);
             return true;
         case AttackDataField::DamageSource:
             if (!intDataValue(data, intValue)) return false;
@@ -305,8 +309,10 @@ namespace {
             attack->defender = objectValue;
             return true;
         case AttackDataField::BodyPart:
-            if (!intDataValue(data, intValue)) return false;
-            attack->defenderHitLocation = intValue;
+            if (!intDataValue(data, intValue) || !hitLocationIsValid(intValue)) {
+                return false;
+            }
+            attack->defenderHitLocation = static_cast<HitLocation>(intValue);
             return true;
         case AttackDataField::DamageTarget:
             if (!intDataValue(data, intValue)) return false;
@@ -1101,7 +1107,7 @@ void mf_add_iface_tag(OpcodeContext& ctx)
 
 void mf_attack_is_aimed(OpcodeContext& ctx)
 {
-    int hitMode;
+    HitMode hitMode;
     bool aiming;
 
     if (interfaceGetCurrentHitMode(&hitMode, &aiming) == -1) {
