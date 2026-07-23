@@ -273,16 +273,20 @@ namespace {
             attack->attacker = objectValue;
             return true;
         case AttackDataField::HitMode:
-            if (!intDataValue(data, intValue)) return false;
-            attack->hitMode = intValue;
+            if (!intDataValue(data, intValue) || !hitModeIsValid(intValue)) {
+                return false;
+            }
+            attack->hitMode = static_cast<HitMode>(intValue);
             return true;
         case AttackDataField::Weapon:
             if (!objectDataValue(data, objectValue)) return false;
             attack->weapon = objectValue;
             return true;
         case AttackDataField::Unused:
-            if (!intDataValue(data, intValue)) return false;
-            attack->attackHitLocation = intValue;
+            if (!intDataValue(data, intValue) || !hitLocationIsValid(intValue)) {
+                return false;
+            }
+            attack->attackHitLocation = static_cast<HitLocation>(intValue);
             return true;
         case AttackDataField::DamageSource:
             if (!intDataValue(data, intValue)) return false;
@@ -305,8 +309,10 @@ namespace {
             attack->defender = objectValue;
             return true;
         case AttackDataField::BodyPart:
-            if (!intDataValue(data, intValue)) return false;
-            attack->defenderHitLocation = intValue;
+            if (!intDataValue(data, intValue) || !hitLocationIsValid(intValue)) {
+                return false;
+            }
+            attack->defenderHitLocation = static_cast<HitLocation>(intValue);
             return true;
         case AttackDataField::DamageTarget:
             if (!intDataValue(data, intValue)) return false;
@@ -919,7 +925,7 @@ const MetaruleInfo kMetarules[] = {
     // {"unjam_lock",                mf_unjam_lock,                1, 1, -1, {ARG_OBJECT}},
     { "unwield_slot", mf_unwield_slot, 2, 2, -1, { ARG_OBJECT, ARG_INT } },
     { "win_fill_color", mf_win_fill_color, 0, 5, -1, { ARG_INT, ARG_INT, ARG_INT, ARG_INT, ARG_INT } },
-    { "opcode_exists", mf_opcode_exists, 1, 1 },
+    { "opcode_exists", mf_opcode_exists, 1, 1, 0, { ARG_INT } },
 };
 const std::size_t kMetarulesCount = sizeof(kMetarules) / sizeof(kMetarules[0]);
 
@@ -1101,7 +1107,7 @@ void mf_add_iface_tag(OpcodeContext& ctx)
 
 void mf_attack_is_aimed(OpcodeContext& ctx)
 {
-    int hitMode;
+    HitMode hitMode;
     bool aiming;
 
     if (interfaceGetCurrentHitMode(&hitMode, &aiming) == -1) {
@@ -1707,12 +1713,15 @@ void mf_add_extra_msg_file(OpcodeContext& ctx)
 
 void mf_opcode_exists(OpcodeContext& ctx)
 {
+    constexpr int kOpcodeStart = RAW_VALUE_TYPE_OPCODE; // 0x8000
+
     int opcode = ctx.arg(0).asInt();
-    int opcodeIndex = opcode & 0x3FFF;
-    if (opcodeIndex < 0 || opcodeIndex >= OPCODE_MAX_COUNT) {
+    if (opcode < kOpcodeStart || opcode >= kOpcodeStart + OPCODE_MAX_COUNT) {
         ctx.setReturn(0);
         return;
     }
+
+    int opcodeIndex = opcode - kOpcodeStart;
     auto opcodeHandler = gInterpreterOpcodeHandlers[opcodeIndex];
     int opcodeExists = opcodeHandler != nullptr ? 1 : 0;
     ctx.setReturn(opcodeExists);
