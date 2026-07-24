@@ -1445,7 +1445,7 @@ static int scriptsLoadScriptsList()
         gScriptsListEntries = entries;
 
         ScriptsListEntry* entry = &(entries[gScriptsListEntriesLength - 1]);
-        entry->local_vars_num = 0;
+        memset(entry, 0, sizeof(*entry));
 
         char* substr = strstr(string, ".int");
         if (substr != nullptr) {
@@ -1502,6 +1502,13 @@ int _scr_find_str_run_info(int scriptIndex, int* /*unused*/, int sid)
 // 0x4A4F68
 int scriptsGetFileName(int scriptIndex, char* name, size_t size)
 {
+    if (!scriptsIsValidScriptIndex(scriptIndex) || gScriptsListEntries[scriptIndex].name[0] == '\0') {
+        if (size != 0) {
+            name[0] = '\0';
+        }
+        return -1;
+    }
+
     snprintf(name, size, "%s.int", gScriptsListEntries[scriptIndex].name);
     return 0;
 }
