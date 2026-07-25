@@ -565,7 +565,7 @@ int tileSetCenter(int tile, int flags)
     const bool edgeActive = mapEdgeIsEnabled();
     const bool isScroll = flags == 0;
 
-    if (ck::map_has_camera_borders()) {
+    if (ck::map_has_camera_borders(mapGetCurrentMap())) {
         const bool edgeActive      = false;
         gTileScrollBlockingEnabled = false;
 

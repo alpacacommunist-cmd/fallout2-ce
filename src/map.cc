@@ -51,7 +51,7 @@
 
 namespace ck {
     void on_map_enter(); void on_before_map_load();
-    bool map_has_camera_borders();
+    bool map_has_camera_borders(int map_index);
 	bool map_is_camera_position_allowed(int tile);
 
     const char* area_resolve_path(const char* name);
@@ -984,7 +984,7 @@ static int mapLoad(File* stream)
         goto err;
     }
 
-    if (!ck::map_has_camera_borders()) {
+    if (!ck::map_has_camera_borders(mapGetCurrentMap())) {
         if (settings.system.executableIsMapper() || settings.ui.edg_support) {
             mapEdgeLoad(gMapHeader.name);
         }
