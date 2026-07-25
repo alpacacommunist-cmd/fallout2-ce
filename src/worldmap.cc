@@ -7,6 +7,9 @@
 #include <string.h>
 
 #include <algorithm>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "animation.h"
 #include "art.h"
@@ -479,6 +482,8 @@ void wmSetScriptWorldMapMulti(float value)
     gScriptWorldMapMulti = value;
 }
 
+static std::vector<std::pair<int, std::string>> wmTerrainNameOverrides;
+
 static void wmSetFlags(int* flagsPtr, int flag, int value);
 static int wmGenDataInit();
 static int wmGenDataReset();
@@ -829,6 +834,80 @@ static WmGenData wmGenData;
 // 0x672FB0 wmMsgFile
 static MessageList wmMsgFile;
 
+static bool wmSubtileCoordsValid(int x, int y)
+{
+    if (wmNumHorizontalTiles <= 0 || wmMaxTileNum <= 0) {
+        return false;
+    }
+
+    return x >= 0
+        && x < SUBTILE_GRID_WIDTH * wmNumHorizontalTiles
+        && y >= 0
+        && y < SUBTILE_GRID_HEIGHT * (wmMaxTileNum / wmNumHorizontalTiles);
+}
+
+static int wmSubtileNameOverrideKey(int x, int y)
+{
+    return x + y * (wmNumHorizontalTiles * SUBTILE_GRID_WIDTH);
+}
+
+static const char* wmGetTerrainNameOverride(int x, int y)
+{
+    if (wmTerrainNameOverrides.empty()) {
+        return nullptr;
+    }
+
+    const int key = wmSubtileNameOverrideKey(x, y);
+    auto it = std::find_if(wmTerrainNameOverrides.crbegin(), wmTerrainNameOverrides.crend(),
+        [key](const std::pair<int, std::string>& terrainNameOverride) {
+            return terrainNameOverride.first == key;
+        });
+
+    return it != wmTerrainNameOverrides.crend() ? it->second.c_str() : nullptr;
+}
+
+bool wmTerrainNameIsValidSubtile(int x, int y)
+{
+    return wmSubtileCoordsValid(x, y);
+}
+
+void wmSetTerrainName(int x, int y, const char* name)
+{
+    assert(wmSubtileCoordsValid(x, y));
+    assert(name != nullptr);
+
+    wmTerrainNameOverrides.emplace_back(wmSubtileNameOverrideKey(x, y), name);
+}
+
+const char* wmGetTerrainName(int x, int y)
+{
+    assert(wmSubtileCoordsValid(x, y));
+
+    const char* override = wmGetTerrainNameOverride(x, y);
+    if (override != nullptr) {
+        return override;
+    }
+
+    SubtileInfo* subtile;
+    if (wmFindCurSubTileFromPos(x * WM_SUBTILE_SIZE, y * WM_SUBTILE_SIZE, &subtile) == -1) {
+        return "Error";
+    }
+
+    MessageListItem messageListItem;
+    return getmsg(&wmMsgFile, &messageListItem, 1000 + subtile->terrain);
+}
+
+const char* wmGetCurrentTerrainName()
+{
+    int x = wmGenData.worldPosX / WM_SUBTILE_SIZE;
+    int y = wmGenData.worldPosY / WM_SUBTILE_SIZE;
+    if (!wmSubtileCoordsValid(x, y)) {
+        return "Error";
+    }
+
+    return wmGetTerrainName(x, y);
+}
+
 // 0x672FB8 wmFreqValues
 static int wmFreqValues[6];
 
@@ -982,6 +1061,7 @@ static int wmGenDataInit()
 
     wmForceEncounterMapId = -1;
     wmForceEncounterFlags = 0;
+    wmTerrainNameOverrides.clear();
 
     return 0;
 }
@@ -1035,6 +1115,7 @@ static int wmGenDataReset()
 
     wmForceEncounterMapId = -1;
     wmForceEncounterFlags = 0;
+    wmTerrainNameOverrides.clear();
 
     return 0;
 }
@@ -1042,6 +1123,8 @@ static int wmGenDataReset()
 // 0x4BCE00 wmWorldMap_exit
 void wmWorldMap_exit()
 {
+    wmTerrainNameOverrides.clear();
+
     if (wmTerrainTypeList != nullptr) {
         internal_free(wmTerrainTypeList);
         wmTerrainTypeList = nullptr;
