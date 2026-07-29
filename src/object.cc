@@ -828,10 +828,8 @@ void _obj_render_pre_roof(Rect* rect, int elevation)
                     if ((objectListNode->obj->flags & OBJECT_HIDDEN) == 0) {
                         _obj_render_object(objectListNode->obj, &updatedRect, lightIntensity);
 
-                        if ((objectListNode->obj->outline & OUTLINE_TYPE_MASK) != 0) {
-                            if ((objectListNode->obj->outline & OUTLINE_DISABLED) == 0) {
-                                outlinedObjects.push_back(objectListNode->obj);
-                            }
+                        if (objectHasVisibleOutline(objectListNode->obj)) {
+                            outlinedObjects.push_back(objectListNode->obj);
                         }
                     }
                 }
@@ -866,10 +864,8 @@ void _obj_render_pre_roof(Rect* rect, int elevation)
                 if ((objectListNode->obj->flags & OBJECT_HIDDEN) == 0) {
                     _obj_render_object(object, &updatedRect, lightIntensity);
 
-                    if ((objectListNode->obj->outline & OUTLINE_TYPE_MASK) != 0) {
-                        if ((objectListNode->obj->outline & OUTLINE_DISABLED) == 0) {
-                            outlinedObjects.push_back(objectListNode->obj);
-                        }
+                    if (objectHasVisibleOutline(objectListNode->obj)) {
+                        outlinedObjects.push_back(objectListNode->obj);
                     }
                 }
             }
@@ -1893,7 +1889,7 @@ int objectHide(Object* object, Rect* rect)
 
     object->flags |= OBJECT_HIDDEN;
 
-    if ((object->outline & OUTLINE_TYPE_MASK) != 0) {
+    if (objectHasOutline(object)) {
         object->outline |= OUTLINE_DISABLED;
     }
 
@@ -1931,7 +1927,7 @@ int objectDisableOutline(Object* object, Rect* rect)
         return -1;
     }
 
-    if ((object->outline & OUTLINE_TYPE_MASK) != 0) {
+    if (objectHasOutline(object)) {
         object->outline |= OUTLINE_DISABLED;
     }
 
@@ -2349,10 +2345,7 @@ void objectGetRect(Object* obj, Rect* rect)
         return;
     }
 
-    bool isOutlined = false;
-    if ((obj->outline & OUTLINE_TYPE_MASK) != 0) {
-        isOutlined = true;
-    }
+    bool isOutlined = objectHasOutline(obj);
 
     CacheEntry* artHandle;
     Art* art = artLock(obj->fid, &artHandle);
@@ -2917,7 +2910,7 @@ int objectSetOutline(Object* obj, int outlineType, Rect* rect)
         return -1;
     }
 
-    if ((obj->outline & OUTLINE_TYPE_MASK) != 0) {
+    if (objectHasOutline(obj)) {
         return -1;
     }
 
