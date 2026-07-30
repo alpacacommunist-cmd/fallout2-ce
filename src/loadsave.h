@@ -24,6 +24,7 @@ bool _isLoadingGame();
 void lsgInit();
 int MapDirErase(const char* path, const char* extension);
 int _MapDirEraseFile_(const char* relativePath, const char* fileName);
+int ck_load_game_slot(int slot);
 
 } // namespace fallout
 

@@ -3320,4 +3320,34 @@ static int _EraseSave()
     return 0;
 }
 
+int ck_load_game_slot(int slot)
+{
+    if (slot < 0 || slot >= saveLoadTotalSlots) return -1;
+    if (!messageListInit(&gLoadSaveMessageList)) {
+        return -1;
+    }
+
+    char path[COMPAT_MAX_PATH];
+    snprintf(path, sizeof(path), "%s%s", asc_5186C8, "LSGAME.MSG");
+    if (!messageListLoad(&gLoadSaveMessageList, path)) {
+        return -1;
+    }
+
+    _slot_cursor = slot;
+    _loadingGame = true;
+
+    int result = lsgLoadGameInSlot(slot);
+
+    if (result == 0) {
+        gGameLoaded = true;
+        _loadingGame = false;
+    } else {
+        _loadingGame = false;
+    }
+
+    messageListFree(&gLoadSaveMessageList);
+
+    return result;
+}
+
 } // namespace fallout
