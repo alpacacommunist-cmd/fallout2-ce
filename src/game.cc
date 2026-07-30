@@ -154,7 +154,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int fl
 
     // CK: Execute all code that should be executed BEFORE game init
     ck::init_ffi_manifest();
-    ck_scripting_init();    // more like on_engine_start? CK_TODO: rename this
+    ck_scripting_init(argc, argv);
 
     settingsInit(isMapper, argc, argv);
 
