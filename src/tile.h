@@ -71,6 +71,7 @@ int _tile_scroll_to(int tile, int flags);
 
 // CK wrappers
 void tileRenderFloorExternal(int fid, int x, int y, Rect* rect);
+const Rect& tileWindowRect();
 unsigned char* tileGetWindowBuffer();
 int tileGetWindowPitch();
 int tileGetHexGridWidth();

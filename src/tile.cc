@@ -2111,6 +2111,7 @@ int _tile_scroll_to(int tile, int flags)
 }
 
 unsigned char* tileGetWindowBuffer() { return gTileWindowBuffer; }
+const Rect& tileWindowRect() { return gTileWindowRect; }
 int tileGetWindowPitch() { return gTileWindowPitch; }
 int tileGetHexGridWidth() { return gHexGridWidth; }
 int tileGetHexGridHeight() { return gHexGridHeight; }
