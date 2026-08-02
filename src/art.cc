@@ -23,6 +23,11 @@
 #include <unordered_map>
 #include <vector>
 
+namespace ck::assets {
+    const char* get_custom_mod_file_path(int frm_id);
+    bool is_ck_frm(int fid);
+}
+
 namespace fallout {
 
 typedef struct ArtListDescription {
@@ -677,6 +682,14 @@ char* artBuildFilePath(int fid)
     int animType = FID_ANIM_TYPE(baseFid);
     int weaponCode = (baseFid & 0xF000) >> 12;
     int objectType = FID_TYPE(baseFid);
+
+    if (ck::assets::is_ck_frm(fid)) {
+        const char* mod_path = ck::assets::get_custom_mod_file_path(frmId);
+        if (mod_path != nullptr) {
+            snprintf(_art_name, sizeof(_art_name), "%s", mod_path);
+            return _art_name;
+        }
+    }
 
     if (objectType < OBJ_TYPE_ITEM || objectType >= OBJ_TYPE_COUNT) {
         return nullptr;
