@@ -2360,7 +2360,7 @@ static bool _combat_safety_invalidate_weapon_func(Object* attacker, Object* weap
         return false;
     }
 
-    int anim = weaponGetAnimationForHitMode(weapon, hitMode);
+    AnimationType anim = weaponGetAnimationForHitMode(weapon, hitMode);
     if (anim != ANIM_FIRE_BURST && anim != ANIM_FIRE_CONTINUOUS) {
         return false;
     }
@@ -2824,8 +2824,8 @@ static void _combat_over()
 
     tileWindowRefresh();
 
-    int leftItemAction;
-    int rightItemAction;
+    InterfaceItemAction leftItemAction;
+    InterfaceItemAction rightItemAction;
     interfaceGetItemActions(&leftItemAction, &rightItemAction);
     interfaceUpdateItems(true, leftItemAction, rightItemAction);
 
@@ -3952,7 +3952,7 @@ static int attackCompute(Attack* attack)
         attack->defenderHitLocation = HIT_LOCATION_TORSO;
     }
 
-    int attackType = weaponGetAttackTypeForHitMode(attack->weapon, attack->hitMode);
+    AttackType attackType = weaponGetAttackTypeForHitMode(attack->weapon, attack->hitMode);
     int roundsHitMainTarget = 1;
     int damageMultiplier = 2;
     int roundsFired = 1;
@@ -4316,7 +4316,7 @@ static int attackComputeCriticalFailure(Attack* attack)
         }
     }
 
-    int attackType = weaponGetAttackTypeForHitMode(attack->weapon, attack->hitMode);
+    AttackType attackType = weaponGetAttackTypeForHitMode(attack->weapon, attack->hitMode);
     int criticalFailureTableIndex = weaponGetCriticalFailureType(attack->weapon);
     if (criticalFailureTableIndex == -1) {
         criticalFailureTableIndex = 0;
@@ -4449,7 +4449,7 @@ static int attackDetermineToHit(Object* attacker, int tile, Object* defender, Hi
     } else {
         toHit = weaponGetSkillValue(attacker, hitMode);
 
-        int attackType = weaponGetAttackTypeForHitMode(weapon, hitMode);
+        AttackType attackType = weaponGetAttackTypeForHitMode(weapon, hitMode);
         if (attackType == ATTACK_TYPE_RANGED || attackType == ATTACK_TYPE_THROW) {
             isRangedWeapon = true;
 
@@ -4928,8 +4928,8 @@ static void _set_new_results(Object* critter, int flags)
     if (critter == gDude && (flags & DAM_CRIP_ARM_ANY) != 0) {
         critter->data.critter.combat.results |= flags & (DAM_KNOCKED_OUT | DAM_KNOCKED_DOWN | DAM_CRIP | DAM_DEAD | DAM_LOSE_TURN);
 
-        int leftItemAction;
-        int rightItemAction;
+        InterfaceItemAction leftItemAction;
+        InterfaceItemAction rightItemAction;
         interfaceGetItemActions(&leftItemAction, &rightItemAction);
         interfaceUpdateItems(true, leftItemAction, rightItemAction);
     } else {
@@ -5796,7 +5796,7 @@ CombatBadShot _combat_check_bad_shot(Object* attacker, Object* defender, HitMode
         return COMBAT_BAD_SHOT_OUT_OF_RANGE;
     }
 
-    int attackType = weaponGetAttackTypeForHitMode(weapon, hitMode);
+    AttackType attackType = weaponGetAttackTypeForHitMode(weapon, hitMode);
 
     if (ammoGetCapacity(weapon) > 0) {
         if (!weaponHasAmmoForAttack(weapon, hitMode)) {
@@ -6140,7 +6140,7 @@ void _combatKillCritterOutsideCombat(Object* critter_obj, char* msg)
     if (critter_obj != gDude) {
         displayMonitorAddMessage(msg);
         scriptExecProc(critter_obj->sid, SCRIPT_PROC_DESTROY);
-        critterKill(critter_obj, -1, 1);
+        critterKill(critter_obj, ANIM_INVALID, 1);
     }
 }
 

@@ -1,11 +1,14 @@
 #include "stat.h"
 
+#include <charconv>
 #include <stdio.h>
 
 #include <algorithm>
+#include <string_view>
 
 #include "art.h"
 #include "combat.h"
+#include "content_config.h"
 #include "critter.h"
 #include "display_monitor.h"
 #include "game.h"
@@ -40,44 +43,44 @@ typedef struct StatDescription {
 
 // 0x51D53C stat_data
 static StatDescription gStatDescriptions[STAT_COUNT] = {
-    { nullptr, nullptr, 0, PRIMARY_STAT_MIN, PRIMARY_STAT_MAX, 5 },
-    { nullptr, nullptr, 1, PRIMARY_STAT_MIN, PRIMARY_STAT_MAX, 5 },
-    { nullptr, nullptr, 2, PRIMARY_STAT_MIN, PRIMARY_STAT_MAX, 5 },
-    { nullptr, nullptr, 3, PRIMARY_STAT_MIN, PRIMARY_STAT_MAX, 5 },
-    { nullptr, nullptr, 4, PRIMARY_STAT_MIN, PRIMARY_STAT_MAX, 5 },
-    { nullptr, nullptr, 5, PRIMARY_STAT_MIN, PRIMARY_STAT_MAX, 5 },
-    { nullptr, nullptr, 6, PRIMARY_STAT_MIN, PRIMARY_STAT_MAX, 5 },
-    { nullptr, nullptr, 10, 0, 999, 0 },
-    { nullptr, nullptr, 75, 1, 99, 0 },
-    { nullptr, nullptr, 18, 0, 999, 0 },
-    { nullptr, nullptr, 31, 0, INT_MAX, 0 },
-    { nullptr, nullptr, 32, 0, 500, 0 },
-    { nullptr, nullptr, 20, 0, 999, 0 },
-    { nullptr, nullptr, 24, 0, 60, 0 },
-    { nullptr, nullptr, 25, 0, 30, 0 },
-    { nullptr, nullptr, 26, 0, 100, 0 },
-    { nullptr, nullptr, 94, -60, 100, 0 },
-    { nullptr, nullptr, 0, 0, 100, 0 },
-    { nullptr, nullptr, 0, 0, 100, 0 },
-    { nullptr, nullptr, 0, 0, 100, 0 },
-    { nullptr, nullptr, 0, 0, 100, 0 },
-    { nullptr, nullptr, 0, 0, 100, 0 },
-    { nullptr, nullptr, 0, 0, 100, 0 },
-    { nullptr, nullptr, 0, 0, 100, 0 },
-    { nullptr, nullptr, 22, 0, 90, 0 },
-    { nullptr, nullptr, 0, 0, 90, 0 },
-    { nullptr, nullptr, 0, 0, 90, 0 },
-    { nullptr, nullptr, 0, 0, 90, 0 },
-    { nullptr, nullptr, 0, 0, 90, 0 },
-    { nullptr, nullptr, 0, 0, 100, 0 },
-    { nullptr, nullptr, 0, 0, 90, 0 },
-    { nullptr, nullptr, 83, 0, 95, 0 },
-    { nullptr, nullptr, 23, 0, 95, 0 },
-    { nullptr, nullptr, 0, 16, 101, 25 },
-    { nullptr, nullptr, 0, 0, 1, 0 },
-    { nullptr, nullptr, 10, 0, 2000, 0 },
-    { nullptr, nullptr, 11, 0, 2000, 0 },
-    { nullptr, nullptr, 12, 0, 2000, 0 },
+    { nullptr, nullptr, 0, PRIMARY_STAT_MIN, PRIMARY_STAT_MAX, 5 }, // STAT_STRENGTH
+    { nullptr, nullptr, 1, PRIMARY_STAT_MIN, PRIMARY_STAT_MAX, 5 }, // STAT_PERCEPTION
+    { nullptr, nullptr, 2, PRIMARY_STAT_MIN, PRIMARY_STAT_MAX, 5 }, // STAT_ENDURANCE
+    { nullptr, nullptr, 3, PRIMARY_STAT_MIN, PRIMARY_STAT_MAX, 5 }, // STAT_CHARISMA
+    { nullptr, nullptr, 4, PRIMARY_STAT_MIN, PRIMARY_STAT_MAX, 5 }, // STAT_INTELLIGENCE
+    { nullptr, nullptr, 5, PRIMARY_STAT_MIN, PRIMARY_STAT_MAX, 5 }, // STAT_AGILITY
+    { nullptr, nullptr, 6, PRIMARY_STAT_MIN, PRIMARY_STAT_MAX, 5 }, // STAT_LUCK
+    { nullptr, nullptr, 10, 0, 999, 0 }, // STAT_MAXIMUM_HIT_POINTS
+    { nullptr, nullptr, 75, 1, 99, 0 }, // STAT_MAXIMUM_ACTION_POINTS
+    { nullptr, nullptr, 18, 0, 999, 0 }, // STAT_ARMOR_CLASS
+    { nullptr, nullptr, 31, 0, INT_MAX, 0 }, // STAT_UNARMED_DAMAGE
+    { nullptr, nullptr, 32, 0, 500, 0 }, // STAT_MELEE_DAMAGE
+    { nullptr, nullptr, 20, 0, 999, 0 }, // STAT_CARRY_WEIGHT
+    { nullptr, nullptr, 24, 0, 60, 0 }, // STAT_SEQUENCE
+    { nullptr, nullptr, 25, 0, 30, 0 }, // STAT_HEALING_RATE
+    { nullptr, nullptr, 26, 0, 100, 0 }, // STAT_CRITICAL_CHANCE
+    { nullptr, nullptr, 94, -60, 100, 0 }, // STAT_BETTER_CRITICALS
+    { nullptr, nullptr, 0, 0, 100, 0 }, // STAT_DAMAGE_THRESHOLD
+    { nullptr, nullptr, 0, 0, 100, 0 }, // STAT_DAMAGE_THRESHOLD_LASER
+    { nullptr, nullptr, 0, 0, 100, 0 }, // STAT_DAMAGE_THRESHOLD_FIRE
+    { nullptr, nullptr, 0, 0, 100, 0 }, // STAT_DAMAGE_THRESHOLD_PLASMA
+    { nullptr, nullptr, 0, 0, 100, 0 }, // STAT_DAMAGE_THRESHOLD_ELECTRICAL
+    { nullptr, nullptr, 0, 0, 100, 0 }, // STAT_DAMAGE_THRESHOLD_EMP
+    { nullptr, nullptr, 0, 0, 100, 0 }, // STAT_DAMAGE_THRESHOLD_EXPLOSION
+    { nullptr, nullptr, 22, 0, 90, 0 }, // STAT_DAMAGE_RESISTANCE
+    { nullptr, nullptr, 0, 0, 90, 0 }, // STAT_DAMAGE_RESISTANCE_LASER
+    { nullptr, nullptr, 0, 0, 90, 0 }, // STAT_DAMAGE_RESISTANCE_FIRE
+    { nullptr, nullptr, 0, 0, 90, 0 }, // STAT_DAMAGE_RESISTANCE_PLASMA
+    { nullptr, nullptr, 0, 0, 90, 0 }, // STAT_DAMAGE_RESISTANCE_ELECTRICAL
+    { nullptr, nullptr, 0, 0, 100, 0 }, // STAT_DAMAGE_RESISTANCE_EMP
+    { nullptr, nullptr, 0, 0, 90, 0 }, // STAT_DAMAGE_RESISTANCE_EXPLOSION
+    { nullptr, nullptr, 83, 0, 95, 0 }, // STAT_RADIATION_RESISTANCE
+    { nullptr, nullptr, 23, 0, 95, 0 }, // STAT_POISON_RESISTANCE
+    { nullptr, nullptr, 0, 16, 101, 25 }, // STAT_AGE
+    { nullptr, nullptr, 0, 0, 1, 0 }, // STAT_GENDER
+    { nullptr, nullptr, 10, 0, 2000, 0 }, // STAT_CURRENT_HIT_POINTS
+    { nullptr, nullptr, 11, 0, 2000, 0 }, // STAT_CURRENT_POISON_LEVEL
+    { nullptr, nullptr, 12, 0, 2000, 0 }, // STAT_CURRENT_RADIATION_LEVEL
 };
 
 // 0x51D8CC pc_stat_data
@@ -98,16 +101,56 @@ static char* gStatValueDescriptions[PRIMARY_STAT_RANGE];
 // 0x6681AC curr_pc_stat
 static int gPcStatValues[PC_STAT_COUNT];
 
+static int pcStatMaximums[SAVEABLE_STAT_COUNT];
+static int pcStatMinimums[SAVEABLE_STAT_COUNT];
+static int npcStatMaximums[SAVEABLE_STAT_COUNT];
+static int npcStatMinimums[SAVEABLE_STAT_COUNT];
+
 static int unspentApBonus = 4;
 static int unspentApPerkBonus = 4;
+static int xpTable[PC_LEVEL_MAX];
+static int xpTableThresholds = 0;
+
+static void pcExperienceTableInit();
+static int pcGetMaxLevel();
+static int pcGetLevelForExperience(int xp);
+
+static std::string_view pcExperienceTableTrimToken(std::string_view token)
+{
+    size_t first = token.find_first_not_of(" \t\r\n");
+    if (first == std::string_view::npos) {
+        return {};
+    }
+
+    size_t last = token.find_last_not_of(" \t\r\n");
+    return token.substr(first, last - first + 1);
+}
+
+static bool pcExperienceTableParseToken(std::string_view token, int* value)
+{
+    token = pcExperienceTableTrimToken(token);
+    if (token.empty()) {
+        return false;
+    }
+
+    auto result = std::from_chars(token.data(), token.data() + token.size(), *value);
+    return result.ec == std::errc() && result.ptr == token.data() + token.size();
+}
+
+static void statResetBounds();
+static int statGetMaximum(Object* critter, Stat stat);
+static int statGetMinimum(Object* critter, Stat stat);
 
 // 0x4AED70
 int statsInit()
 {
     MessageListItem messageListItem;
 
+    statResetBounds();
+
     // NOTE: Uninline.
     pcStatsReset();
+    pcExperienceTableInit();
 
     if (!messageListInit(&gStatsMessageList)) {
         return -1;
@@ -144,6 +187,7 @@ int statsReset()
 {
     // NOTE: Uninline.
     pcStatsReset();
+    statResetBounds();
     statResetUnspentApBonuses();
 
     return 0;
@@ -206,6 +250,72 @@ void statSetUnspentApPerkBonus(int multiplier)
 int statGetUnspentApPerkBonus()
 {
     return unspentApPerkBonus;
+}
+
+static void statResetBounds()
+{
+    for (int stat = 0; stat < SAVEABLE_STAT_COUNT; stat++) {
+        pcStatMaximums[stat] = gStatDescriptions[stat].maximumValue;
+        pcStatMinimums[stat] = gStatDescriptions[stat].minimumValue;
+        npcStatMaximums[stat] = gStatDescriptions[stat].maximumValue;
+        npcStatMinimums[stat] = gStatDescriptions[stat].minimumValue;
+    }
+}
+
+static int statGetMaximum(Object* critter, Stat stat)
+{
+    return critter == gDude ? pcStatMaximums[stat] : npcStatMaximums[stat];
+}
+
+static int statGetMinimum(Object* critter, Stat stat)
+{
+    return critter == gDude ? pcStatMinimums[stat] : npcStatMinimums[stat];
+}
+
+int statGetConfiguredMaximum(Stat stat, bool npc)
+{
+    if (stat >= 0 && stat < SAVEABLE_STAT_COUNT) {
+        return npc ? npcStatMaximums[stat] : pcStatMaximums[stat];
+    }
+
+    return 0;
+}
+
+int statGetConfiguredMinimum(Stat stat, bool npc)
+{
+    if (stat >= 0 && stat < SAVEABLE_STAT_COUNT) {
+        return npc ? npcStatMinimums[stat] : pcStatMinimums[stat];
+    }
+
+    return 0;
+}
+
+void statSetPcMaximum(Stat stat, int maximum)
+{
+    if (stat >= 0 && stat < SAVEABLE_STAT_COUNT) {
+        pcStatMaximums[stat] = maximum;
+    }
+}
+
+void statSetPcMinimum(Stat stat, int minimum)
+{
+    if (stat >= 0 && stat < SAVEABLE_STAT_COUNT) {
+        pcStatMinimums[stat] = minimum;
+    }
+}
+
+void statSetNpcMaximum(Stat stat, int maximum)
+{
+    if (stat >= 0 && stat < SAVEABLE_STAT_COUNT) {
+        npcStatMaximums[stat] = maximum;
+    }
+}
+
+void statSetNpcMinimum(Stat stat, int minimum)
+{
+    if (stat >= 0 && stat < SAVEABLE_STAT_COUNT) {
+        npcStatMinimums[stat] = minimum;
+    }
 }
 
 // 0x4AEF48
@@ -401,7 +511,15 @@ int critterGetStat(Object* critter, Stat stat)
             }
         }
 
-        value = std::clamp(value, gStatDescriptions[stat].minimumValue, gStatDescriptions[stat].maximumValue);
+        int minimum = statGetMinimum(critter, stat);
+        if (value < minimum) {
+            value = minimum;
+        } else {
+            int maximum = statGetMaximum(critter, stat);
+            if (value > maximum) {
+                value = maximum;
+            }
+        }
     } else {
         switch (stat) {
         case STAT_CURRENT_HIT_POINTS:
@@ -489,11 +607,11 @@ int critterSetBaseStat(Object* critter, Stat stat, int value)
             value -= traitGetStatModifier(stat);
         }
 
-        if (value < gStatDescriptions[stat].minimumValue) {
+        if (value < statGetMinimum(critter, stat)) {
             return -2;
         }
 
-        if (value > gStatDescriptions[stat].maximumValue) {
+        if (value > statGetMaximum(critter, stat)) {
             return -3;
         }
 
@@ -655,7 +773,8 @@ int pcSetStat(PcStat pcStat, int value)
         return -2;
     }
 
-    if (value > gPcStatDescriptions[pcStat].maximumValue) {
+    int maximumValue = pcStat == PC_STAT_LEVEL ? pcGetMaxLevel() : gPcStatDescriptions[pcStat].maximumValue;
+    if (value > maximumValue) {
         return -3;
     }
 
@@ -683,6 +802,63 @@ void pcStatsReset()
     }
 }
 
+static void pcExperienceTableInit()
+{
+    xpTable[0] = 0;
+    xpTableThresholds = 0;
+
+    char* value;
+    if (!configGetString(&gContentConfig, CONTENT_CONFIG_STATS_SECTION, "xp_table", &value) || value[0] == '\0') {
+        return;
+    }
+
+    std::string_view remaining(value);
+
+    while (!remaining.empty() && xpTableThresholds < PC_LEVEL_MAX - 1) {
+        size_t comma = remaining.find(',');
+        std::string_view token = comma == std::string_view::npos
+            ? remaining
+            : remaining.substr(0, comma);
+
+        int xp;
+        if (pcExperienceTableParseToken(token, &xp)) {
+            xpTableThresholds++;
+            xpTable[xpTableThresholds] = xp;
+        }
+
+        if (comma == std::string_view::npos) {
+            break;
+        }
+
+        remaining.remove_prefix(comma + 1);
+    }
+}
+
+static int pcGetMaxLevel()
+{
+    if (xpTableThresholds == 0) {
+        return PC_LEVEL_MAX;
+    }
+
+    return xpTableThresholds + 1;
+}
+
+static int pcGetLevelForExperience(int xp)
+{
+    int level = 1;
+    int maxLevel = pcGetMaxLevel();
+    while (level < maxLevel) {
+        int nextLevelXp = pcGetExperienceForLevel(level + 1);
+        if (nextLevelXp == -1 || xp < nextLevelXp) {
+            break;
+        }
+
+        level++;
+    }
+
+    return level;
+}
+
 // Returns experience to reach next level.
 //
 // 0x4AF9A0
@@ -696,8 +872,12 @@ int pcGetExperienceForNextLevel()
 // 0x4AF9A8
 int pcGetExperienceForLevel(int level)
 {
-    if (level >= PC_LEVEL_MAX) {
+    if (level < 1 || level > pcGetMaxLevel()) {
         return -1;
+    }
+
+    if (xpTableThresholds != 0) {
+        return xpTable[level - 1];
     }
 
     int halfLevel = level / 2;
@@ -781,7 +961,7 @@ int pcAddExperienceWithOptions(int xp, bool doParty, int* xpGained)
 
     gPcStatValues[PC_STAT_EXPERIENCE] = newXp;
 
-    while (gPcStatValues[PC_STAT_LEVEL] < PC_LEVEL_MAX) {
+    while (gPcStatValues[PC_STAT_LEVEL] < pcGetMaxLevel()) {
         if (newXp < pcGetExperienceForNextLevel()) {
             break;
         }
@@ -815,8 +995,8 @@ int pcAddExperienceWithOptions(int xp, bool doParty, int* xpGained)
             interfaceRenderHitPoints(false);
 
             // SFALL: Update unarmed attack after leveling up.
-            int leftItemAction;
-            int rightItemAction;
+            InterfaceItemAction leftItemAction;
+            InterfaceItemAction rightItemAction;
             interfaceGetItemActions(&leftItemAction, &rightItemAction);
             interfaceUpdateItems(false, leftItemAction, rightItemAction);
 
@@ -839,12 +1019,7 @@ int pcSetExperience(int xp)
     int oldLevel = gPcStatValues[PC_STAT_LEVEL];
     gPcStatValues[PC_STAT_EXPERIENCE] = xp;
 
-    int level = 1;
-    do {
-        level += 1;
-    } while (xp >= pcGetExperienceForLevel(level) && level < PC_LEVEL_MAX);
-
-    int newLevel = level - 1;
+    int newLevel = pcGetLevelForExperience(xp);
 
     pcSetStat(PC_STAT_LEVEL, newLevel);
     dudeDisableState(DUDE_STATE_LEVEL_UP_AVAILABLE);

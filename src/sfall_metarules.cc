@@ -35,9 +35,11 @@
 #include "sfall_animation.h"
 #include "sfall_arrays.h" // For CreateTempArray, SetArray
 #include "sfall_ini.h"
+#include "sfall_object_name.h"
 #include "sfall_opcodes.h"
 #include "sfall_script_hooks.h"
 #include "skilldex.h"
+#include "stat.h"
 #include "text_font.h"
 #include "tile.h"
 #include "window.h"
@@ -779,6 +781,8 @@ static void mf_get_object_ai_data(OpcodeContext& ctx);
 static void mf_get_object_data(OpcodeContext& ctx);
 static void mf_get_outline(OpcodeContext& ctx);
 static void mf_get_sfall_arg_at(OpcodeContext& ctx);
+static void mf_get_stat_max(OpcodeContext& ctx);
+static void mf_get_stat_min(OpcodeContext& ctx);
 static void mf_get_terrain_name(OpcodeContext& ctx);
 static void mf_get_text_width(OpcodeContext& ctx);
 static void mf_get_window_attribute(OpcodeContext& ctx);
@@ -801,12 +805,15 @@ static void mf_opcode_exists(OpcodeContext& ctx);
 static void mf_outlined_object(OpcodeContext& ctx);
 static void mf_real_dude_obj(OpcodeContext& ctx);
 static void mf_remove_wm_town_names(OpcodeContext& ctx);
+static void mf_set_car_intface_art(OpcodeContext& ctx);
 static void mf_set_combat_free_move(OpcodeContext& ctx);
 static void mf_set_cursor_mode(OpcodeContext& ctx);
 static void mf_set_flags(OpcodeContext& ctx);
 static void mf_set_iface_tag_text(OpcodeContext& ctx);
 static void mf_set_object_data(OpcodeContext& ctx);
 static void mf_set_outline(OpcodeContext& ctx);
+static void mf_set_rest_mode(OpcodeContext& ctx);
+static void mf_set_scr_name(OpcodeContext& ctx);
 static void mf_set_terrain_name(OpcodeContext& ctx);
 static void mf_set_town_title(OpcodeContext& ctx);
 static void mf_set_window_flag(OpcodeContext& ctx);
@@ -860,8 +867,8 @@ const MetaruleInfo kMetarules[] = {
     { "get_object_data", mf_get_object_data, 2, 2, 0, { ARG_OBJECT, ARG_INT } },
     { "get_outline", mf_get_outline, 1, 1, 0, { ARG_OBJECT } },
     { "get_sfall_arg_at", mf_get_sfall_arg_at, 1, 1, 0, { ARG_INT } },
-    // {"get_stat_max",              mf_get_stat_max,              1, 2,  0, {ARG_INT, ARG_INT}},
-    // {"get_stat_min",              mf_get_stat_min,              1, 2,  0, {ARG_INT, ARG_INT}},
+    { "get_stat_max", mf_get_stat_max, 1, 2, 0, { ARG_INT, ARG_INT } },
+    { "get_stat_min", mf_get_stat_min, 1, 2, 0, { ARG_INT, ARG_INT } },
     // {"get_string_pointer",        mf_get_string_pointer,        1, 1,  0, {ARG_STRING}}, // note: deprecated; do not implement
     { "get_terrain_name", mf_get_terrain_name, 0, 2, -1, { ARG_INT, ARG_INT } },
     { "get_text_width", mf_get_text_width, 1, 1, 0, { ARG_STRING } },
@@ -894,7 +901,7 @@ const MetaruleInfo kMetarules[] = {
     // {"remove_timer_event",        mf_remove_timer_event,        0, 1, -1, {ARG_INT}},
     // {"set_spray_settings",        mf_set_spray_settings,        4, 4, -1, {ARG_INT, ARG_INT, ARG_INT, ARG_INT}},
     // {"set_can_rest_on_map",       mf_set_rest_on_map,           3, 3, -1, {ARG_INT, ARG_INT, ARG_INT}},
-    // {"set_car_intface_art",       mf_set_car_intface_art,       1, 1, -1, {ARG_INT}},
+    { "set_car_intface_art", mf_set_car_intface_art, 1, 1, -1, { ARG_INT } },
     { "set_combat_free_move", mf_set_combat_free_move, 1, 1, -1, { ARG_INT } },
     { "set_cursor_mode", mf_set_cursor_mode, 1, 1, -1, { ARG_INT } },
     // {"set_drugs_data",            mf_set_drugs_data,            3, 3, -1, {ARG_INT, ARG_INT, ARG_INT}},
@@ -910,8 +917,8 @@ const MetaruleInfo kMetarules[] = {
     // {"set_quest_failure_value",   mf_set_quest_failure_value,   2, 2, -1, {ARG_INT, ARG_INT}},
     // {"set_rest_heal_time",        mf_set_rest_heal_time,        1, 1, -1, {ARG_INT}},
     // {"set_worldmap_heal_time",    mf_set_worldmap_heal_time,    1, 1, -1, {ARG_INT}},
-    // {"set_rest_mode",             mf_set_rest_mode,             1, 1, -1, {ARG_INT}},
-    // {"set_scr_name",              mf_set_scr_name,              0, 1, -1, {ARG_STRING}},
+    { "set_rest_mode", mf_set_rest_mode, 1, 1, -1, { ARG_INT } },
+    { "set_scr_name", mf_set_scr_name, 0, 1, -1, { ARG_STRING } },
     // {"set_selectable_perk_npc",   mf_set_selectable_perk_npc,   5, 5, -1, {ARG_OBJECT, ARG_STRING, ARG_INT, ARG_INT, ARG_STRING}},
     { "set_terrain_name", mf_set_terrain_name, 3, 3, -1, { ARG_INT, ARG_INT, ARG_STRING } },
     { "set_town_title", mf_set_town_title, 2, 2, -1, { ARG_INT, ARG_STRING } },
@@ -1098,6 +1105,11 @@ void mf_car_gas_amount(OpcodeContext& ctx)
     ctx.setReturn(wmCarGasAmount());
 }
 
+void mf_set_car_intface_art(OpcodeContext& ctx)
+{
+    wmSetCarInterfaceArt(ctx.arg(0).asInt());
+}
+
 void mf_combat_data(OpcodeContext& ctx)
 {
     if (isInCombat()) {
@@ -1217,6 +1229,20 @@ void mf_get_sfall_arg_at(OpcodeContext& ctx)
         }
     }
     ctx.setReturn(result);
+}
+
+void mf_get_stat_max(OpcodeContext& ctx)
+{
+    Stat stat = static_cast<Stat>(ctx.arg(0).asInt());
+    const bool npc = ctx.numArgs() > 1 && ctx.arg(1).asInt() != 0;
+    ctx.setReturn(statGetConfiguredMaximum(stat, npc));
+}
+
+void mf_get_stat_min(OpcodeContext& ctx)
+{
+    Stat stat = static_cast<Stat>(ctx.arg(0).asInt());
+    const bool npc = ctx.numArgs() > 1 && ctx.arg(1).asInt() != 0;
+    ctx.setReturn(statGetConfiguredMinimum(stat, npc));
 }
 
 void mf_get_object_ai_data(OpcodeContext& ctx)
@@ -2008,6 +2034,21 @@ static void mf_set_town_title(OpcodeContext& ctx)
 static void mf_remove_wm_town_names(OpcodeContext& ctx)
 {
     wmRemoveTownNames(ctx.arg(0).asInt() != 0);
+}
+
+static void mf_set_rest_mode(OpcodeContext& ctx)
+{
+    wmSetRestMode(ctx.arg(0).asInt());
+}
+
+static void mf_set_scr_name(OpcodeContext& ctx)
+{
+    int sid = scriptGetSid(ctx.program());
+    if (sid == -1) {
+        return;
+    }
+
+    sfallObjectNameSet(sid, ctx.numArgs() > 0 ? ctx.stringArg(0) : "");
 }
 
 void mf_tile_by_position(OpcodeContext& ctx)

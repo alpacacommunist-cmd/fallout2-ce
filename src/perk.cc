@@ -49,7 +49,7 @@ typedef struct PerkRankData {
 } PerkRankData;
 
 static PerkRankData* perkGetRankData(Object* critter);
-static bool perkCanAdd(Object* critter, int perk);
+static bool perkCanAdd(Object* critter, Perk perk);
 static void perkResetRanks();
 
 // 0x519DCC perk_data
@@ -184,7 +184,7 @@ static PerkRankData* gPartyMemberPerkRanks = nullptr;
 // perk.
 //
 // 0x51C124 hereAndNowExps
-static int gHereAndNowBonusExperience = 0;
+static int hereAndNowBonusExperience = 0;
 
 // perk.msg
 //
@@ -212,7 +212,7 @@ int perksInit()
         return -1;
     }
 
-    for (int perk = 0; perk < PERK_COUNT; perk++) {
+    for (Perk perk = PERK_FIRST; perk < PERK_COUNT; perk++) {
         MessageListItem messageListItem;
 
         messageListItem.num = 101 + perk;
@@ -254,7 +254,7 @@ int perksLoad(File* stream)
 {
     for (int index = 0; index < gPartyMemberDescriptionsLength; index++) {
         PerkRankData* ranksData = &(gPartyMemberPerkRanks[index]);
-        for (int perk = 0; perk < PERK_COUNT; perk++) {
+        for (Perk perk = PERK_FIRST; perk < PERK_COUNT; perk++) {
             if (fileReadInt32(stream, &(ranksData->ranks[perk])) == -1) {
                 return -1;
             }
@@ -269,7 +269,7 @@ int perksSave(File* stream)
 {
     for (int index = 0; index < gPartyMemberDescriptionsLength; index++) {
         PerkRankData* ranksData = &(gPartyMemberPerkRanks[index]);
-        for (int perk = 0; perk < PERK_COUNT; perk++) {
+        for (Perk perk = PERK_FIRST; perk < PERK_COUNT; perk++) {
             if (fileWriteInt32(stream, ranksData->ranks[perk]) == -1) {
                 return -1;
             }
@@ -299,7 +299,7 @@ static PerkRankData* perkGetRankData(Object* critter)
 }
 
 // 0x49680C perk_can_add
-static bool perkCanAdd(Object* critter, int perk)
+static bool perkCanAdd(Object* critter, Perk perk)
 {
     if (!perkIsValid(perk)) {
         return false;
@@ -320,6 +320,10 @@ static bool perkCanAdd(Object* critter, int perk)
         if (pcGetStat(PC_STAT_LEVEL) < perkDescription->minLevel) {
             return false;
         }
+
+        if (perk == PERK_HERE_AND_NOW && pcGetExperienceForLevel(pcGetStat(PC_STAT_LEVEL) + 1) == -1) {
+            return false;
+        }
     }
 
     bool req1Fulfilled = true;
@@ -335,7 +339,7 @@ static bool perkCanAdd(Object* critter, int perk)
         int value1 = perkDescription->value1;
         if (value1 < 0) {
             if (isVariable) {
-                if (gameGetGlobalVar(param1) >= value1) {
+                if (gameGetGlobalVar(static_cast<GameGlobalVar>(param1)) >= value1) {
                     req1Fulfilled = false;
                 }
             } else {
@@ -345,7 +349,7 @@ static bool perkCanAdd(Object* critter, int perk)
             }
         } else {
             if (isVariable) {
-                if (gameGetGlobalVar(param1) < value1) {
+                if (gameGetGlobalVar(static_cast<GameGlobalVar>(param1)) < value1) {
                     req1Fulfilled = false;
                 }
             } else {
@@ -381,7 +385,7 @@ static bool perkCanAdd(Object* critter, int perk)
         int value2 = perkDescription->value2;
         if (value2 < 0) {
             if (isVariable) {
-                if (gameGetGlobalVar(param2) >= value2) {
+                if (gameGetGlobalVar(static_cast<GameGlobalVar>(param2)) >= value2) {
                     return false;
                 }
             } else {
@@ -391,7 +395,7 @@ static bool perkCanAdd(Object* critter, int perk)
             }
         } else {
             if (isVariable) {
-                if (gameGetGlobalVar(param2) < value2) {
+                if (gameGetGlobalVar(static_cast<GameGlobalVar>(param2)) < value2) {
                     return false;
                 }
             } else {
@@ -424,14 +428,14 @@ static void perkResetRanks()
 {
     for (int index = 0; index < gPartyMemberDescriptionsLength; index++) {
         PerkRankData* ranksData = &(gPartyMemberPerkRanks[index]);
-        for (int perk = 0; perk < PERK_COUNT; perk++) {
+        for (Perk perk = PERK_FIRST; perk < PERK_COUNT; perk++) {
             ranksData->ranks[perk] = 0;
         }
     }
 }
 
 // 0x496A5C perk_add
-int perkAdd(Object* critter, int perk)
+int perkAdd(Object* critter, Perk perk)
 {
     if (!perkIsValid(perk)) {
         return -1;
@@ -451,7 +455,7 @@ int perkAdd(Object* critter, int perk)
 
 // perk_add_force
 // 0x496A9C perk_add_force
-int perkAddForce(Object* critter, int perk)
+int perkAddForce(Object* critter, Perk perk)
 {
     if (!perkIsValid(perk)) {
         return -1;
@@ -475,7 +479,7 @@ int perkAddForce(Object* critter, int perk)
 
 // perk_sub
 // 0x496AFC perk_sub
-int perkRemove(Object* critter, int perk)
+int perkRemove(Object* critter, Perk perk)
 {
     if (!perkIsValid(perk)) {
         return -1;
@@ -498,10 +502,10 @@ int perkRemove(Object* critter, int perk)
 // Returns perks available to pick.
 //
 // 0x496B44 perk_make_list
-int perkGetAvailablePerks(Object* critter, int* perks)
+int perkGetAvailablePerks(Object* critter, Perk* perks)
 {
     int count = 0;
-    for (int perk = 0; perk < PERK_COUNT; perk++) {
+    for (Perk perk = PERK_FIRST; perk < PERK_COUNT; perk++) {
         if (perkCanAdd(critter, perk)) {
             perks[count] = perk;
             count++;
@@ -512,7 +516,7 @@ int perkGetAvailablePerks(Object* critter, int* perks)
 
 // has_perk
 // 0x496B78 perk_level
-int perkGetRank(Object* critter, int perk)
+int perkGetRank(Object* critter, Perk perk)
 {
     if (!perkIsValid(perk)) {
         return 0;
@@ -523,7 +527,7 @@ int perkGetRank(Object* critter, int perk)
 }
 
 // 0x496B90 perk_name
-char* perkGetName(int perk)
+char* perkGetName(Perk perk)
 {
     if (!perkIsValid(perk)) {
         return nullptr;
@@ -532,7 +536,7 @@ char* perkGetName(int perk)
 }
 
 // 0x496BB4 perk_description
-char* perkGetDescription(int perk)
+char* perkGetDescription(Perk perk)
 {
     if (!perkIsValid(perk)) {
         return nullptr;
@@ -541,7 +545,7 @@ char* perkGetDescription(int perk)
 }
 
 // 0x496BD8 perk_skilldex_fid
-int perkGetFrmId(int perk)
+int perkGetFrmId(Perk perk)
 {
     if (!perkIsValid(perk)) {
         return 0;
@@ -551,7 +555,7 @@ int perkGetFrmId(int perk)
 
 // perk_add_effect
 // 0x496BFC perk_add_effect
-void perkAddEffect(Object* critter, int perk)
+void perkAddEffect(Object* critter, Perk perk)
 {
     if (PID_TYPE(critter->pid) != OBJ_TYPE_CRITTER) {
         debugPrint("\nERROR: perk_add_effect: Was called on non-critter!");
@@ -574,9 +578,10 @@ void perkAddEffect(Object* critter, int perk)
         ranksData->ranks[PERK_HERE_AND_NOW] -= 1;
 
         int level = pcGetStat(PC_STAT_LEVEL);
+        int nextLevelExperience = pcGetExperienceForLevel(level + 1);
 
-        gHereAndNowBonusExperience = pcGetExperienceForLevel(level + 1) - pcGetStat(PC_STAT_EXPERIENCE);
-        pcAddExperienceWithOptions(gHereAndNowBonusExperience, false);
+        hereAndNowBonusExperience = nextLevelExperience >= 0 ? nextLevelExperience - pcGetStat(PC_STAT_EXPERIENCE) : 0;
+        pcAddExperienceWithOptions(hereAndNowBonusExperience, false);
 
         ranksData->ranks[PERK_HERE_AND_NOW] += 1;
     }
@@ -591,7 +596,7 @@ void perkAddEffect(Object* critter, int perk)
 
 // perk_remove_effect
 // 0x496CE0 perk_remove_effect
-void perkRemoveEffect(Object* critter, int perk)
+void perkRemoveEffect(Object* critter, Perk perk)
 {
     if (PID_TYPE(critter->pid) != OBJ_TYPE_CRITTER) {
         debugPrint("\nERROR: perk_remove_effect: Was called on non-critter!");
@@ -611,7 +616,7 @@ void perkRemoveEffect(Object* critter, int perk)
 
     if (perk == PERK_HERE_AND_NOW) {
         int xp = pcGetStat(PC_STAT_EXPERIENCE);
-        pcSetStat(PC_STAT_EXPERIENCE, xp - gHereAndNowBonusExperience);
+        pcSetStat(PC_STAT_EXPERIENCE, xp - hereAndNowBonusExperience);
     }
 
     if (perkDescription->maxRank == -1) {

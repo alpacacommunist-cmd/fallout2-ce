@@ -438,7 +438,7 @@ int gameTimeEventProcess(Object* obj, void* data)
 
     stopProcess = critterCheckRadiationEvent(gDude);
 
-    queueClearByEventType(4, nullptr);
+    queueClearByEventType(EVENT_TYPE_GAME_TIME, nullptr);
 
     gameTimeScheduleUpdateEvent();
 
