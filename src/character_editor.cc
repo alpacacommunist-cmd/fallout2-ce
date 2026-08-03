@@ -1,3 +1,4 @@
+#include "ck_knowledge/ck_knowledge.h"
 #include "character_editor.h"
 
 #include <assert.h>
@@ -1915,6 +1916,8 @@ static void characterEditorWindowFree()
         critterAdjustHitPoints(gDude, 1000);
     }
 
+    ck::knowledge::clear_cache();
+
     indicatorBarShow();
 }
 
@@ -2197,6 +2200,21 @@ static void characterEditorDrawPerksFolder()
                     gCharacterEditorFolderCardDescription = perkGetDescription(perk);
                     hasContent = true;
                 }
+            }
+        }
+    }
+
+    ck::knowledge::init_ui();
+    if (ck::knowledge::has_any()) {
+        characterEditorFolderViewDrawHeading("SURVIVAL KNOWLEDGE");
+
+        for (const auto& kn : ck::knowledge::get_player_knowledge()) {
+            if (characterEditorFolderViewDrawString(kn.name.c_str())) {
+                gCharacterEditorFolderCardFrmId       = kn.frm_id;
+                gCharacterEditorFolderCardTitle       = kn.ce_name;
+                gCharacterEditorFolderCardSubtitle    = nullptr;
+                gCharacterEditorFolderCardDescription = kn.ce_description;
+                hasContent = true;
             }
         }
     }
