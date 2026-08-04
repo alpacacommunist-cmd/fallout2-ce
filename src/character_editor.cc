@@ -49,6 +49,10 @@
 #include "word_wrap.h"
 #include "worldmap.h"
 
+namespace ck::i18n {
+    const char* t(const std::string& key);
+}
+
 namespace fallout {
 
 #define EDITOR_WINDOW_WIDTH 640
@@ -2217,7 +2221,7 @@ static void characterEditorDrawPerksFolder()
 
     ck::knowledge::init_ui();
     if (ck::knowledge::has_any()) {
-        characterEditorFolderViewDrawHeading("SURVIVAL KNOWLEDGE");
+        characterEditorFolderViewDrawHeading(ck::i18n::t("headings.knowledge"));
 
         for (const auto& kn : ck::knowledge::get_player_knowledge()) {
             if (characterEditorFolderViewDrawString(kn.name.c_str())) {
