@@ -1295,6 +1295,8 @@ int scriptExecProc(int sid, int proc)
         return -1;
     }
 
+    ck::handle_global_script_proc_event(sid, proc);
+
     if (ck::script_try_handle(sid, proc)) return 0;
 
     Script* script;
