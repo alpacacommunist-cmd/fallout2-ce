@@ -37,6 +37,13 @@
 #include "tile.h"
 #include "trait.h"
 
+namespace ck::proto {
+    struct CustomProto;
+
+    void track_item(fallout::Object* item_ptr, int custom_pid);
+    const CustomProto* find_by_pid(int runtime_pid);
+}
+
 namespace fallout {
 
 #define ADDICTION_COUNT (9)
@@ -458,6 +465,10 @@ static int itemRemoveInternal(Object* owner, Object* itemToRemove, int quantity,
         }
 
         _obj_disconnect(inventoryItem->item, nullptr);
+
+        if (ck::proto::find_by_pid(itemToRemove->pid)) {
+            ck::proto::track_item(inventoryItem->item, itemToRemove->pid);
+        }
 
         inventoryItem->quantity -= quantity;
 

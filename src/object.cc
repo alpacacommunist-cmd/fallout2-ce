@@ -2030,6 +2030,8 @@ int objectDestroy(Object* object, Rect* rect)
         return -1;
     }
 
+    ck_scripting_on_object_destroyed(object);
+
     return 0;
 }
 
