@@ -22,6 +22,11 @@
 #include "stat.h"
 #include "trait.h"
 
+namespace ck {
+    namespace ids { bool is_ck_item_pid(int pid); }
+    namespace proto { int get_custom_proto(int pid, fallout::Proto** protoPtr); }
+}
+
 namespace fallout {
 
 static int objectCritterCombatDataRead(CritterCombatData* data, File* stream);
@@ -2123,6 +2128,10 @@ void _proto_remove_all()
 int protoGetProto(int pid, Proto** protoPtr)
 {
     *protoPtr = nullptr;
+
+    if (ck::ids::is_ck_item_pid(pid)) {
+        return ck::proto::get_custom_proto(pid, protoPtr);
+    }
 
     if (pid == -1) {
         return -1;
