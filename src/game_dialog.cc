@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <string>
+#include <unordered_map>
 
 #include "actions.h"
 #include "animation.h"
@@ -179,6 +180,8 @@ static int _Dogs[3] = {
     0x1000156,
     0x1000180,
 };
+
+static std::unordered_map<int, AiMessageRange> partyMemberCcMsgIds;
 
 // 0x5186D4 dialog_state_fix
 static int _dialog_state_fix = 0;
@@ -3835,6 +3838,11 @@ void gameDialogCombatControlButtonOnMouseUp(int btn, int keyCode)
 // 0x4492D0
 int _gdPickAIUpdateMsg(Object* critter)
 {
+    auto it = partyMemberCcMsgIds.find(critter->pid);
+    if (it != partyMemberCcMsgIds.end()) {
+        return randomBetween(it->second.start, it->second.end);
+    }
+
     int pids[3];
     memcpy(pids, _Dogs, sizeof(pids));
 
@@ -3845,6 +3853,18 @@ int _gdPickAIUpdateMsg(Object* critter)
     }
 
     return 670 + randomBetween(0, 4);
+}
+
+void gameDialogSetPartyMemberCcMsgIds(int pid, int startMsgId, int endMsgId)
+{
+    assert(startMsgId <= endMsgId);
+
+    partyMemberCcMsgIds[pid] = { startMsgId, endMsgId };
+}
+
+void gameDialogResetPartyMemberCcMsgIds()
+{
+    partyMemberCcMsgIds.clear();
 }
 
 // 0x449330
@@ -3908,12 +3928,12 @@ void partyMemberControlWindowHandleEvents()
                 if (weapon != nullptr) {
                     inventoryEquip(gGameDialogSpeaker, weapon, HAND_RIGHT);
                     aiAttemptWeaponReload(gGameDialogSpeaker, 0);
-
-                    int num = _gdPickAIUpdateMsg(gGameDialogSpeaker);
-                    char* msg = getmsg(&gProtoMessageList, &messageListItem, num);
-                    gameDialogRenderSupplementaryMessage(msg);
-                    partyMemberControlWindowUpdate();
                 }
+
+                int num = _gdPickAIUpdateMsg(gGameDialogSpeaker);
+                char* msg = getmsg(&gProtoMessageList, &messageListItem, num);
+                gameDialogRenderSupplementaryMessage(msg);
+                partyMemberControlWindowUpdate();
             } else if (keyCode == 2098) {
                 aiSetDisposition(gGameDialogSpeaker, 4);
             } else if (keyCode == 2099) {

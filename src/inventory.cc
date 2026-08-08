@@ -3583,7 +3583,7 @@ static void inventoryRenderSummary()
 
         offset += pitch * fontGetLineHeight();
 
-        int itemType = itemGetType(item);
+        ItemType itemType = itemGetType(item);
         if (itemType != ITEM_TYPE_WEAPON) {
             if (itemType == ITEM_TYPE_ARMOR) {
                 // (Not worn)
@@ -3737,7 +3737,7 @@ static void inventoryRenderSummary()
 // the beginning.
 //
 // 0x472698
-Object* inventoryFindByType(Object* obj, int itemType, int* indexPtr)
+Object* inventoryFindByType(Object* obj, ItemType itemType, int* indexPtr)
 {
     int dummy = -1;
     if (indexPtr == nullptr) {
@@ -3818,7 +3818,7 @@ int inventoryEquip(Object* critter, Object* item, Hand hand)
 // 0x472768
 int inventoryEquipFunc(Object* critter, Object* item, Hand handIndex, bool animate)
 {
-    int itemType = itemGetType(item);
+    ItemType itemType = itemGetType(item);
 
     InvenSlot invenSlot = itemType == ITEM_TYPE_ARMOR
         ? InvenSlot::Armor
@@ -4348,7 +4348,7 @@ static void inventoryWindowOpenContextMenu(int keyCode, int inventoryWindowType)
         return;
     }
 
-    int itemType = itemGetType(item);
+    ItemType itemType = itemGetType(item);
 
     int mouseState;
     do {
@@ -4641,6 +4641,8 @@ static void inventoryWindowOpenContextMenu(int keyCode, int inventoryWindowType)
                     itemAdd(owner, item, 1);
                 }
             }
+        default:
+            break;
         }
         break;
     case GAME_MOUSE_ACTION_MENU_ITEM_UNLOAD:

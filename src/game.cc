@@ -716,7 +716,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
 
             // NOTE: There is an `inc` for this value to build jump table which
             // is not needed.
-            int rc = skilldexOpen();
+            SkilldexRC rc = skilldexOpen();
 
             gameHandleSkilldexResult(rc);
         }
@@ -1712,7 +1712,7 @@ ScopedGameMode::~ScopedGameMode()
     GameMode::exitGameMode(gameMode);
 }
 
-void gameHandleSkilldexResult(int rc)
+void gameHandleSkilldexResult(SkilldexRC rc)
 {
     int mode = -1;
 

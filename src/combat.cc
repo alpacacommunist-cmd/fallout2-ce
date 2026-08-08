@@ -4456,7 +4456,7 @@ static int attackDetermineToHit(Object* attacker, int tile, Object* defender, Hi
             int perceptionBonusMult = 0;
             int minEffectiveDist = 0;
 
-            int weaponPerk = weaponGetPerk(weapon);
+            Perk weaponPerk = weaponGetPerk(weapon);
             switch (weaponPerk) {
             case PERK_WEAPON_LONG_RANGE:
                 perceptionBonusMult = 4;

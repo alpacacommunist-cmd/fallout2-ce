@@ -809,12 +809,7 @@ static void op_set_self(Program* program)
 {
     Object* obj = static_cast<Object*>(programStackPopPointer(program));
 
-    int sid = scriptGetSid(program);
-
-    Script* scr;
-    if (scriptGetScript(sid, &scr) == 0) {
-        scr->overriddenSelf = obj;
-    }
+    scriptContextSetOverrideSelf(program, obj);
 }
 
 // list_begin
@@ -873,6 +868,8 @@ static void op_get_weapon_ammo_pid(Program* program)
             case ITEM_TYPE_MISC:
                 pid = miscItemGetPowerTypePid(obj);
                 break;
+            default:
+                break;
             }
         }
     }
@@ -899,6 +896,8 @@ static void op_set_weapon_ammo_pid(Program* program)
             case ITEM_TYPE_WEAPON:
                 obj->data.item.weapon.ammoTypePid = ammoTypePid;
                 break;
+            default:
+                break;
             }
         }
     }
@@ -920,6 +919,8 @@ static void op_get_weapon_ammo_count(Program* program)
                 break;
             case ITEM_TYPE_MISC:
                 ammoQuantityOrCharges = miscItemGetCharges(obj);
+                break;
+            default:
                 break;
             }
         }
@@ -944,6 +945,8 @@ static void op_set_weapon_ammo_count(Program* program)
                 break;
             case ITEM_TYPE_MISC:
                 miscItemSetCharges(obj, ammoQuantityOrCharges);
+                break;
+            default:
                 break;
             }
         }
@@ -2456,6 +2459,7 @@ void sfallOpcodesInit()
     // 0x827d - void register_hook_proc_spec(int hook, procedure proc)
     interpreterRegisterOpcode(0x827d, op_register_hook_proc);
     // 0x827e - void reg_anim_callback(procedure proc)
+    interpreterRegisterOpcode(0x827e, op_reg_anim_callback);
 }
 
 void sfallOpcodesExit()

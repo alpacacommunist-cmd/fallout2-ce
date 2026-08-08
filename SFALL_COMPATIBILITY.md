@@ -79,7 +79,7 @@ See [`https://sfall-team.github.io/sfall/`](https://sfall-team.github.io/sfall/)
 | Perks and traits | set_perk_image<br>set_perk_*<br>set_pyromaniac_mod<br>apply_heaveho_fix<br>set_swiftlearner_mod<br>has/set_fake_perk<br>has/set_fake_trait<br>set_selectable_perk<br>set_perkbox_title<br>show/hide_real_perks<br>perk_add_mode<br>clear_selectable_perks<br>add/remove_trait<br>seq_perk_freq | not implemented | - |
 | Virtual file system | fs_create<br>fs_copy<br>fs_find<br>fs_read/write_*<br>fs_delete<br>fs_size<br>fs_pos<br>fs_seek<br>fs_resize | 🚫 | Open an issue if you have a use case for these |
 | Combat / Knockback | set_weapon_knockback<br>set_target_knockback<br>set_attacker_knockback<br>remove_weapon_knockback<br>remove_target_knockback<br>remove_attacker_knockback | not implemented | - |
-| Maps and encounters | in_world_map<br>force_encounter{_with_flags}<br>set_map_time_multi<br>get/set_map_enter_position<br>exec_map_update_scripts<br>get/set_terrain_name<br>set_town_title<br>remove_wm_town_names<br>get/set_can_rest_on_map<br>set_rest_heal_time<br>set_rest_mode<br>set_worldmap_heal_time | implemented: in_world_map, force_encounter, force_encounter_with_flags, set_map_time_multi, get_terrain_name, set_terrain_name, set_town_title, remove_wm_town_names, set_rest_mode | - |
+| Maps and encounters | in_world_map<br>force_encounter{_with_flags}<br>set_map_time_multi<br>get/set_map_enter_position<br>exec_map_update_scripts<br>get/set_terrain_name<br>set_town_title<br>remove_wm_town_names<br>encounter_detection<br>get/set_can_rest_on_map<br>set_rest_heal_time<br>set_rest_mode<br>set_worldmap_heal_time | implemented: in_world_map, force_encounter, force_encounter_with_flags, set_map_time_multi, get_terrain_name, set_terrain_name, set_town_title, remove_wm_town_names, encounter_detection, set_rest_mode | - |
 | Maps and encounters / Worldmap | get_world_map_x/y_pos<br>set_world_map_pos | ✅ | - |
 | Audio | play_sfall_sound<br>stop_sfall_sound | ✅ | `play_sfall_sound` currently supports `.acm`, `.wav`, `.ogg` formats, and can load from `.dat` archives. `.mp3` is not yet supported. |
 | Combat / Weapons and ammo | get/set_weapon_ammo_pid<br>get/set_weapon_ammo_count | ✅ | - |
@@ -88,7 +88,7 @@ See [`https://sfall-team.github.io/sfall/`](https://sfall-team.github.io/sfall/)
 | Keyboard and mouse | key_pressed<br>tap_key<br>get_mouse_x/y<br>get_mouse_buttons | ✅ | - |
 | Lists | list_begin<br>list_next<br>list_end<br>list_as_array<br>party_member_list | ✅ | - |
 | Explosions | set_attack_explosion_pattern<br>set_attack_explosion_art<br>set_attack_explosion_radius<br>set_attack_is_explosion_fire<br>set_explosion_radius<br>set_dynamite_damage<br>set_plastic_damage<br>get_explosion_damage<br>set_explosion_max_targets<br>item_make_explosive | ✅ except item_make_explosive | - |
-| Animations | reg_anim_combat_check<br>reg_anim_destroy<br>reg_anim_animate_and_hide<br>reg_anim_light<br>reg_anim_change_fid<br>reg_anim_take_out<br>reg_anim_turn_towards<br>reg_anim_callback<br>reg_anim_animate_and_move | ✅ except reg_anim_callback | - |
+| Animations | reg_anim_combat_check<br>reg_anim_destroy<br>reg_anim_animate_and_hide<br>reg_anim_light<br>reg_anim_change_fid<br>reg_anim_take_out<br>reg_anim_turn_towards<br>reg_anim_callback<br>reg_anim_animate_and_move | ✅ | - |
 | Art and appearance | art_exists<br>art_frame_data<br>refresh_pc_art<br>art_cache_clear | ✅ | - |
 | Tiles and paths | get_tile_fid<br>tile_under_cursor<br>tile_light<br>tile_get_objs<br>tile_refresh_display<br>obj_blocking_tile<br>tile_by_position<br>get_tile_ground_fid<br>get_tile_roof_fid<br>obj_blocking_line<br>path_find_to<br>objects_in_radius | ✅ | - |
 | Utility | sprintf<br>typeof<br>atoi<br>atof | ✅ | - |
@@ -110,11 +110,21 @@ See [`https://sfall-team.github.io/sfall/`](https://sfall-team.github.io/sfall/)
 | INI settings | get_ini_setting<br>get_ini_string<br>get_ini_section<br>get_ini_sections<br>get_ini_config<br>get_ini_config_db<br>set_ini_setting | ✅ | `modified_ini` is intentionally omitted as deprecated. |
 | Objects and scripts | set_self<br>set_dude_obj<br>real_dude_obj<br>remove_script<br>get/set_script<br>obj_is_carrying_obj<br>loot_obj<br>dialog_obj<br>obj_under_cursor<br>get/set_object_data<br>get/set_flags<br>set_unique_id<br>set_scr_name<br>obj_is_openable<br>get/set_proto_data<br>get_object_ai_data | ✅ except set_dude_obj | `get/set_object_data` maps supported object and `C_ATTACK_*` offsets instead of exposing arbitrary raw memory offsets. |
 | Other / Game management | set_movie_path<br>stop/resume_game<br>mark_movie_played<br>game_loaded<br>get_game_mode<br>get_uptime<br>signal_close_game | ✅ except stop/resume_game | - |
-| Gameplay tweaks | set_pickpocket_max<br>set_hit_chance_max<br>set_xp_mod<br>set_critter_hit_chance_mod<br>set_base_hit_chance_mod<br>set_hp_per_level_mod<br>gdialog_get_barter_mod<br>get/set_unspent_ap_bonus<br>get/set_unspent_ap_perk_bonus<br>set_base_pickpocket_mod<br>set_critter_pickpocket_mod<br>get/set_inven_ap_cost<br>set_drugs_data<br>get_kill_counter<br>mod_kill_counter<br>set_pipboy_available | implemented: gdialog_get_barter_mod, get/set_unspent_ap{_perk}_bonus, get/set_inven_ap_cost | - |
+| Gameplay tweaks | set_pickpocket_max<br>set_hit_chance_max<br>set_xp_mod<br>set_critter_hit_chance_mod<br>set_base_hit_chance_mod<br>set_hp_per_level_mod<br>set_reaction_thresholds<br>gdialog_get_barter_mod<br>get/set_unspent_ap_bonus<br>get/set_unspent_ap_perk_bonus<br>set_base_pickpocket_mod<br>set_critter_pickpocket_mod<br>get/set_inven_ap_cost<br>set_drugs_data<br>get_kill_counter<br>mod_kill_counter<br>set_pipboy_available | implemented: set_reaction_thresholds, gdialog_get_barter_mod, get/set_unspent_ap{_perk}_bonus, get/set_inven_ap_cost | - |
 | NPCs | inc_npc_level<br>get_npc_level<br>npc_engine_level_up | not implemented | - |
 | Hero Appearance | set_dm/df_model<br>hero_select_win<br>set_hero_race<br>set_hero_style | not implemented | - |
 | Events | add_g_timer_event<br>remove_timer_event<br>create_spatial<br>spatial_radius | not implemented | - |
 | Other | get_year<br>active_hand<br>toggle_active_hand<br>get/set_viewport_x/y<br>get_light_level<br>message_str_game<br>sneak_success<br>unwield_slot<br>add_extra_msg_file<br>get_metarule_table<br>metarule_exist<br> | ✅ except get/set_viewport_x/y, sneak_success  | `input_funcs_available`, `nb_create_char` are deprecated in sfall and intentionally absent in CE. `add_extra_msg_file` does not support the explicit `fileNumber` form in CE. |
+
+### CE-only metarules
+
+CE defines several metarules that are not supported in Sfall.  Include [ce.h](files/ce.h) for the #defines.
+
+| Name | Definition |
+| --- | --- |
+| `rest_option_msgs(base_msg_id)` | Change the base message id used for Pip-Boy rest option labels. CE reads the rest labels from `base_msg_id` through `base_msg_id + 13`; the default Fallout 2 range is 302-315. |
+| `set_party_member_cc_msg_ids(pid, start_msg_id, end_msg_id)` | Override party-member combat-control update messages for a pid. Picks randomly from the inclusive contiguous range. Default fallback ranges are 670-674 for humans and 677-678 for the hardcoded dog pid list. |
+| `set_rest_option(rest_option, value)` | Change the wake hour for Pip-Boy rest options 8-11: morning, noon, evening, and midnight. `value` is an hour from 0-23. Defaults are 8, 12, 18, and 0. |
 
 ## Hooks
 
