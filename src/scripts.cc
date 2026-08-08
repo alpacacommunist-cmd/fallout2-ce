@@ -1720,6 +1720,12 @@ int _scr_find_str_run_info(int scriptIndex, int* /*unused*/, int sid)
         return -1;
     }
 
+    if (ck::owns_sid(scriptIndex)) {
+        script->localVarsCount = 0;
+
+        return 0;
+    }
+
     script->localVarsCount = gScriptsListEntries[scriptIndex].local_vars_num;
 
     return 0;
