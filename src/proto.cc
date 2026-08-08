@@ -23,7 +23,7 @@
 #include "trait.h"
 
 namespace ck {
-    namespace ids { bool is_ck_item_pid(int pid); }
+    namespace ids { bool is_ck_pid(int pid); }
     namespace proto { int get_custom_proto(int pid, fallout::Proto** protoPtr); }
 }
 
@@ -2143,7 +2143,7 @@ int protoGetProto(int pid, Proto** protoPtr)
 {
     *protoPtr = nullptr;
 
-    if (ck::ids::is_ck_item_pid(pid)) {
+    if (ck::ids::is_ck_pid(pid)) {
         return ck::proto::get_custom_proto(pid, protoPtr);
     }
 
