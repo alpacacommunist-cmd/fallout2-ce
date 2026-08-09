@@ -37,9 +37,9 @@
 #include "tile.h"
 #include "trait.h"
 
-namespace ck::proto {
-    struct CustomProto;
-    const CustomProto* find_by_pid(int runtime_pid);
+namespace ck {
+namespace ids { bool is_ck_pid(int pid); }
+namespace proto { int get_sid_by_pid(int pid); }
 }
 
 namespace fallout {
@@ -686,6 +686,10 @@ static bool _item_identical(Object* item1, Object* item2)
         // This is mostly to make sure the unique_id check below doesn't falsely return
         // false when the same item is passed in here.  Callers rely on this for checking
         // for "is same pointer"
+        return true;
+    }
+
+    if (ck::ids::is_ck_pid(item1->pid) && ck::ids::is_ck_pid(item2->pid)) {
         return true;
     }
 
