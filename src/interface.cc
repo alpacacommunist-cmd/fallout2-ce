@@ -398,7 +398,7 @@ int interfaceInit()
         blitBufferToBuffer(customInterfaceBarGetBackgroundImageData(), gInterfaceBarWidth, INTERFACE_BAR_HEIGHT - 1, gInterfaceBarWidth, gInterfaceWindowBuffer, gInterfaceBarWidth);
     } else {
         FrmImage backgroundFrmImage;
-        fid = buildFid(OBJ_TYPE_INTERFACE, 16, 0, 0, 0);
+        fid = buildFid(OBJ_TYPE_INTERFACE, 16);
         if (!backgroundFrmImage.lock(fid)) {
             return intface_fatal_error(-1);
         }
@@ -409,13 +409,13 @@ int interfaceInit()
 
     extendedApBarInitToWindow();
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 47, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 47);
     if (!_inventoryButtonNormalFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 46, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 46);
     if (!_inventoryButtonPressedFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
@@ -429,13 +429,13 @@ int interfaceInit()
 
     buttonSetCallbacks(gInventoryButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 18, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 18);
     if (!_optionsButtonNormalFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 17, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 17);
     if (!_optionsButtonPressedFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
@@ -449,19 +449,19 @@ int interfaceInit()
 
     buttonSetCallbacks(gOptionsButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 6, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 6);
     if (!_skilldexButtonNormalFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 7, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 7);
     if (!_skilldexButtonPressedFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 6, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 6);
     if (!_skilldexButtonMaskFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
@@ -476,19 +476,19 @@ int interfaceInit()
     buttonSetMask(gSkilldexButton, _skilldexButtonMaskFrmImage.getData());
     buttonSetCallbacks(gSkilldexButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 13, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 13);
     if (!_mapButtonNormalFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 10, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 10);
     if (!_mapButtonPressedFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 13, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 13);
     if (!_mapButtonMaskFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
@@ -503,13 +503,13 @@ int interfaceInit()
     buttonSetMask(gMapButton, _mapButtonMaskFrmImage.getData());
     buttonSetCallbacks(gMapButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 59, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 59);
     if (!_pipboyButtonNormalFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 58, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 58);
     if (!_pipboyButtonPressedFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
@@ -524,13 +524,13 @@ int interfaceInit()
     buttonSetMask(gPipboyButton, _mapButtonMaskFrmImage.getData());
     buttonSetCallbacks(gPipboyButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 57, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 57);
     if (!_characterButtonNormalFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 56, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 56);
     if (!_characterButtonPressedFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
@@ -545,19 +545,19 @@ int interfaceInit()
     buttonSetMask(gCharacterButton, _mapButtonMaskFrmImage.getData());
     buttonSetCallbacks(gCharacterButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 32, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 32);
     if (!_itemButtonNormalFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 31, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 31);
     if (!_itemButtonPressedFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 73, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 73);
     if (!_itemButtonDisabledFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
@@ -575,19 +575,19 @@ int interfaceInit()
     buttonSetRightMouseCallbacks(gSingleAttackButton, -1, KEY_LOWERCASE_N, nullptr, nullptr);
     buttonSetCallbacks(gSingleAttackButton, _gsound_lrg_butt_press, _gsound_lrg_butt_release);
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 6, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 6);
     if (!_changeHandsButtonNormalFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 7, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 7);
     if (!_changeHandsButtonPressedFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 6, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 6);
     if (!_changeHandsButtonMaskFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
@@ -603,25 +603,25 @@ int interfaceInit()
     buttonSetMask(gChangeHandsButton, _changeHandsButtonMaskFrmImage.getData());
     buttonSetCallbacks(gChangeHandsButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 82, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 82);
     if (!_numbersFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 83, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 83);
     if (!_greenLightFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 84, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 84);
     if (!_yellowLightFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 85, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 85);
     if (!_redLightFrmImage.lock(fid)) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
@@ -1475,7 +1475,7 @@ void interfaceBarEndButtonsShow(bool animated)
         return;
     }
 
-    int fid = buildFid(OBJ_TYPE_INTERFACE, 104, 0, 0, 0);
+    int fid = buildFid(OBJ_TYPE_INTERFACE, 104);
     CacheEntry* handle;
     Art* art = artLock(fid, &handle);
     if (art == nullptr) {
@@ -1494,7 +1494,7 @@ void interfaceBarEndButtonsShow(bool animated)
             tickersExecute();
 
             if (getTicksSince(time) >= delay) {
-                unsigned char* src = artGetFrameData(art, frame, 0);
+                unsigned char* src = artGetFrameData(art, frame);
                 if (src != nullptr) {
                     blitBufferToBuffer(src, 57, 58, 57, gInterfaceWindowBuffer + gInterfaceBarWidth * 38 + 580 + gInterfaceBarContentOffset, gInterfaceBarWidth);
                     windowRefreshRect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
@@ -1509,7 +1509,7 @@ void interfaceBarEndButtonsShow(bool animated)
             sharedFpsLimiter.throttle();
         }
     } else {
-        unsigned char* src = artGetFrameData(art, frameCount - 1, 0);
+        unsigned char* src = artGetFrameData(art, frameCount - 1);
         blitBufferToBuffer(src, 57, 58, 57, gInterfaceWindowBuffer + gInterfaceBarWidth * 38 + 580 + gInterfaceBarContentOffset, gInterfaceBarWidth);
         windowRefreshRect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
     }
@@ -1533,7 +1533,7 @@ void interfaceBarEndButtonsHide(bool animated)
         return;
     }
 
-    int fid = buildFid(OBJ_TYPE_INTERFACE, 104, 0, 0, 0);
+    int fid = buildFid(OBJ_TYPE_INTERFACE, 104);
     CacheEntry* handle;
     Art* art = artLock(fid, &handle);
     if (art == nullptr) {
@@ -1554,7 +1554,7 @@ void interfaceBarEndButtonsHide(bool animated)
             tickersExecute();
 
             if (getTicksSince(time) >= delay) {
-                unsigned char* src = artGetFrameData(art, frame - 1, 0);
+                unsigned char* src = artGetFrameData(art, frame - 1);
                 unsigned char* dest = gInterfaceWindowBuffer + gInterfaceBarWidth * 38 + 580 + gInterfaceBarContentOffset;
                 if (src != nullptr) {
                     blitBufferToBuffer(src, 57, 58, 57, dest, gInterfaceBarWidth);
@@ -1571,7 +1571,7 @@ void interfaceBarEndButtonsHide(bool animated)
         }
     } else {
         unsigned char* dest = gInterfaceWindowBuffer + gInterfaceBarWidth * 38 + 580 + gInterfaceBarContentOffset;
-        unsigned char* src = artGetFrameData(art, 0, 0);
+        unsigned char* src = artGetFrameData(art);
         blitBufferToBuffer(src, 57, 58, 57, dest, gInterfaceBarWidth);
         windowRefreshRect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
     }
@@ -1589,7 +1589,7 @@ void interfaceBarEndButtonsRenderGreenLights()
 
         FrmImage lightsFrmImage;
         // endltgrn.frm - green lights around end turn/combat window
-        int lightsFid = buildFid(OBJ_TYPE_INTERFACE, 109, 0, 0, 0);
+        int lightsFid = buildFid(OBJ_TYPE_INTERFACE, 109);
         if (!lightsFrmImage.lock(lightsFid)) {
             return;
         }
@@ -1609,7 +1609,7 @@ void interfaceBarEndButtonsRenderRedLights()
 
         FrmImage lightsFrmImage;
         // endltred.frm - red lights around end turn/combat window
-        int lightsFid = buildFid(OBJ_TYPE_INTERFACE, 110, 0, 0, 0);
+        int lightsFid = buildFid(OBJ_TYPE_INTERFACE, 110);
         if (!lightsFrmImage.lock(lightsFid)) {
             return;
         }
@@ -1656,10 +1656,10 @@ static int interfaceBarRefreshMainAction()
             int fid;
             if (_proto_action_can_use_on(itemState->item->pid)) {
                 // USE ON
-                fid = buildFid(OBJ_TYPE_INTERFACE, 294, 0, 0, 0);
+                fid = buildFid(OBJ_TYPE_INTERFACE, 294);
             } else if (_obj_action_can_use(itemState->item)) {
                 // USE
-                fid = buildFid(OBJ_TYPE_INTERFACE, 292, 0, 0, 0);
+                fid = buildFid(OBJ_TYPE_INTERFACE, 292);
             } else {
                 fid = -1;
             }
@@ -1684,20 +1684,20 @@ static int interfaceBarRefreshMainAction()
             // jump table.
             switch (itemState->action) {
             case INTERFACE_ITEM_ACTION_PRIMARY_AIMING:
-                bullseyeFid = buildFid(OBJ_TYPE_INTERFACE, 288, 0, 0, 0);
+                bullseyeFid = buildFid(OBJ_TYPE_INTERFACE, 288);
                 // FALLTHROUGH
             case INTERFACE_ITEM_ACTION_PRIMARY:
                 hitMode = itemState->primaryHitMode;
                 break;
             case INTERFACE_ITEM_ACTION_SECONDARY_AIMING:
-                bullseyeFid = buildFid(OBJ_TYPE_INTERFACE, 288, 0, 0, 0);
+                bullseyeFid = buildFid(OBJ_TYPE_INTERFACE, 288);
                 // FALLTHROUGH
             case INTERFACE_ITEM_ACTION_SECONDARY:
                 hitMode = itemState->secondaryHitMode;
                 break;
             case INTERFACE_ITEM_ACTION_RELOAD:
                 actionPoints = itemGetActionPointCost(gDude, gInterfaceCurrentHand == HAND_LEFT ? HIT_MODE_LEFT_WEAPON_RELOAD : HIT_MODE_RIGHT_WEAPON_RELOAD, false);
-                primaryFid = buildFid(OBJ_TYPE_INTERFACE, 291, 0, 0, 0);
+                primaryFid = buildFid(OBJ_TYPE_INTERFACE, 291);
                 break;
             default:
                 break;
@@ -1789,7 +1789,7 @@ static int interfaceBarRefreshMainAction()
                     break;
                 }
 
-                primaryFid = buildFid(OBJ_TYPE_INTERFACE, id, 0, 0, 0);
+                primaryFid = buildFid(OBJ_TYPE_INTERFACE, id);
             }
 
             if (primaryFid != -1) {
@@ -1806,7 +1806,7 @@ static int interfaceBarRefreshMainAction()
 
     if (actionPoints >= 0 && actionPoints < 10) {
         // movement point text
-        int apFid = buildFid(OBJ_TYPE_INTERFACE, 289, 0, 0, 0);
+        int apFid = buildFid(OBJ_TYPE_INTERFACE, 289);
 
         FrmImage apFrmImage;
         if (apFrmImage.lock(apFid)) {
@@ -1820,7 +1820,7 @@ static int interfaceBarRefreshMainAction()
 
             FrmImage apNumbersFrmImage;
             // movement point numbers - ten numbers 0 to 9, each 10 pixels wide.
-            int apNumbersFid = buildFid(OBJ_TYPE_INTERFACE, 290, 0, 0, 0);
+            int apNumbersFid = buildFid(OBJ_TYPE_INTERFACE, 290);
             if (apNumbersFrmImage.lock(apNumbersFid)) {
                 int width = apNumbersFrmImage.getWidth();
                 int height = apNumbersFrmImage.getHeight();
@@ -1920,7 +1920,7 @@ static void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(WeaponAnimation p
     if (weaponAnimationCode != WEAPON_ANIMATION_NONE) {
         animationRegisterTakeOutWeapon(gDude, weaponAnimationCode, -1);
     } else {
-        int fid = buildFid(OBJ_TYPE_CRITTER, gDude->fid & 0xFFF, ANIM_STAND, 0, gDude->rotation + 1);
+        int fid = buildFid(OBJ_TYPE_CRITTER, gDude->fid & 0xFFF, ANIM_STAND, WEAPON_ANIMATION_NONE, gDude->rotation + 1);
         animationRegisterSetFid(gDude, fid, -1);
     }
 
@@ -1973,12 +1973,12 @@ static int endTurnButtonInit()
         return -1;
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 105, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 105);
     if (!_endTurnButtonNormalFrmImage.lock(fid)) {
         return -1;
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 106, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 106);
     if (!_endTurnButtonPressedFrmImage.lock(fid)) {
         return -1;
     }
@@ -2025,12 +2025,12 @@ static int endCombatButtonInit()
         return -1;
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 107, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 107);
     if (!_endCombatButtonNormalFrmImage.lock(fid)) {
         return -1;
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 108, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 108);
     if (!_endCombatButtonPressedFrmImage.lock(fid)) {
         return -1;
     }
@@ -2279,7 +2279,7 @@ static int indicatorBarInit()
     }
 
     FrmImage indicatorBoxFrmImage;
-    int indicatorBoxFid = buildFid(OBJ_TYPE_INTERFACE, 126, 0, 0, 0);
+    int indicatorBoxFid = buildFid(OBJ_TYPE_INTERFACE, 126);
     if (!indicatorBoxFrmImage.lock(indicatorBoxFid)) {
         debugPrint("\nINTRFACE: Error initializing indicator box graphics! **\n");
         messageListFree(&messageList);
@@ -2828,7 +2828,7 @@ static void extendedApBarInitToWindow()
     // Blit extended AP bar art into static window buffer, overwriting pixels from the interface bar FRM.
     if (settings.ui.extend_ap_bar) {
         if (ArtPtr apBarArt { artLoad("art\\intrface\\iface_apbar_e.frm") }) {
-            if (auto apBarFrmBuf = artGetFrameBuffer(apBarArt.get(), 0, 0)) {
+            if (auto apBarFrmBuf = artGetFrameBuffer(apBarArt.get(), 0, ROTATION_NE)) {
                 int apBarBgXOffset = apBarXOffset - 23;
                 constexpr int apBarBgYOffset = kApBarYOffset - 4;
 
@@ -2848,7 +2848,7 @@ unsigned char* customInterfaceBarGetBackgroundImageData()
         return nullptr;
     }
 
-    return artGetFrameData(gCustomInterfaceBarBackground, 0, 0);
+    return artGetFrameData(gCustomInterfaceBarBackground);
 }
 
 static void sidePanelsInit()
@@ -2922,10 +2922,10 @@ static void sidePanelsDraw(const char* path, int win, bool isLeading)
         return;
     }
 
-    unsigned char* imageData = artGetFrameData(image, 0, 0);
+    unsigned char* imageData = artGetFrameData(image);
 
-    int imageWidth = artGetWidth(image, 0, 0);
-    int imageHeight = artGetHeight(image, 0, 0);
+    int imageWidth = artGetWidth(image);
+    int imageHeight = artGetHeight(image);
 
     int windowWidth = windowGetWidth(win);
     int windowHeight = windowGetHeight(win);

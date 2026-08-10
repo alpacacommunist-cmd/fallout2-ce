@@ -1652,7 +1652,7 @@ static int lsgWindowInit(int windowType)
     }
 
     for (int index = 0; index < LOAD_SAVE_FRM_COUNT; index++) {
-        int fid = buildFid(OBJ_TYPE_INTERFACE, gLoadSaveFrmIds[index], 0, 0, 0);
+        int fid = buildFid(OBJ_TYPE_INTERFACE, gLoadSaveFrmIds[index]);
         if (!_loadsaveFrmImages[index].lock(fid)) {
             while (--index >= 0) {
                 _loadsaveFrmImages[index].unlock();
@@ -2933,7 +2933,7 @@ static int _SlotMap2Game(File* stream)
         if (pid != -2) {
             char protoPath[COMPAT_MAX_PATH];
             if (_proto_list_str(pid, protoPath) == 0) {
-                const char* basePath = PID_TYPE(pid) == OBJ_TYPE_CRITTER
+                const char* basePath = objectTypeFromPid(pid) == OBJ_TYPE_CRITTER
                     ? PROTO_DIR_NAME "\\" CRITTERS_DIR_NAME
                     : PROTO_DIR_NAME "\\" ITEMS_DIR_NAME;
                 snprintf(_str0, sizeof(_str0), "%s\\%s\\%s", _patches, basePath, protoPath);
