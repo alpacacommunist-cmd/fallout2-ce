@@ -153,8 +153,6 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int fl
     sfallOnBeforeGameInit();
 
     // CK: Execute all code that should be executed BEFORE game init
-    ck::init_ffi_manifest();
-    ck_scripting_init(argc, argv);
 
     settingsInit(isMapper, argc, argv);
 
@@ -167,6 +165,9 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int fl
         sfallConfigExit();
         return -1;
     }
+
+    ck::init_ffi_manifest();
+    ck_scripting_init(argc, argv);
 
     // Content config reads from the VFS, so it must be initialized after gameDbInit.
     contentConfigInit();
