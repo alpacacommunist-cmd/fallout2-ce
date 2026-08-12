@@ -7030,12 +7030,12 @@ bool _combat_reload_map() {
 
             int outlineType;
             if (map_critter->data.critter.combat.team == gDude->data.critter.combat.team) {
-                outlineType = OUTLINE_TYPE_2;
+                outlineType = OUTLINE_TYPE_SAME_TEAM;
             } else {
                 outlineType = OUTLINE_TYPE_HOSTILE;
             }
 
-            objectSetOutline(map_critter, outlineType, nullptr);
+            objectSetOutline(map_critter, OutlineType(outlineType), nullptr);
 
             if (outlineWasEnabled) {
                 Rect rect;
