@@ -996,7 +996,7 @@ int skillUse(Object* obj, Object* target, Skill skill, int skillBonus)
             paletteFadeTo(gPaletteBlack);
 
             if (critterGetBodyType(target) != BODY_TYPE_ROBOTIC && critterIsCrippled(target)) {
-                int flags[HEALABLE_DAMAGE_FLAGS_LENGTH];
+                Dam flags[HEALABLE_DAMAGE_FLAGS_LENGTH];
                 memcpy(flags, gHealableDamageFlags, sizeof(gHealableDamageFlags));
 
                 for (int index = 0; index < HEALABLE_DAMAGE_FLAGS_LENGTH; index++) {
@@ -1181,7 +1181,7 @@ int skillUse(Object* obj, Object* target, Skill skill, int skillBonus)
         }
 
         if (currentHp < maximumHp || critterIsCrippled(target)) {
-            int flags[REPAIRABLE_DAMAGE_FLAGS_LENGTH];
+            Dam flags[REPAIRABLE_DAMAGE_FLAGS_LENGTH];
             memcpy(flags, gRepairableDamageFlags, sizeof(gRepairableDamageFlags));
 
             paletteFadeTo(gPaletteBlack);
