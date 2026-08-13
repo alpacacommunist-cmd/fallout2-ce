@@ -810,6 +810,9 @@ int tileToScreenXY(int tile, int* screenX, int* screenY)
     int v5;
     int v6;
 
+    *screenX = 0;
+    *screenY = 0;
+
     if (!tileIsValid(tile)) {
         return -1;
     }
@@ -1179,6 +1182,9 @@ bool tileScrollLimitingIsEnabled()
 // 0x4B1DC0 square_coord
 int squareTileToScreenXY(int squareTile, int* coordX, int* coordY, int elevation)
 {
+    *coordX = 0;
+    *coordY = 0;
+
     if (squareTile < 0 || squareTile >= gSquareGridSize) {
         return -1;
     }
@@ -1209,6 +1215,9 @@ int squareTileToRoofScreenXY(int squareTile, int* screenX, int* screenY, int ele
     int v8;
     int v9;
     int v10;
+
+    *screenX = 0;
+    *screenY = 0;
 
     if (squareTile < 0 || squareTile >= gSquareGridSize) {
         return -1;

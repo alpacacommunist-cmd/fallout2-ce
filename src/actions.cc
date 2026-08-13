@@ -1135,7 +1135,7 @@ int _action_use_an_item_on_object(Object* user, Object* targetObj, Object* item)
         ObjectType objectType = objectTypeFromFid(targetObj->fid);
         if (objectType == OBJ_TYPE_CRITTER && critterIsProne(targetObj)) {
             anim = ANIM_MAGIC_HANDS_GROUND;
-        } else if (objectType == OBJ_TYPE_SCENERY && (proto->scenery.extendedFlags & PROTO_EXT_FLAG_MAGIC_HANDS_GROUND) != 0) {
+        } else if (objectType == OBJ_TYPE_SCENERY && (proto->scenery.extendedFlags & PROTO_EXT_FLAG_MAGIC_HANDS_GROUND) != PROTO_EXT_FLAG_NONE) {
             anim = ANIM_MAGIC_HANDS_GROUND;
         } else {
             anim = ANIM_MAGIC_HANDS_MIDDLE;
@@ -1752,7 +1752,7 @@ int _report_explosion(Attack* attack, Object* sourceObj)
         mainTargetWasDead = false;
     }
 
-    bool extrasWasDead[6];
+    bool extrasWasDead[EXPLOSION_TARGET_COUNT] = {};
     for (int index = 0; index < attack->extrasLength; index++) {
         extrasWasDead[index] = (attack->extras[index]->data.critter.combat.results & DAM_DEAD) != DAM_NONE;
     }
