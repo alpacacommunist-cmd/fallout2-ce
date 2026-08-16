@@ -177,6 +177,21 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int fl
     messageListRepositoryInit();
 
     programWindowSetTitle(windowTitle);
+
+    const char* visibleWindowTitle = windowTitle;
+    char versionWindowTitle[256];
+    if (settings.screen.windowed == WindowMode::Windowed) {
+        char* configuredWindowTitle = nullptr;
+        configGetString(&gContentConfig, CONTENT_CONFIG_MISC_SECTION, "window_title", &configuredWindowTitle, "");
+        if (configuredWindowTitle != nullptr && configuredWindowTitle[0] != '\0') {
+            visibleWindowTitle = configuredWindowTitle;
+        } else {
+            versionGetVersion(versionWindowTitle, sizeof(versionWindowTitle));
+            visibleWindowTitle = versionWindowTitle;
+        }
+    }
+
+    programWindowSetTitle(visibleWindowTitle);
     windowInit(1, flags);
     paletteInit();
 
@@ -1435,7 +1450,7 @@ static int gameDbInit()
 
     // Load archives in reverse priority order (dbOpen prepends to chain).
     // Resulting chain (head = highest priority):
-    //   master_patches > critter_patches > mods > patchXXX.dat > ce.dat > f2_res.dat > critter.dat > master.dat
+    //   master_patches > critter_patches > mods > patchXXX.dat > ce.dat > f2_res_dat > critter.dat > master.dat
 
     if (dbOpen(master_dat_path) == -1) {
         showMessageBox("Could not find the master datafile. Please make sure the FALLOUT CD is in the drive and that you are running FALLOUT from the directory you installed it to.");
@@ -1447,9 +1462,8 @@ static int gameDbInit()
         return -1;
     }
 
-    constexpr char highResPatchDatPath[] = "f2_res.dat";
-
-    if (compat_access(highResPatchDatPath, 0) == 0) {
+    const char* highResPatchDatPath = settings.system.f2_res_dat_path.c_str();
+    if (*highResPatchDatPath != '\0' && compat_access(highResPatchDatPath, 0) == 0) {
         debugPrint("Loading HRP data mod: %s\n", highResPatchDatPath);
         dbOpen(highResPatchDatPath);
     }

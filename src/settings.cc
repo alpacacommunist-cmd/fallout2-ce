@@ -144,6 +144,7 @@ void initSettingsRegistry(bool isMapper)
     SETTING(executable);
     SETTING_PATH(master_dat);
     SETTING_PATH(master_patches);
+    SETTING_PATH(f2_res_dat);
     SETTING_PATH(critter_dat);
     SETTING_PATH(critter_patches);
     SETTING(language);
@@ -234,6 +235,7 @@ void initSettingsRegistry(bool isMapper)
 
 #define SECT debug
     SETTING(mode);
+    SETTING(show_fps);
     SETTING(show_tile_num);
     SETTING(show_script_messages);
     SETTING(show_load_info);
