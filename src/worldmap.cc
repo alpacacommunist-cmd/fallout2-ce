@@ -7365,7 +7365,7 @@ int wmSetMapMusic(Map mapIdx, const char* name)
 // 0x4C59A4 wmMatchAreaContainingMapIdx
 int wmMatchAreaContainingMapIdx(Map mapIdx, City* areaIdxPtr)
 {
-    mapIdx = ck::area_resolve_id_for_city_match(mapIdx);
+    mapIdx = static_cast<Map>(ck::area_resolve_id_for_city_match(static_cast<int>(mapIdx)));
     *areaIdxPtr = CITY_FIRST;
 
     for (City areaIdx = CITY_FIRST; areaIdx < wmMaxAreaNum; areaIdx++) {

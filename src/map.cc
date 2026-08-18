@@ -890,7 +890,7 @@ static void mapLoadTimerFinish(const char* fileName, int rc)
 // 0x482B34
 int mapLoadById(Map map)
 {
-    map = ck::area_resolve_map_id(map);
+    map = static_cast<Map>(ck::area_resolve_map_id(static_cast<int>(map)));
     scriptSetFixedParam(gMapSid, map);
 
     char name[16];
