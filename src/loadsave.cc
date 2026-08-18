@@ -11,6 +11,7 @@
 
 #include "art.h"
 #include "automap.h"
+#include "ce_save_game.h"
 #include "character_editor.h"
 #include "color.h"
 #include "combat.h"
@@ -141,7 +142,7 @@ typedef struct LoadSaveSlotData {
     short gameYear;
     unsigned int gameTime;
     short elevation;
-    short map;
+    Map map;
     char fileName[16];
 } LoadSaveSlotData;
 
@@ -1953,6 +1954,15 @@ static int lsgPerformSaveGame()
             "SAVEGAME\\SLOT", _slot_cursor + 1, "ck_state.json");
     ck_scripting_on_game_save(local_ck_path);
 
+    char ceSavePath[COMPAT_MAX_PATH];
+    snprintf(ceSavePath, sizeof(ceSavePath), "%s\\SAVEGAME\\SLOT%.2d\\ce.sav", _patches, _slot_cursor + 1);
+    if (!ceSaveGameData(ceSavePath)) {
+        debugPrint("LOADSAVE (CE): ** Error saving %s **\n", ceSavePath);
+        _RestoreSave();
+        backgroundSoundResume();
+        return -1;
+    }
+
     snprintf(_gmpath, sizeof(_gmpath), "%s\\%s%.2d\\", "SAVEGAME", "SLOT", _slot_cursor + 1);
     MapDirErase(_gmpath, "BAK");
 
@@ -2066,6 +2076,10 @@ static int lsgLoadGameInSlot(int slot)
         }
     }
 
+    char ceSavePath[COMPAT_MAX_PATH];
+    snprintf(ceSavePath, sizeof(ceSavePath), "%s\\SAVEGAME\\SLOT%.2d\\ce.sav", _patches, _slot_cursor + 1);
+    ceLoadGameData(ceSavePath);
+
     snprintf(_str, sizeof(_str), "%s\\", "MAPS");
     MapDirErase(_str, "BAK");
     _proto_dude_update_gender();
@@ -2175,7 +2189,7 @@ static int lsgSaveHeaderInSlot(int slot)
     }
 
     ptr->map = mapGetCurrentMap();
-    if (fileWriteInt16(_flptr, ptr->map) == -1) {
+    if (fileWriteInt16Enum<Map>(_flptr, ptr->map) == -1) {
         return -1;
     }
 
@@ -2274,7 +2288,7 @@ static int lsgLoadHeaderInSlot(int slot)
         return -1;
     }
 
-    if (fileReadInt16(_flptr, &(ptr->map)) == -1) {
+    if (fileReadInt16Enum<Map>(_flptr, &(ptr->map)) == -1) {
         return -1;
     }
 
