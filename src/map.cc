@@ -1673,7 +1673,7 @@ static void isoWindowRefreshRectGame(Rect* rect)
 
     tileRenderFloorsInRect(&rectToUpdate, gElevation);
     ck::rendering::floor(&rectToUpdate);
-    ck_debug_overlay_render(&rectToUpdate);
+    ck::debug_overlay::render(&rectToUpdate);
     _obj_render_pre_roof(&rectToUpdate, gElevation);
     tileRenderRoofsInRect(&rectToUpdate, gElevation);
     ck::rendering::roof(&rectToUpdate);

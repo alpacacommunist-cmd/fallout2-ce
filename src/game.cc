@@ -920,8 +920,8 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         ck_reload_mods();
         break;
     case KEY_F9:
-        ck_debug_overlay_toggle();
-        debugPrint("[CK] Debug overlay: %s\n", ck_debug_overlay_enabled() ? "ON" : "OFF");
+        ck::debug_overlay::toggle();
+        debugPrint("[CK] Debug overlay: %s\n", ck::debug_overlay::enabled() ? "ON" : "OFF");
         break;
     case KEY_F6:
         if (1) {
