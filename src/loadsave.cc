@@ -398,7 +398,7 @@ static void loadSavePersistSelectedSlot()
     snprintf(path, sizeof(path), "%s\\%s", _patches, kLoadSaveSlotDataFile);
 
     ScopedConfig config { path, false };
-    if (!config.isInitialized()) {
+    if (!config.get()->isInitialized()) {
         return;
     }
 
@@ -1905,7 +1905,7 @@ static int lsgPerformSaveGame()
     long pos = fileTell(_flptr);
     if (lsgSaveHeaderInSlot(_slot_cursor) == -1) {
         debugPrint("\nLOADSAVE: ** Error writing save game header! **\n");
-        debugPrint("LOADSAVE: Save file header size written: %d bytes.\n", fileTell(_flptr) - pos);
+        debugPrint("LOADSAVE: Save file header size written: %ld bytes.\n", fileTell(_flptr) - pos);
         fileClose(_flptr);
         _RestoreSave();
         snprintf(_gmpath, sizeof(_gmpath), "%s\\%s%.2d\\", "SAVEGAME", "SLOT", _slot_cursor + 1);
@@ -1929,7 +1929,7 @@ static int lsgPerformSaveGame()
             return -1;
         }
 
-        debugPrint("LOADSAVE: Save function #%d data size written: %d bytes.\n", index, fileTell(_flptr) - pos);
+        debugPrint("LOADSAVE: Save function #%d data size written: %ld bytes.\n", index, fileTell(_flptr) - pos);
     }
 
     debugPrint("LOADSAVE: Total save data written: %ld bytes.\n", fileTell(_flptr));
@@ -2039,7 +2039,7 @@ static int lsgLoadGameInSlot(int slot)
     _loadingMapId = _LSData[slot].map;
     debugPrint("\nLOADSAVE: Load name: %s\n", ptr->description);
 
-    debugPrint("LOADSAVE: Load file header size read: %d bytes.\n", fileTell(_flptr) - pos);
+    debugPrint("LOADSAVE: Load file header size read: %ld bytes.\n", fileTell(_flptr) - pos);
 
     for (int index = 0; index < LOAD_SAVE_HANDLER_COUNT; index += 1) {
         long pos = fileTell(_flptr);
@@ -2047,7 +2047,7 @@ static int lsgLoadGameInSlot(int slot)
         if (handler(_flptr) == -1) {
             debugPrint("\nLOADSAVE: ** Error reading load function #%d data! **\n", index);
             int v12 = fileTell(_flptr);
-            debugPrint("LOADSAVE: Load function #%d data size read: %d bytes.\n", index, fileTell(_flptr) - pos);
+            debugPrint("LOADSAVE: Load function #%d data size read: %ld bytes.\n", index, fileTell(_flptr) - pos);
             fileClose(_flptr);
             gameReset();
             _loadingGame = false;
@@ -2055,7 +2055,7 @@ static int lsgLoadGameInSlot(int slot)
             return -1;
         }
 
-        debugPrint("LOADSAVE: Load function #%d data size read: %d bytes.\n", index, fileTell(_flptr) - pos);
+        debugPrint("LOADSAVE: Load function #%d data size read: %ld bytes.\n", index, fileTell(_flptr) - pos);
     }
 
     _loadingMapId = -1;
