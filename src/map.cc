@@ -58,7 +58,6 @@ namespace ck {
 
     const char* area_resolve_path(const char* name);
     void        area_on_map_header_set(fallout::MapHeader* header);
-	int         area_resolve_map_id(int original_map_id);
 }
 namespace fallout {
 
@@ -892,7 +891,6 @@ static void mapLoadTimerFinish(const char* fileName, int rc)
 // 0x482B34
 int mapLoadById(Map map)
 {
-    map = static_cast<Map>(ck::area_resolve_map_id(static_cast<int>(map)));
     scriptSetFixedParam(gMapSid, map);
 
     char name[16];
@@ -1674,10 +1672,11 @@ static void isoWindowRefreshRectGame(Rect* rect)
     }
 
     tileRenderFloorsInRect(&rectToUpdate, gElevation);
-    ck_rendering_render(&rectToUpdate);
+    ck::rendering::floor(&rectToUpdate);
     ck_debug_overlay_render(&rectToUpdate);
     _obj_render_pre_roof(&rectToUpdate, gElevation);
     tileRenderRoofsInRect(&rectToUpdate, gElevation);
+    ck::rendering::roof(&rectToUpdate);
     _obj_render_post_roof(&rectToUpdate, gElevation);
 
     if (!hasVisArea) {

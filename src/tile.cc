@@ -755,12 +755,11 @@ static void tileRefreshGame(Rect* rect, int elevation)
     }
 
     tileRenderFloorsInRect(&renderRect, elevation);
-
-    ck_rendering_render(&renderRect);
+    ck::rendering::floor(&renderRect);
     ck_debug_overlay_render(&renderRect);
-
     _obj_render_pre_roof(&renderRect, elevation);
     tileRenderRoofsInRect(&renderRect, elevation);
+    ck::rendering::roof(&renderRect);
     _obj_render_post_roof(&renderRect, elevation);
 
     if (!hasVisArea) {

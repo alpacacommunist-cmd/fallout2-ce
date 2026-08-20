@@ -56,7 +56,6 @@
 #include "window_manager.h"
 
 
-namespace ck         { int  area_resolve_id_for_city_match(int map_index); }
 namespace ck::skills {
     void on_encounter(int difficulty_modifier, int frequency, bool special);
     void on_worldmap_step(int difficulty);
@@ -7377,7 +7376,6 @@ int wmSetMapMusic(Map mapIdx, const char* name)
 // 0x4C59A4 wmMatchAreaContainingMapIdx
 int wmMatchAreaContainingMapIdx(Map mapIdx, City* areaIdxPtr)
 {
-    mapIdx = static_cast<Map>(ck::area_resolve_id_for_city_match(static_cast<int>(mapIdx)));
     *areaIdxPtr = CITY_FIRST;
 
     for (City areaIdx = CITY_FIRST; areaIdx < wmMaxAreaNum; areaIdx++) {
