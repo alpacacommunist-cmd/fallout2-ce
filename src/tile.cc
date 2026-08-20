@@ -2108,5 +2108,10 @@ const Rect& tileWindowRect() { return gTileWindowRect; }
 int tileGetWindowPitch() { return gTileWindowPitch; }
 int tileGetHexGridWidth() { return gHexGridWidth; }
 int tileGetHexGridHeight() { return gHexGridHeight; }
+void tileRenderRoofExternal(int fid, int x, int y, Rect* rect)
+{
+    int light = lightGetAmbientIntensity();
+    tileRenderRoof(fid, x, y, rect, light);
+}
 
 } // namespace fallout

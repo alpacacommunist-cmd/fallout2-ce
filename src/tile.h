@@ -70,14 +70,6 @@ bool _square_roof_intersect(int x, int y, int elevation);
 void _grid_render(Rect* rect, int elevation);
 int _tile_scroll_to(int tile, int flags);
 
-// CK wrappers
-void tileRenderFloorExternal(int fid, int x, int y, Rect* rect);
-const Rect& tileWindowRect();
-unsigned char* tileGetWindowBuffer();
-int tileGetWindowPitch();
-int tileGetHexGridWidth();
-int tileGetHexGridHeight();
-
 static bool tileIsValid(int tile)
 {
     return tile >= 0 && tile < gHexGridSize;
@@ -85,6 +77,15 @@ static bool tileIsValid(int tile)
 
 // used to decide whether to clear (blacken) a rect.
 bool checkRectNeedsClear(const Rect* rect, bool hasVisArea, const Rect* visArea);
+
+// CK wrappers
+void tileRenderFloorExternal(int fid, int x, int y, Rect* rect);
+const Rect& tileWindowRect();
+unsigned char* tileGetWindowBuffer();
+int tileGetWindowPitch();
+int tileGetHexGridWidth();
+int tileGetHexGridHeight();
+void tileRenderRoofExternal(int fid, int x, int y, Rect* rect);
 
 } // namespace fallout
 
