@@ -406,7 +406,7 @@ int tileInit(TileData** squareGrid, int squareGridWidth, int squareGridHeight, i
         v11 += 16;
     } while (v11 != 64);
 
-    bufferFill(_tile_grid, 32, 16, 32, 0);
+    bufferFill(_tile_grid, 32, 16, 32, COLOR_FIRST);
     bufferDrawLine(_tile_grid, 32, 16, 0, 31, 4, COLOR_DARK_GREY_3);
     bufferDrawLine(_tile_grid, 32, 31, 4, 31, 12, COLOR_DARK_GREY_3);
     bufferDrawLine(_tile_grid, 32, 31, 12, 16, 15, COLOR_DARK_GREY_3);
@@ -414,7 +414,7 @@ int tileInit(TileData** squareGrid, int squareGridWidth, int squareGridHeight, i
     bufferDrawLine(_tile_grid, 32, 0, 4, 0, 12, COLOR_DARK_GREY_3);
     bufferDrawLine(_tile_grid, 32, 16, 0, 0, 4, COLOR_DARK_GREY_3);
 
-    bufferFill(_tile_grid_occupied, 32, 16, 32, 0);
+    bufferFill(_tile_grid_occupied, 32, 16, 32, COLOR_FIRST);
     bufferDrawLine(_tile_grid_occupied, 32, 16, 0, 31, 4, COLOR_BLUE);
     bufferDrawLine(_tile_grid_occupied, 32, 31, 4, 31, 12, COLOR_BLUE);
     bufferDrawLine(_tile_grid_occupied, 32, 31, 12, 16, 15, COLOR_BLUE);
@@ -422,7 +422,7 @@ int tileInit(TileData** squareGrid, int squareGridWidth, int squareGridHeight, i
     bufferDrawLine(_tile_grid_occupied, 32, 0, 4, 0, 12, COLOR_BLUE);
     bufferDrawLine(_tile_grid_occupied, 32, 16, 0, 0, 4, COLOR_BLUE);
 
-    bufferFill(_tile_grid_blocked, 32, 16, 32, 0);
+    bufferFill(_tile_grid_blocked, 32, 16, 32, COLOR_FIRST);
     bufferDrawLine(_tile_grid_blocked, 32, 16, 0, 31, 4, COLOR_RED);
     bufferDrawLine(_tile_grid_blocked, 32, 31, 4, 31, 12, COLOR_RED);
     bufferDrawLine(_tile_grid_blocked, 32, 31, 12, 16, 15, COLOR_RED);
@@ -698,7 +698,7 @@ static void tileRefreshMapper(Rect* rect, int elevation)
             rectGetWidth(&rectToUpdate),
             rectGetHeight(&rectToUpdate),
             gTileWindowPitch,
-            0);
+            COLOR_FIRST);
     }
 
     if (hasVisArea && rectIntersection(&renderRect, &visArea, &renderRect) == -1) {
@@ -744,7 +744,7 @@ static void tileRefreshGame(Rect* rect, int elevation)
             rectGetWidth(&rectToUpdate),
             rectGetHeight(&rectToUpdate),
             gTileWindowPitch,
-            0);
+            COLOR_FIRST);
     }
 
     if (hasVisArea && rectIntersection(&renderRect, &visArea, &renderRect) == -1) {

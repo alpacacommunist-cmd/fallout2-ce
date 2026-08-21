@@ -221,7 +221,13 @@ static void pipboyWindowFree();
 static void _pip_init_();
 static void pipboyDrawNumber(int value, int digits, int x, int y);
 static void pipboyDrawDate();
-static void pipboyDrawText(const char* text, int a2, int a3);
+
+static void pipboyDrawText(const char* text, int flags, ColorWithFlags color);
+static inline void pipboyDrawText(const char* text, int flags, Color color)
+{
+    pipboyDrawText(text, flags, color | DRAW_TEXT_FLAG_NONE);
+}
+
 static int _save_pipboy(File* stream);
 static void pipboyWindowHandleStatus(int userInput);
 static void pipboyWindowRenderQuestLocationList(int a1);
@@ -935,7 +941,7 @@ static void pipboyDrawDate()
 }
 
 // 0x497A40
-static void pipboyDrawText(const char* text, int flags, int color)
+static void pipboyDrawText(const char* text, int flags, ColorWithFlags color)
 {
     if ((flags & PIPBOY_TEXT_STYLE_UNDERLINE) != 0) {
         color |= DRAW_TEXT_FLAG_UNDERLINED;
@@ -962,7 +968,7 @@ static void pipboyDrawText(const char* text, int flags, int color)
 
     if ((flags & PIPBOY_TEXT_STYLE_STRIKE_THROUGH) != 0) {
         int top = gPipboyCurrentLine * fontGetLineHeight() + 49;
-        bufferDrawLine(gPipboyWindowBuffer, PIPBOY_WINDOW_WIDTH, PIPBOY_WINDOW_CONTENT_VIEW_X + left, top, PIPBOY_WINDOW_CONTENT_VIEW_X + left + length, top, color);
+        bufferDrawLine(gPipboyWindowBuffer, PIPBOY_WINDOW_WIDTH, PIPBOY_WINDOW_CONTENT_VIEW_X + left, top, PIPBOY_WINDOW_CONTENT_VIEW_X + left + length, top, static_cast<Color>(color & COLOR_LAST));
     }
 
     if (gPipboyCurrentLine < gPipboyLinesCount) {
@@ -1338,7 +1344,7 @@ static void pipboyWindowQuestList(int selectedLocationIndex)
                     *ending = '\0';
 
                     int flags;
-                    int color;
+                    Color color;
                     if (gGameGlobalVars[questDescription->gvar] < questDescription->completedThreshold) {
                         flags = 0;
                         color = COLOR_GREEN;
@@ -1451,7 +1457,7 @@ static void pipboyWindowRenderQuestLocationList(int selectedQuestLocation)
     for (int index = startIndex; index < endIndex; index++) {
         // Render the location at index
         const char* questLocation = gPipboyQuestLocations[index];
-        int color = (gPipboyCurrentLine - 1) / 2 == (selectedQuestLocation - 1) ? COLOR_LIGHT_YELLOW : COLOR_GREEN;
+        Color color = (gPipboyCurrentLine - 1) / 2 == (selectedQuestLocation - 1) ? COLOR_LIGHT_YELLOW : COLOR_GREEN;
         pipboyDrawText(questLocation, 0, color);
         gPipboyCurrentLine += 1;
     }
@@ -1595,7 +1601,7 @@ static int pipboyWindowRenderHolodiskList(int selectedHolodiskEntry)
         if (gGameGlobalVars[holodisk->gvar] == 0) continue;
 
         if (currentIndex >= startIdx && currentIndex < startIdx + maxEntriesPerPage) {
-            int color = ((gPipboyCurrentLine - 1) / 2 == selectedHolodiskEntry - 1) ? COLOR_LIGHT_YELLOW : COLOR_GREEN;
+            Color color = ((gPipboyCurrentLine - 1) / 2 == selectedHolodiskEntry - 1) ? COLOR_LIGHT_YELLOW : COLOR_GREEN;
             const char* text = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, holodisk->name);
             pipboyDrawText(text, PIPBOY_TEXT_ALIGNMENT_RIGHT_COLUMN, color);
             gPipboyCurrentLine++;
@@ -1828,7 +1834,7 @@ static int _PrintAMelevList(int selectedMap)
 
     for (int index = 0; index < elevationsListSize; index++) { // draw locations list
 
-        int color;
+        Color color;
         if (gPipboyCurrentLine - 4 == selectedPipboyLine) {
             color = COLOR_LIGHT_YELLOW;
         } else {
@@ -1941,7 +1947,7 @@ static int _PrintAMList(int selectedLocation)
 
     // Print paginated locations
     for (int index = startIdx; index < endIdx; index++) {
-        int color = (gPipboyCurrentLine - 1 == selectedLocation) ? COLOR_LIGHT_YELLOW : COLOR_GREEN;
+        Color color = (gPipboyCurrentLine - 1 == selectedLocation) ? COLOR_LIGHT_YELLOW : COLOR_GREEN;
         pipboyDrawText(_sortlist[index].name, 0, color);
         gPipboyCurrentLine++;
     }
@@ -1996,7 +2002,7 @@ static int pipboyRenderVideoArchive(int a1)
     int msg_num;
     int v5;
     int v8;
-    int v9;
+    Color color;
 
     blitBufferToBuffer(_pipboyFrmImages[PIPBOY_FRM_BACKGROUND].getData() + PIPBOY_WINDOW_WIDTH * PIPBOY_WINDOW_CONTENT_VIEW_Y + PIPBOY_WINDOW_CONTENT_VIEW_X,
         PIPBOY_WINDOW_CONTENT_VIEW_WIDTH,
@@ -2029,13 +2035,13 @@ static int pipboyRenderVideoArchive(int a1)
         if (gameMovieIsSeen(i)) {
             v8 = v5++;
             if (v8 == v12) {
-                v9 = COLOR_LIGHT_YELLOW;
+                color = COLOR_LIGHT_YELLOW;
             } else {
-                v9 = COLOR_GREEN;
+                color = COLOR_GREEN;
             }
 
             text = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, msg_num);
-            pipboyDrawText(text, 0, v9);
+            pipboyDrawText(text, 0, color);
 
             gPipboyCurrentLine++;
         }
@@ -2148,7 +2154,7 @@ static void pipboyWindowRenderRestOptions(int a1)
         // ...
         // 315 - Rest until party is healed
         text = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, pipboyRestDurationBaseMessageId + option - 1);
-        int color = option == a1 ? COLOR_LIGHT_YELLOW : COLOR_GREEN;
+        Color color = option == a1 ? COLOR_LIGHT_YELLOW : COLOR_GREEN;
 
         pipboyDrawText(text, 0, color);
 

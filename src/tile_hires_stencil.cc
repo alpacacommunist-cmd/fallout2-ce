@@ -9,7 +9,6 @@
 #include "settings.h"
 #include "stdio.h"
 #include "tile.h"
-#include "window_manager.h"
 #include <string.h>
 #include <vector>
 
@@ -395,7 +394,7 @@ void tile_hires_stencil_draw(Rect* rect, unsigned char* buffer, int windowWidth,
                     intersection.right - intersection.left + 1,
                     intersection.bottom - intersection.top + 1,
                     windowWidth,
-                    0x0);
+                    COLOR_FIRST);
             }
         }
     }
