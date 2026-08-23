@@ -991,7 +991,7 @@ static void _doBkProcesses()
             _script_chk_critters();
             _script_chk_timed_events();
 
-            ck::on_map_update(gameTimeGetTime()); // 10 ticks = 1 sec
+            ck::script::on_map_update(gameTimeGetTime()); // 10 ticks = 1 sec
         }
     }
 }
@@ -1521,9 +1521,9 @@ int scriptExecProc(int sid, int proc)
         return -1;
     }
 
-    ck::handle_global_script_proc_event(sid, proc);
+    ck::script::handle_global_proc_event(sid, proc);
 
-    if (ck::script_try_handle(sid, proc)) return 0;
+    if (ck::script::try_handle(sid, proc)) return 0;
 
     Script* script;
     if (scriptGetScript(sid, &script) == -1) {
@@ -1744,7 +1744,7 @@ int _scr_find_str_run_info(int scriptIndex, int* /*unused*/, int sid)
         return -1;
     }
 
-    if (ck::owns_sid(scriptIndex)) {
+    if (ck::script::owns_sid(scriptIndex)) {
         script->localVarsCount = 0;
 
         return 0;
@@ -2484,8 +2484,8 @@ int scriptGetScript(int sid, Script** scriptPtr)
         return -1;
     }
 
-    if (ck::owns_sid(sid)) {
-        *scriptPtr = ck::script_get_dummy(sid);
+    if (ck::script::owns_sid(sid)) {
+        *scriptPtr = ck::script::get_dummy(sid);
         return 0;
     }
 

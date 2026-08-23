@@ -2224,7 +2224,7 @@ int _gdProcessChoice(int optionIndex)
     // same behaviour by extending gDialogReplyText to 2700 bytes or introduce
     // new 1800 bytes buffer in between, at least not in debug builds. In order
     // to preserve original behaviour this dummy dialog option entry is used.
-    ck::gLastDialogChoice = optionIndex;
+    ck::script::gLastDialogChoice = optionIndex;
     GameDialogOptionEntry dummy;
     memset(&dummy, 0, sizeof(dummy));
 
