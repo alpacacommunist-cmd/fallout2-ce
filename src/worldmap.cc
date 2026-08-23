@@ -628,7 +628,8 @@ static int wmTabsCompareNames(const void* a1, const void* a2);
 static int wmFreeTabsLabelList(int** quickDestinationsListPtr, int* quickDestinationsLengthPtr);
 static void wmRefreshInterfaceDial(bool shouldRefreshWindow);
 static void wmInterfaceDialSyncTime(bool shouldRefreshWindow);
-static int wmAreaFindFirstValidMap(Map* mapIdxPtr);
+static int wmAreaFindFirstValidMap(Map* mapIdxPtr, int* elevationPtr, int* tilePtr, Rotation* rotationPtr);
+static void wmRunLocalMapEnterHook(Map* mapIdxPtr);
 static void wmFadeOut();
 static void wmFadeIn();
 static void wmFadeReset();
@@ -3569,10 +3570,15 @@ static int wmWorldMapFunc(int a1)
                                 break;
                             }
                         } else {
-                            if (wmAreaFindFirstValidMap(&map) == -1) {
+                            int elevation;
+                            int tile;
+                            Rotation rotation;
+                            if (wmAreaFindFirstValidMap(&map, &elevation, &tile, &rotation) == -1) {
                                 rc = -1;
                                 break;
                             }
+
+                            mapSetEnteringLocation(elevation, tile, rotation);
 
                             // SFALL/CE: LocalMapEnter runs after this first-entry
                             // state transition, so a hook that redirects to a
@@ -3585,7 +3591,7 @@ static int wmWorldMapFunc(int a1)
                     }
 
                     if (map != MAP_INVALID) {
-                        scriptHooks_Encounter(EncounterHookEventType::LocalMapEnter, &map, false, -1, -1);
+                        wmRunLocalMapEnterHook(&map);
                         if (wmGenData.isInCar) {
                             wmGenData.isInCar = false;
                             if (wmGenData.currentAreaId == CITY_INVALID) {
@@ -3623,7 +3629,7 @@ static int wmWorldMapFunc(int a1)
                     }
 
                     if (map != MAP_INVALID) {
-                        scriptHooks_Encounter(EncounterHookEventType::LocalMapEnter, &map, false, -1, -1);
+                        wmRunLocalMapEnterHook(&map);
                         if (wmGenData.isInCar) {
                             // SFALL: Fix for the car being lost when entering a
                             // location via the Town/World button and then
@@ -7292,10 +7298,22 @@ static void wmInterfaceDialSyncTime(bool shouldRefreshWindow)
     }
 }
 
+static void wmRunLocalMapEnterHook(Map* mapIdxPtr)
+{
+    Map originalMap = *mapIdxPtr;
+    scriptHooks_Encounter(EncounterHookEventType::LocalMapEnter, mapIdxPtr, false, -1, -1);
+    if (*mapIdxPtr != originalMap) {
+        mapSetEnteringLocation(-1, -1, ROTATION_INVALID);
+    }
+}
+
 // 0x4C5804 wmAreaFindFirstValidMap
-static int wmAreaFindFirstValidMap(Map* mapIdxPtr)
+static int wmAreaFindFirstValidMap(Map* mapIdxPtr, int* elevationPtr, int* tilePtr, Rotation* rotationPtr)
 {
     *mapIdxPtr = MAP_INVALID;
+    *elevationPtr = -1;
+    *tilePtr = -1;
+    *rotationPtr = ROTATION_INVALID;
 
     if (wmGenData.currentAreaId == CITY_INVALID) {
         return -1;
@@ -7310,6 +7328,9 @@ static int wmAreaFindFirstValidMap(Map* mapIdxPtr)
         EntranceInfo* entrance = &(city->entrances[index]);
         if (entrance->state != 0) {
             *mapIdxPtr = entrance->map;
+            *elevationPtr = entrance->elevation;
+            *tilePtr = entrance->tile;
+            *rotationPtr = entrance->rotation;
             return 0;
         }
     }
@@ -7318,6 +7339,9 @@ static int wmAreaFindFirstValidMap(Map* mapIdxPtr)
     entrance->state = 1;
 
     *mapIdxPtr = entrance->map;
+    *elevationPtr = entrance->elevation;
+    *tilePtr = entrance->tile;
+    *rotationPtr = entrance->rotation;
     return 0;
 }
 

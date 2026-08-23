@@ -171,9 +171,11 @@ void initSettingsRegistry(bool isMapper)
     SETTING_P(main_menu_scale_mode, clamp(0, 2));
     SETTING(in_game_menu_help);
     SETTING(iface_bar_mode);
+    SETTING(perks_progress_bar);
     SETTING_P(iface_bar_width, clamp(640, 4320));
     SETTING_P(iface_bar_side_art, clamp(0, 999));
     SETTING(iface_bar_sides_ori);
+    SETTING_P(alternate_ammo_meter, clamp(0, 2));
     SETTING_P(splash_screen_size, clamp(0, 2));
     SETTING(movie_aspect_fit);
     SETTING(edg_support);

@@ -190,15 +190,14 @@ bool messageListInit(MessageList* messageList)
 // 0x484964 message_exit
 bool messageListFree(MessageList* messageList)
 {
-    ck::messages_on_list_free(messageList);
-
-    int i;
-    MessageListItem* entry;
-
     if (messageList == nullptr) {
         return false;
     }
 
+    ck::messages_on_list_free(messageList);
+
+    int i;
+    MessageListItem* entry;
     for (i = 0; i < messageList->entries_num; i++) {
         entry = &(messageList->entries[i]);
 
@@ -221,7 +220,6 @@ bool messageListFree(MessageList* messageList)
     return true;
 }
 
-// message_load
 // 0x484AA4 message_load
 bool messageListLoad(MessageList* messageList, const char* path)
 {
