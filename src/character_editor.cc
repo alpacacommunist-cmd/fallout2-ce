@@ -165,7 +165,7 @@ enum Editor : int {
 static constexpr int kMaxPerkOwed = 250;
 // nb. this is number of perks, not total perk ranks. This only prevents level ups from granting more perks.
 static constexpr int kMaxSelectablePerks = 37;
-static constexpr int kPrimaryStatDescriptionWidth = 100;
+static constexpr int kPrimaryStatDescriptionWidth = 65;
 
 inline Editor operator++(Editor& e, int)
 {
@@ -6078,7 +6078,7 @@ static int characterEditorUpdateLevel()
             int sp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
             sp += 5 + skillPointsPerLevelModifier;
             sp += critterGetBaseStatWithTraitModifier(gDude, STAT_INTELLIGENCE) * 2;
-            sp += perkGetRank(gDude, PERK_EDUCATED) * 2;
+            sp += perkGetRank(gDude, PERK_EDUCATED) * perkGetEducatedBonus();
             sp += traitIsSelected(TRAIT_SKILLED) * 5;
             if (traitIsSelected(TRAIT_GIFTED)) {
                 sp -= 5;
@@ -6338,11 +6338,12 @@ static int perkDialogShow()
             characterEditorConsumeOwedPerk();
             if (perkGetRank(gDude, PERK_LIFEGIVER) != previousPerkRanks[PERK_LIFEGIVER]) {
                 int maxHp = critterGetBonusStat(gDude, STAT_MAXIMUM_HIT_POINTS);
-                critterSetBonusStat(gDude, STAT_MAXIMUM_HIT_POINTS, maxHp + 4);
-                critterAdjustHitPoints(gDude, 4);
+                int bonus = perkGetLifegiverBonus();
+                critterSetBonusStat(gDude, STAT_MAXIMUM_HIT_POINTS, maxHp + bonus);
+                critterAdjustHitPoints(gDude, bonus);
             } else if (perkGetRank(gDude, PERK_EDUCATED) != previousPerkRanks[PERK_EDUCATED]) {
                 int sp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
-                pcSetStat(PC_STAT_UNSPENT_SKILL_POINTS, sp + 2);
+                pcSetStat(PC_STAT_UNSPENT_SKILL_POINTS, sp + perkGetEducatedBonus());
             }
         } else {
             rc = 0;
