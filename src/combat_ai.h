@@ -117,6 +117,7 @@ void aiMessageListReloadIfNeeded();
 void _combatai_notify_onlookers(Object* a1);
 void _combatai_notify_friends(Object* a1);
 void _combatai_delete_critter(Object* obj);
+int combat_ai_packet_num_by_name(const char* name);
 
 } // namespace fallout
 

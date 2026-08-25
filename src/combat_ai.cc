@@ -3827,4 +3827,21 @@ void _combatai_delete_critter(Object* obj)
     }
 }
 
+int combat_ai_packet_num_by_name(const char* name)
+{
+    if (name == nullptr || name[0] == '\0') {
+        return -1;
+    }
+
+    for (int index = 0; index < gAiPacketsLength; index++) {
+        if (gAiPackets[index].name != nullptr) {
+            if (strcmp(gAiPackets[index].name, name) == 0) {
+                return gAiPackets[index].packet_num;
+            }
+        }
+    }
+
+    return -1;
+}
+
 } // namespace fallout
