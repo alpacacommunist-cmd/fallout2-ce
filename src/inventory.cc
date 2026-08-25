@@ -8,6 +8,7 @@
 #include <cmath>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "actions.h"
 #include "animation.h"
@@ -386,6 +387,7 @@ static void barterDisplayTables(int win, Object* leftTable, Object* rightTable, 
 static void _container_enter(int keyCode, int inventoryWindowType);
 static void _container_exit(int keyCode, int inventoryWindowType);
 static int _drop_into_container(Object* container, Object* item, int sourceIndex, Object** itemSlot, int quantity);
+static void inventoryUnloadWeaponToOwner(Object* owner, Object* weapon);
 static InventoryAmmoMoveResult _drop_ammo_into_weapon(Object* weapon, Object* ammo, Object** ammoItemSlot, int quantity, int keyCode);
 static void _draw_amount(int value, int inventoryWindowType);
 static int inventoryQuantitySelect(int inventoryWindowType, Object* item, int maximum, int defaultValue = 1);
@@ -2903,6 +2905,11 @@ static void _inven_pickup(int buttonCode, int indexOffset)
             }
         }
 
+    } else if (!pickUpFromSlot && immediate && itemGetType(item) == ITEM_TYPE_AMMO) {
+        InventoryAmmoMoveResult ammoMoveResult = _drop_ammo_into_weapon(gInventoryLeftHandItem, item, itemSlot, count, buttonCode);
+        if (ammoMoveResult == INVENTORY_AMMO_MOVE_RESULT_FAILED) {
+            ammoMoveResult = _drop_ammo_into_weapon(gInventoryRightHandItem, item, itemSlot, count, buttonCode);
+        }
     } else if (!pickUpFromSlot && immediate && itemGetType(item) != ITEM_TYPE_ARMOR) {
         // ctrl-click non-armor to quick-equip:
         // default to first empty hand, or left hand if both are full
@@ -4660,16 +4667,7 @@ static void inventoryWindowOpenContextMenu(int keyCode, int inventoryWindowType)
             itemRemoveWithReason(owner, item, 1, RemoveInventoryObjectHookReason::UnloadWeapon);
         }
 
-        for (;;) {
-            Object* ammo = weaponUnload(item);
-            if (ammo == nullptr) {
-                break;
-            }
-
-            Rect rect;
-            _obj_disconnect(ammo, &rect);
-            itemAdd(owner, ammo, 1);
-        }
+        inventoryUnloadWeaponToOwner(owner, item);
 
         if (itemSlot == nullptr) {
             itemAdd(owner, item, 1);
@@ -6098,6 +6096,14 @@ static int _drop_into_container(Object* container, Object* item, int sourceIndex
     return rc;
 }
 
+static void inventoryUnloadWeaponToOwner(Object* owner, Object* weapon)
+{
+    Object* ammo;
+    while ((ammo = weaponUnload(weapon)) != nullptr) {
+        itemAdd(owner, ammo, 1);
+    }
+}
+
 // 0x47650C drop ammo into weapon
 static InventoryAmmoMoveResult _drop_ammo_into_weapon(Object* weapon, Object* ammo, Object** ammoItemSlot, int quantity, int keyCode)
 {
@@ -6109,7 +6115,21 @@ static InventoryAmmoMoveResult _drop_ammo_into_weapon(Object* weapon, Object* am
         return INVENTORY_AMMO_MOVE_RESULT_FAILED;
     }
 
+    if (weapon->pid == PROTO_ID_SOLAR_SCORCHER) {
+        return INVENTORY_AMMO_MOVE_RESULT_FAILED;
+    }
+
+    bool replaceAmmo = false;
     if (!weaponCanBeReloadedWith(weapon, ammo)) {
+        if (!settings.qol.fast_ammo_load
+            || !weaponCanBeUnloaded(weapon)
+            || !weaponCanBeReloadedWithReplacingAmmo(weapon, ammo)) {
+            return INVENTORY_AMMO_MOVE_RESULT_FAILED;
+        }
+        replaceAmmo = true;
+    }
+
+    if (!replaceAmmo && ammoGetQuantity(weapon) >= ammoGetCapacity(weapon)) {
         return INVENTORY_AMMO_MOVE_RESULT_FAILED;
     }
 
@@ -6118,7 +6138,9 @@ static InventoryAmmoMoveResult _drop_ammo_into_weapon(Object* weapon, Object* am
     }
 
     int quantityToMove;
-    if (quantity > 1) {
+    if (settings.qol.fast_ammo_load) {
+        quantityToMove = quantity;
+    } else if (quantity > 1) {
         quantityToMove = inventoryQuantitySelect(INVENTORY_WINDOW_TYPE_MOVE_ITEMS, ammo, quantity);
     } else {
         quantityToMove = 1;
@@ -6131,11 +6153,21 @@ static InventoryAmmoMoveResult _drop_ammo_into_weapon(Object* weapon, Object* am
     Object* sourceItem = ammo;
     bool isReloaded = false;
     int rc = itemRemoveQuietly(_inven_dude, weapon, 1);
+    std::vector<Object*> unloadedAmmo;
+    if (replaceAmmo) {
+        Object* oldAmmo;
+        while ((oldAmmo = weaponUnload(weapon)) != nullptr) {
+            unloadedAmmo.push_back(oldAmmo);
+        }
+    }
+
     for (int index = 0; index < quantityToMove; index++) {
         int rcReload = weaponReload(weapon, sourceItem);
         if (rcReload == 0) {
             if (ammoItemSlot != nullptr) {
                 *ammoItemSlot = nullptr;
+            } else {
+                itemRemoveQuietly(_inven_dude, sourceItem, 1);
             }
 
             objectDestroy(sourceItem);
@@ -6155,6 +6187,10 @@ static InventoryAmmoMoveResult _drop_ammo_into_weapon(Object* weapon, Object* am
 
     if (rc != -1) {
         itemAdd(_inven_dude, weapon, 1);
+    }
+
+    for (Object* oldAmmo : unloadedAmmo) {
+        itemAdd(_inven_dude, oldAmmo, 1);
     }
 
     if (!isReloaded) {
