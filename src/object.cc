@@ -2015,7 +2015,7 @@ int objectDestroy(Object* object, Rect* rect)
             return -1;
         }
 
-        ck_scripting_on_object_destroyed(object);
+        ck::events::object_destroyed(object);
 
         return 0;
     }
@@ -2031,7 +2031,7 @@ int objectDestroy(Object* object, Rect* rect)
         return -1;
     }
 
-    ck_scripting_on_object_destroyed(object);
+    ck::events::object_destroyed(object);
 
     return 0;
 }

@@ -669,8 +669,8 @@ int interfaceInit()
     quickToolbarSetEnabled(settings.ui.quick_toolbar_visible);
     quickToolbarInit();
 
-    // Tells Lua interface is ready!
-    ck_scripting_on_game_start();
+    // Interface ready
+    ck::events::game_start();
 
     return 0;
 }

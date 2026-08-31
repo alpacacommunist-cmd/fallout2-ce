@@ -167,7 +167,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int fl
     }
 
     ck::init_ffi_manifest();
-    ck_scripting_init(argc, argv);
+    ck::events::init(argc, argv);
 
     // Content config reads from the VFS, so it must be initialized after gameDbInit.
     contentConfigInit();
@@ -422,7 +422,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int fl
 
     // SFALL: Execute all code that should be executed AFTER game init
     sfallOnAfterGameInit();
-    ck_scripting_on_engine_ready();
+    ck::events::engine_ready();
 
     return 0;
 }
@@ -430,7 +430,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int fl
 // 0x442B84
 void gameReset()
 {
-    ck_on_scripts_reset();
+    ck::events::scripts_reset();
     tileDisable();
     paletteReset();
     randomReset();
@@ -493,7 +493,7 @@ void gameExit()
 
     sfallOnGameModeChange(1, GameMode::getCurrentGameMode());
 
-    ck_scripting_exit();
+    ck::events::exit();
 
     // SFALL
     scriptHooksExit();
