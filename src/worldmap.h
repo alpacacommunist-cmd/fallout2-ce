@@ -1,6 +1,7 @@
 #ifndef WORLD_MAP_H
 #define WORLD_MAP_H
 
+#include "art_defs.h"
 #include "color.h"
 #include "db.h"
 
@@ -320,13 +321,18 @@ enum class VisitedState : int {
     Unknown = 0,
     Known = 1,
     Visited = 2,
+    KnownFo1 = 3,
     Invisible = -66,
 };
 
 inline bool visitedStateIsValid(int visited)
 {
     VisitedState state = static_cast<VisitedState>(visited);
-    return state == VisitedState::Unknown || state == VisitedState::Known || state == VisitedState::Visited || state == VisitedState::Invisible;
+    return state == VisitedState::Unknown
+        || state == VisitedState::Known
+        || state == VisitedState::Visited
+        || state == VisitedState::KnownFo1
+        || state == VisitedState::Invisible;
 }
 
 extern Color* circleBlendTable;
@@ -379,7 +385,7 @@ void wmTownMap();
 int wmCarUseGas(int amount);
 int wmCarFillGas(int amount);
 int wmCarGasAmount();
-void wmSetCarInterfaceArt(int artIndex);
+void wmSetCarInterfaceArt(InterfaceFrameId artIndex);
 bool wmCarIsOutOfGas();
 int wmCarCurrentArea();
 int wmCarGiveToParty();

@@ -54,6 +54,7 @@ static int artReadHeader(Art* art, File* stream);
 static int artGetDataSize(const Art* art);
 static int paddingForSize(int size);
 static char artGetCritterWeaponCode(WeaponAnimation weaponType);
+static int buildFid(ObjectType objectType, int frmId, int animType = 0, int weaponCode = 0, Rotation rotation = ROTATION_NE);
 
 // A frame is laid out like [ArtFrame header][pixel bytes][padding].
 // These functions return a pointer to the pixel bytes, but must be given a pointer to a frame header,
@@ -110,7 +111,7 @@ static const char* _head2 = "vfngfbnfvppp";
 // Current native look base fid.
 //
 // 0x5108A4 art_vault_guy_num
-int _art_vault_guy_num = 0;
+CritterFrameId _art_vault_guy_num = CRITTER_FRM_ID_FIRST;
 
 // Base fids for unarmored dude.
 //
@@ -124,7 +125,7 @@ int _art_vault_guy_num = 0;
 // index, not gender.
 //
 // 0x5108A8 art_vault_person_nums
-int _art_vault_person_nums[DUDE_NATIVE_LOOK_COUNT][GENDER_COUNT];
+CritterFrameId _art_vault_person_nums[DUDE_NATIVE_LOOK_COUNT][GENDER_COUNT];
 
 // Index of "grid001.frm" in tiles.lst.
 //
@@ -150,7 +151,7 @@ static HeadDescription* gHeadDescriptions;
 
 // anon_alias
 // 0x56CAEC anon_alias
-static int* _anon_alias;
+static CritterFrameId* _anon_alias;
 
 // artCritterFidShouldRunData
 // 0x56CAF0 artCritterFidShouldRunData
@@ -193,7 +194,7 @@ int artInit()
         }
     }
 
-    _anon_alias = (int*)internal_malloc(sizeof(*_anon_alias) * gArtListDescriptions[OBJ_TYPE_CRITTER].fileNamesLength);
+    _anon_alias = (CritterFrameId*)internal_malloc(sizeof(*_anon_alias) * gArtListDescriptions[OBJ_TYPE_CRITTER].fileNamesLength);
     if (_anon_alias == nullptr) {
         gArtListDescriptions[OBJ_TYPE_CRITTER].fileNamesLength = 0;
         debugPrint("Out of memory for anon_alias in art_init\n");
@@ -236,7 +237,7 @@ int artInit()
     configGetString(&gContentConfig, CONTENT_CONFIG_START_SECTION, "model_female", &tribalFemaleFileName, gDefaultTribalFemaleFileName);
 
     char* critterFileNames = gArtListDescriptions[OBJ_TYPE_CRITTER].fileNames;
-    for (int critterIndex = 0; critterIndex < gArtListDescriptions[OBJ_TYPE_CRITTER].fileNamesLength; critterIndex++) {
+    for (CritterFrameId critterIndex = CRITTER_FRM_ID_FIRST; critterIndex < gArtListDescriptions[OBJ_TYPE_CRITTER].fileNamesLength; critterIndex++) {
         if (compat_stricmp(critterFileNames, jumpsuitMaleFileName) == 0) {
             _art_vault_person_nums[DUDE_NATIVE_LOOK_JUMPSUIT][GENDER_MALE] = critterIndex;
         } else if (compat_stricmp(critterFileNames, jumpsuitFemaleFileName) == 0) {
@@ -260,7 +261,7 @@ int artInit()
 
         char* sep1 = strchr(string, ',');
         if (sep1 != nullptr) {
-            _anon_alias[critterIndex] = atoi(sep1 + 1);
+            _anon_alias[critterIndex] = static_cast<CritterFrameId>(atoi(sep1 + 1));
 
             char* sep2 = strchr(sep1 + 1, ',');
             if (sep2 != nullptr) {
@@ -395,7 +396,7 @@ int artGetFidgetCount(int headFid)
         return 0;
     }
 
-    Head head = headFromFid(headFid);
+    HeadFrameId head = headFrameIdFromFid(headFid);
 
     if (head > gArtListDescriptions[OBJ_TYPE_HEAD].fileNamesLength) {
         return 0;
@@ -682,7 +683,7 @@ char* artBuildFilePath(int fid)
 
     *_art_name = '\0';
 
-    int frmId = baseFid & 0xFFF;
+    int frmId = frameIdFromFid(baseFid);
     AnimationType animType = animationTypeFromFid(baseFid);
     WeaponAnimation weaponCode = weaponAnimationFromFid(baseFid);
     ObjectType objectType = objectTypeFromFid(baseFid);
@@ -971,7 +972,7 @@ bool _art_fid_valid(int fid)
 }
 
 // 0x419998
-int _art_alias_num(int index)
+CritterFrameId _art_alias_num(CritterFrameId index)
 {
     return _anon_alias[index];
 }
@@ -980,7 +981,7 @@ int _art_alias_num(int index)
 int artCritterFidShouldRun(int fid)
 {
     if (objectTypeFromFid(fid) == OBJ_TYPE_CRITTER) {
-        return gArtCritterFidShoudRunData[fid & 0xFFF];
+        return gArtCritterFidShoudRunData[critterFrameIdFromFid(fid)];
     }
 
     return 0;
@@ -1005,7 +1006,7 @@ int artAliasFid(int fid)
             // NOTE: Original code is slightly different. It uses many mutually
             // mirrored bitwise operators. Probably result of some macros for
             // getting/setting individual bits on fid.
-            return (fid & 0x70000000) | ((anim << 16) & 0xFF0000) | 0x1000000 | (fid & 0xF000) | (_anon_alias[fid & 0xFFF] & 0xFFF);
+            return (fid & 0x70000000) | ((anim << 16) & 0xFF0000) | 0x1000000 | (fid & 0xF000) | critterFrameIdFromFid(_anon_alias[critterFrameIdFromFid(fid)]);
         }
     }
 
@@ -1100,7 +1101,7 @@ static void artCacheFreeImpl(void* ptr)
     4 bits for weapon code
     12 bits for frame ID
 */
-static int buildFidInternal(unsigned short frmId, unsigned char weaponCode, unsigned char animType, unsigned char objectType, unsigned char rotation)
+static int buildFidInternal(int frmId, unsigned char weaponCode, unsigned char animType, ObjectType objectType, Rotation rotation)
 {
     return ((rotation << 28) & 0x70000000) | (objectType << 24) | ((animType << 16) & 0xFF0000) | ((weaponCode << 12) & 0xF000) | (frmId & 0xFFF);
 }
@@ -1641,10 +1642,77 @@ std::shared_ptr<NamedCacheEntry> artLockNamedFrameData(const char* path)
     return gNamedArtCache.emplace(path, std::move(entry)).first->second;
 }
 
-FrmId::FrmId(ObjectType objType, int frmId)
-    : _fid(buildFid(objType, frmId))
+FrmId::FrmId(MiscFrameId misc, AnimationType animType)
+    : _objectType(OBJ_TYPE_MISC)
+    , _fid(buildFid(OBJ_TYPE_MISC, misc, animType))
 {
-    assert(objectTypeIsValid(objType));
+}
+
+FrmId::FrmId(SceneryFrameId scenery)
+    : _objectType(OBJ_TYPE_SCENERY)
+    , _fid(buildFid(OBJ_TYPE_SCENERY, scenery))
+{
+}
+
+FrmId::FrmId(WallFrameId wall)
+    : _objectType(OBJ_TYPE_WALL)
+    , _fid(buildFid(OBJ_TYPE_WALL, wall))
+{
+}
+
+FrmId::FrmId(ItemFrameId item)
+    : _objectType(OBJ_TYPE_ITEM)
+    , _fid(buildFid(OBJ_TYPE_ITEM, item))
+{
+}
+
+FrmId::FrmId(TileFrameId tile)
+    : _objectType(OBJ_TYPE_TILE)
+    , _fid(buildFid(OBJ_TYPE_TILE, tile))
+{
+}
+
+FrmId::FrmId(SkillDexFrameId skilldex)
+    : _objectType(OBJ_TYPE_SKILLDEX)
+    , _fid(buildFid(OBJ_TYPE_SKILLDEX, skilldex))
+{
+}
+
+FrmId::FrmId(InterfaceFrameId interface)
+    : _objectType(OBJ_TYPE_INTERFACE)
+    , _fid(buildFid(OBJ_TYPE_INTERFACE, interface))
+{
+}
+
+FrmId::FrmId(CritterFrameId critter, AnimationType animType, WeaponAnimation weaponAnimation, Rotation rotation)
+    : _objectType(OBJ_TYPE_CRITTER)
+    , _fid(buildFid(OBJ_TYPE_CRITTER, critter, animType, weaponAnimation, rotation))
+{
+}
+
+FrmId::FrmId(ObjectType objectType, int frmId, int animType, int weaponCode, Rotation rotation)
+    : _objectType(objectType)
+    , _fid(buildFid(objectType, frmId, animType, weaponCode, rotation))
+{
+    assert(objectTypeIsValid(objectType));
+}
+
+FrmId::FrmId(Object* object, AnimationType animType, WeaponAnimation weaponAnimation, Rotation rotation)
+    : _objectType(object == nullptr ? OBJ_TYPE_INVALID : objectTypeFromFid(object->fid))
+    , _fid(object == nullptr ? EmptyFid : buildFid(objectTypeFromFid(object->fid), frameIdFromFid(object->fid), animType, weaponAnimation, rotation))
+{
+}
+
+FrmId::FrmId(HeadFrameId head, HeadAnimation headAnimation, int fidget)
+    : _objectType(OBJ_TYPE_HEAD)
+    , _fid(buildFid(OBJ_TYPE_HEAD, head, headAnimation, fidget))
+{
+}
+
+FrmId::FrmId(BackgroundFrameId background)
+    : _objectType(OBJ_TYPE_BACKGROUND)
+    , _fid(buildFid(OBJ_TYPE_BACKGROUND, background))
+{
 }
 
 FrmId::FrmId(ObjectType objType, const char* path)
@@ -1652,11 +1720,6 @@ FrmId::FrmId(ObjectType objType, const char* path)
     , _path(path)
 {
     assert(objectTypeIsValid(objType));
-}
-
-FrmId::FrmId(const char* path)
-    : _path(path)
-{
 }
 
 ObjectType FrmId::objectType() const
@@ -1709,11 +1772,6 @@ FrmImage& FrmImage::operator=(FrmImage&& other) noexcept
     return *this;
 }
 
-bool FrmImage::lock(const FrmId& frmId)
-{
-    return lock(frmId, 0, ROTATION_NE);
-}
-
 bool FrmImage::lock(const FrmId& frmId, int frame, Rotation rotation)
 {
     if (frmId.fid() >= 0) {
@@ -1725,11 +1783,6 @@ bool FrmImage::lock(const FrmId& frmId, int frame, Rotation rotation)
             : lock(frmId.filePath(), frame, rotation);
     }
     return false;
-}
-
-bool FrmImage::lock(unsigned int fid)
-{
-    return lock(fid, 0, ROTATION_NE);
 }
 
 bool FrmImage::lock(unsigned int fid, int frame, Rotation rotation)
@@ -1751,11 +1804,6 @@ bool FrmImage::lock(unsigned int fid, int frame, Rotation rotation)
     return true;
 }
 
-bool FrmImage::lock(const char* frmPath)
-{
-    return lock(frmPath, 0, ROTATION_NE);
-}
-
 bool FrmImage::lock(const char* frmPath, int frame, Rotation direction)
 {
     if (isLocked()) {
@@ -1771,11 +1819,6 @@ bool FrmImage::lock(const char* frmPath, int frame, Rotation direction)
     }
 
     return true;
-}
-
-bool FrmImage::lock(ObjectType objType, const char* frmRelativePath)
-{
-    return lock(objType, frmRelativePath, 0, ROTATION_NE);
 }
 
 bool FrmImage::lock(ObjectType objType, const char* frmRelativePath, int frame, Rotation rotation)
