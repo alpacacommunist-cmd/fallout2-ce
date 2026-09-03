@@ -1647,21 +1647,21 @@ static int useStairs(Object* user, Object* stairs)
 // 0x49CAF4
 static int _set_door_state_open(Object* door, Object* obj2)
 {
-    door->data.scenery.door.openFlags |= 0x01;
+    door->data.scenery.door.openFlags |= DOOR_FLAG_OPEN;
     return 0;
 }
 
 // 0x49CB04
 static int _set_door_state_closed(Object* door, Object* obj2)
 {
-    door->data.scenery.door.openFlags &= ~0x01;
+    door->data.scenery.door.openFlags &= ~DOOR_FLAG_OPEN;
     return 0;
 }
 
 // 0x49CB14
 static int _check_door_state(Object* door, Object* obj2)
 {
-    if ((door->data.scenery.door.openFlags & 0x01) == 0) {
+    if ((door->data.scenery.door.openFlags & DOOR_FLAG_OPEN) == 0) {
         // SFALL: Fix flags on non-door objects.
         if (_obj_is_portal(door)) {
             door->flags &= ~OBJECT_OPEN_DOOR;
@@ -1776,7 +1776,7 @@ int objectUseDoor(Object* user, Object* door, bool animateOnly)
             end = animateOnly ? -1 : 0;
             step = -1;
         } else {
-            if (door->data.scenery.door.openFlags & 0x01) {
+            if (door->data.scenery.door.openFlags & DOOR_FLAG_OPEN) {
                 return -1;
             }
 
@@ -2012,10 +2012,10 @@ int objectLock(Object* object)
 
     switch (objectTypeFromPid(object->pid)) {
     case OBJ_TYPE_ITEM:
-        object->data.flags |= OBJ_LOCKED;
+        object->data.flags |= CONTAINER_FLAG_LOCKED;
         break;
     case OBJ_TYPE_SCENERY:
-        object->data.scenery.door.openFlags |= OBJ_LOCKED;
+        object->data.scenery.door.openFlags |= DOOR_FLAG_LOCKED;
         break;
     default:
         return -1;
@@ -2033,10 +2033,10 @@ int objectUnlock(Object* object)
 
     switch (objectTypeFromPid(object->pid)) {
     case OBJ_TYPE_ITEM:
-        object->data.flags &= ~OBJ_LOCKED;
+        object->data.flags &= ~CONTAINER_FLAG_LOCKED;
         return 0;
     case OBJ_TYPE_SCENERY:
-        object->data.scenery.door.openFlags &= ~OBJ_LOCKED;
+        object->data.scenery.door.openFlags &= ~DOOR_FLAG_LOCKED;
         return 0;
     default:
         return -1;
@@ -2163,11 +2163,11 @@ static bool objectIsJammed(Object* obj)
     }
 
     if (objectTypeFromPid(obj->pid) == OBJ_TYPE_SCENERY) {
-        if ((obj->data.scenery.door.openFlags & OBJ_JAMMED) != 0) {
+        if ((obj->data.scenery.door.openFlags & DOOR_FLAG_JAMMED) != 0) {
             return true;
         }
     } else {
-        if ((obj->data.flags & OBJ_JAMMED) != 0) {
+        if ((obj->data.flags & CONTAINER_FLAG_JAMMED) != 0) {
             return true;
         }
     }
@@ -2189,7 +2189,7 @@ int objectJamLock(Object* obj)
         data->flags |= CONTAINER_FLAG_JAMMED;
         break;
     case OBJ_TYPE_SCENERY:
-        data->scenery.door.openFlags |= DOOR_FLAG_JAMMGED;
+        data->scenery.door.openFlags |= DOOR_FLAG_JAMMED;
         break;
     default:
         break;
@@ -2211,7 +2211,7 @@ int objectUnjamLock(Object* obj)
         data->flags &= ~CONTAINER_FLAG_JAMMED;
         break;
     case OBJ_TYPE_SCENERY:
-        data->scenery.door.openFlags &= ~DOOR_FLAG_JAMMGED;
+        data->scenery.door.openFlags &= ~DOOR_FLAG_JAMMED;
         break;
     default:
         break;
