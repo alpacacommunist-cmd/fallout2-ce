@@ -173,11 +173,6 @@ enum ObjectFlags : unsigned int {
     OBJECT_NO_BLOCK = 0x10,
     OBJECT_LIGHTING = 0x20,
 
-    // === ck falgs ===
-    OBJECT_CK = 0x80, // object spawned by ck
-    OBJECT_CK_PROTO = 0x100, // spawned by ck, has custom proto
-    // ================
-
     // Specifies that the object should not be removed (freed) from the game
     // world for whatever reason.
     //
