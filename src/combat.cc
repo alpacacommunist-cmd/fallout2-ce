@@ -5537,7 +5537,7 @@ static void _combat_standup(Object* a1)
 static void _print_tohit(unsigned char* dest, int destPitch, int accuracy)
 {
     FrmImage numbersFrmImage;
-    if (!numbersFrmImage.lock(FrmId(INTF_FRM_ID_82))) {
+    if (!numbersFrmImage.lock(FrmId(InterfaceFrameId::HitPointsNumbers))) {
         return;
     }
 
@@ -5625,7 +5625,7 @@ static int calledShotSelectHitLocation(Object* critter, HitLocation* hitLocation
     unsigned char* windowBuffer = windowGetBuffer(gCalledShotWindow);
 
     FrmImage backgroundFrm;
-    if (!backgroundFrm.lock(FrmId(INTF_FRM_ID_118))) {
+    if (!backgroundFrm.lock(FrmId(InterfaceFrameId::CalledShotWindow))) {
         windowDestroy(gCalledShotWindow);
         return -1;
     }
@@ -5649,13 +5649,13 @@ static int calledShotSelectHitLocation(Object* critter, HitLocation* hitLocation
     }
 
     FrmImage cancelButtonNormalFrmImage;
-    if (!cancelButtonNormalFrmImage.lock(FrmId(INTF_FRM_ID_8))) {
+    if (!cancelButtonNormalFrmImage.lock(FrmId(InterfaceFrameId::LittleRedButtonUp))) {
         windowDestroy(gCalledShotWindow);
         return -1;
     }
 
     FrmImage cancelButtonPressedFrmImage;
-    if (!cancelButtonPressedFrmImage.lock(FrmId(INTF_FRM_ID_9))) {
+    if (!cancelButtonPressedFrmImage.lock(FrmId(InterfaceFrameId::LittleRedButtonDown))) {
         windowDestroy(gCalledShotWindow);
         return -1;
     }
