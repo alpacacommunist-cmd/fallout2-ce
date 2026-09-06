@@ -2279,9 +2279,11 @@ static void characterEditorDrawPerksFolder()
     if (ck::knowledge::has_any()) {
         characterEditorFolderViewDrawHeading(ck::i18n::t("headings.knowledge"));
 
+
         for (const auto& kn : ck::knowledge::get_player_knowledge()) {
             if (characterEditorFolderViewDrawString(kn.name.c_str())) {
-                gCharacterEditorFolderCardFrmId       = FrmId(kn.frm_id);
+                FrmId baseFrmId(kn.frm_id);
+                gCharacterEditorFolderCardFrmId       = reinterpret_cast<SkillDexFrmId&>(baseFrmId);
                 gCharacterEditorFolderCardTitle       = kn.ce_name;
                 gCharacterEditorFolderCardSubtitle    = nullptr;
                 gCharacterEditorFolderCardDescription = kn.ce_description;
