@@ -2324,7 +2324,7 @@ CritterFrameId armorGetMaleFid(Object* armor)
     Proto* proto;
     protoGetProto(armor->pid, &proto);
 
-    return proto->item.data.armor.maleFid;
+    return FrmId(proto->item.data.armor.maleFid).frameId().critter;
 }
 
 // 0x4793A8
@@ -2337,7 +2337,7 @@ CritterFrameId armorGetFemaleFid(Object* armor)
     Proto* proto;
     protoGetProto(armor->pid, &proto);
 
-    return proto->item.data.armor.femaleFid;
+    return FrmId(proto->item.data.armor.femaleFid).frameId().critter;
 }
 
 // 0x4793D0

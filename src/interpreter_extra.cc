@@ -1941,7 +1941,7 @@ static void opStartGameDialog(Program* program)
         gGameDialogHeadFid = FrmId(head).fid();
     }
 
-    gameDialogSetBackground(FrmId(background));
+    gameDialogSetBackground(background);
     gGameDialogReactionOrFidget = reactionLevel;
 
     // SFALL: Use the start_gdialog target instead of the current dialog target,
@@ -2058,7 +2058,14 @@ static void opMetarule3(Program* program)
     case METARULE3_ART_SET_BASE_FID_NUM:
         if (1) {
             Object* obj = static_cast<Object*>(param1.pointerValue);
+            if (obj == nullptr) {
+                break;
+            }
+
             int frmId = param2.integerValue;
+            if (frmId > FrmId::kMaxFrameId) {
+                frmId = frameIdFromFid(frmId);
+            }
 
             FrmId fid = FrmId(objectTypeFromFid(obj->fid),
                 frmId,
