@@ -376,13 +376,13 @@ char* protoGetDescription(int pid)
 // 0x49EB2C proto_item_init
 int proto_item_init(Proto* proto, int pid)
 {
-    ItemFrameId protoNum = itemFrameIdFromPid(pid);
+    int protoNum = frameIdFromPid(pid);
 
     proto->item.pid = -1;
     proto->item.messageId = 100 * protoNum;
-    proto->item.fid = FrmId(protoNum - 1).fid();
-    if (!artExists(proto->item.fid)) {
-        proto->item.fid = FrmId(ITEM_FRM_ID_FIRST).fid();
+    proto->item.fid = ItemFrmId(static_cast<ItemFrameId>(protoNum - 1)).fid();
+    if (!FrmId(proto->item.fid).exist()) {
+        proto->item.fid = ItemFrmId(ItemFrameId::Reserved).fid();
     }
     proto->item.lightDistance = 0;
     proto->item.lightIntensity = 0;
@@ -491,11 +491,11 @@ int proto_critter_init(Proto* proto, int pid)
         return -1;
     }
 
-    CritterFrameId num = critterFrameIdFromPid(pid);
+    int num = frameIdFromPid(pid);
 
     proto->pid = -1;
     proto->messageId = 100 * num;
-    proto->fid = FrmId(num - 1, ANIM_STAND, WEAPON_ANIMATION_NONE, ROTATION_NE).fid();
+    proto->fid = CritterFrmId(static_cast<CritterFrameId>(num - 1), ANIM_STAND, WEAPON_ANIMATION_NONE, ROTATION_NE).fid();
     proto->critter.lightDistance = 0;
     proto->critter.lightIntensity = 0;
     proto->critter.flags = PROTO_FLAG_LIGHT_THRU;
@@ -506,8 +506,8 @@ int proto_critter_init(Proto* proto, int pid)
     proto->critter.headFid = -1;
     proto->critter.aiPacket = 1;
     proto->critter.team = 0;
-    if (!artExists(proto->fid)) {
-        proto->fid = FrmId(CRITTER_FRM_ID_FIRST, ANIM_STAND, WEAPON_ANIMATION_NONE, ROTATION_NE).fid();
+    if (!FrmId(proto->fid).exist()) {
+        proto->fid = CritterFrmId(CritterFrameId::First, ANIM_STAND, WEAPON_ANIMATION_NONE, ROTATION_NE).fid();
     }
 
     CritterProtoData* data = &(proto->critter.data);
@@ -956,13 +956,13 @@ int _proto_dude_init(const char* path)
 // 0x49FBBC proto_scenery_init
 int proto_scenery_init(Proto* proto, int pid)
 {
-    SceneryFrameId num = sceneryFrameIdFromPid(pid);
+    int num = frameIdFromPid(pid);
 
     proto->scenery.pid = -1;
     proto->scenery.messageId = 100 * num;
-    proto->scenery.fid = FrmId(num - 1).fid();
-    if (!artExists(proto->scenery.fid)) {
-        proto->scenery.fid = FrmId(SCENERY_FRM_ID_FIRST).fid();
+    proto->scenery.fid = SceneryFrmId(static_cast<SceneryFrameId>(num - 1)).fid();
+    if (!FrmId(proto->scenery.fid).exist()) {
+        proto->scenery.fid = SceneryFrmId(SceneryFrameId::Reserved).fid();
     }
     proto->scenery.lightDistance = 0;
     proto->scenery.lightIntensity = 0;
@@ -1013,13 +1013,13 @@ int proto_scenery_subdata_init(Proto* proto, SceneryType type)
 // 0x49FCFC proto_wall_init
 int proto_wall_init(Proto* proto, int pid)
 {
-    WallFrameId num = wallFrameIdFromPid(pid);
+    int num = frameIdFromPid(pid);
 
     proto->wall.pid = -1;
     proto->wall.messageId = 100 * num;
-    proto->wall.fid = FrmId(num - 1).fid();
-    if (!artExists(proto->wall.fid)) {
-        proto->wall.fid = FrmId(WALL_FRM_ID_FIRST).fid();
+    proto->wall.fid = WallFrmId(static_cast<WallFrameId>(num - 1)).fid();
+    if (!FrmId(proto->wall.fid).exist()) {
+        proto->wall.fid = WallFrmId(WallFrameId::Reserved).fid();
     }
     proto->wall.lightDistance = 0;
     proto->wall.lightIntensity = 0;
@@ -1034,13 +1034,13 @@ int proto_wall_init(Proto* proto, int pid)
 // 0x49FD84 proto_tile_init
 int proto_tile_init(Proto* proto, int pid)
 {
-    TileFrameId num = tileFrameIdFromPid(pid);
+    int num = frameIdFromPid(pid);
 
     proto->tile.pid = -1;
     proto->tile.messageId = 100 * num;
-    proto->tile.fid = FrmId(num - 1).fid();
-    if (!artExists(proto->tile.fid)) {
-        proto->tile.fid = FrmId(TILE_FRM_ID_FIRST).fid();
+    proto->tile.fid = TileFrmId(static_cast<TileFrameId>(num - 1)).fid();
+    if (!FrmId(proto->tile.fid).exist()) {
+        proto->tile.fid = TileFrmId(TileFrameId::Reserved).fid();
     }
     proto->tile.flags = PROTO_FLAG_NONE;
     proto->tile.extendedFlags = PROTO_EXT_FLAG_LOOK;
@@ -1053,13 +1053,13 @@ int proto_tile_init(Proto* proto, int pid)
 // 0x49FDFC proto_misc_init
 int proto_misc_init(Proto* proto, int pid)
 {
-    MiscFrameId num = miscFrameIdFromPid(pid);
+    int num = frameIdFromPid(pid);
 
     proto->misc.pid = -1;
     proto->misc.messageId = 100 * num;
-    proto->misc.fid = FrmId(num - 1).fid();
-    if (!artExists(proto->misc.fid)) {
-        proto->misc.fid = FrmId(MISC_FRM_ID_FIRST).fid();
+    proto->misc.fid = MiscFrmId(static_cast<MiscFrameId>(num - 1)).fid();
+    if (!FrmId(proto->misc.fid).exist()) {
+        proto->misc.fid = MiscFrmId(MiscFrameId::Reserved).fid();
     }
     proto->misc.lightDistance = 0;
     proto->misc.lightIntensity = 0;
@@ -1371,7 +1371,7 @@ int protoInit()
     proto_critter_init((Proto*)&gDudeProto, 0x1000000);
 
     gDudeProto.pid = 0x1000000;
-    gDudeProto.fid = FrmId(CRITTER_FRM_ID_1, ANIM_STAND, WEAPON_ANIMATION_NONE, ROTATION_NE).fid();
+    gDudeProto.fid = CritterFrmId(CritterFrameId::First, ANIM_STAND, WEAPON_ANIMATION_NONE, ROTATION_NE).fid();
 
     gDude->pid = 0x1000000;
     gDude->sid = 1;
@@ -1487,7 +1487,7 @@ void protoReset()
     // TODO: Get rid of cast.
     proto_critter_init((Proto*)&gDudeProto, 0x1000000);
     gDudeProto.pid = 0x1000000;
-    gDudeProto.fid = FrmId(CRITTER_FRM_ID_1, ANIM_STAND, WEAPON_ANIMATION_NONE, ROTATION_NE).fid();
+    gDudeProto.fid = CritterFrmId(CritterFrameId::First, ANIM_STAND, WEAPON_ANIMATION_NONE, ROTATION_NE).fid();
 
     gDude->pid = 0x1000000;
     gDude->sid = -1;
@@ -2008,7 +2008,7 @@ static int _proto_find_free_subnode(ObjectType type, Proto** protoPtr)
     if (protoList->head != nullptr) {
         if (protoListExtent->length == PROTO_LIST_EXTENT_SIZE) {
             ProtoListExtent* newExtent = protoListExtent->next = (ProtoListExtent*)internal_malloc(sizeof(ProtoListExtent));
-            if (protoListExtent == nullptr) {
+            if (newExtent == nullptr) {
                 internal_free(proto);
                 *protoPtr = nullptr;
                 return -1;

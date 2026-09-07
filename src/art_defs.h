@@ -13,32 +13,10 @@ constexpr inline int frameIdFromPid(int pid)
     return pid & 0xFFFFFF;
 }
 
-enum HeadFrameId : int {
-    HEAD_INVALID = -1,
-    HEAD_NONE,
-    HEAD_MARCUS,
-    HEAD_MYRON,
-    HEAD_ELDER,
-    HEAD_LYNETTE,
-    HEAD_HAROLD,
-    HEAD_TANDI,
-    HEAD_COM_OFFICER,
-    HEAD_SULIK,
-    HEAD_PRESIDENT,
-    HEAD_HAKUNIN,
-    HEAD_BOSS,
-    HEAD_DYING_HAKUNIN,
+enum class HeadFrameId : int {
+    Invalid = -1, // invalid frame id
+    None = 0, // reser.frm
 };
-
-inline bool headFrameIdIsValid(int head)
-{
-    return head >= HEAD_NONE;
-}
-
-inline HeadFrameId headFrameIdFromFid(int fid)
-{
-    return static_cast<HeadFrameId>(frameIdFromFid(fid));
-}
 
 enum HeadAnimation : int {
     HEAD_ANIMATION_VERY_GOOD_REACTION = 0,
@@ -61,12 +39,6 @@ enum HeadFidget : int {
     FIDGET_NEUTRAL = 4,
     FIDGET_BAD = 7,
 };
-
-inline HeadFidget headFidgetFromFid(int fid)
-{
-    int fidget = (fid & 0xFF0000) >> 16;
-    return static_cast<HeadFidget>(fidget);
-}
 
 inline HeadAnimation headAnimationFromHeadFidget(HeadFidget fidget)
 {
@@ -314,143 +286,45 @@ enum class SkillDexFrameId : int {
     WeaponHandling = 173, // wepnhand.frm - weapon handling
 };
 
-enum CritterFrameId : int {
-    CRITTER_FRM_ID_INVALID = -1,
-    CRITTER_FRM_ID_FIRST = 0,
-    CRITTER_FRM_ID_1 = 1,
+enum class CritterFrameId : int {
+    Invalid = -1, // invalid frame id
+    Reserved = 0, // reserv
+    First = 1, // hapower
 };
 
-inline constexpr CritterFrameId operator+(CritterFrameId lhs, int rhs)
-{
-    return static_cast<CritterFrameId>(static_cast<int>(lhs) + rhs);
-}
-
-inline constexpr CritterFrameId operator-(CritterFrameId lhs, int rhs)
-{
-    return static_cast<CritterFrameId>(static_cast<int>(lhs) - rhs);
-}
-
-inline CritterFrameId operator++(CritterFrameId& e, int)
-{
-    CritterFrameId result = e;
-    e = e + 1;
-    return result;
-}
-
-inline CritterFrameId critterFrameIdFromFid(int fid)
-{
-    return static_cast<CritterFrameId>(frameIdFromFid(fid));
-}
-
-inline CritterFrameId critterFrameIdFromPid(int pid)
-{
-    return static_cast<CritterFrameId>(frameIdFromPid(pid));
-}
-
-enum SceneryFrameId : int {
-    SCENERY_FRM_ID_FIRST = 0,
+enum class SceneryFrameId : int {
+    Invalid = -1, // invalid frame id
+    Reserved = 0, // reserved.frm
+    ForceField3 = 501, // ffield03.frm - Marker frame id for special hidden "attacker" object created by `critter_dmg` opcode handler.
 };
 
-inline constexpr SceneryFrameId operator-(SceneryFrameId lhs, int rhs)
-{
-    return static_cast<SceneryFrameId>(static_cast<int>(lhs) - rhs);
-}
-
-inline SceneryFrameId sceneryFrameIdFromPid(int pid)
-{
-    return static_cast<SceneryFrameId>(frameIdFromPid(pid));
-}
-
-enum WallFrameId : int {
-    WALL_FRM_ID_FIRST = 0,
+enum class WallFrameId : int {
+    Invalid = -1, // invalid frame id
+    Reserved = 0, // reserved.frm
 };
 
-inline constexpr WallFrameId operator-(WallFrameId lhs, int rhs)
-{
-    return static_cast<WallFrameId>(static_cast<int>(lhs) - rhs);
-}
-
-inline WallFrameId wallFrameIdFromPid(int pid)
-{
-    return static_cast<WallFrameId>(frameIdFromPid(pid));
-}
-
-enum ItemFrameId : int {
-    ITEM_FRM_ID_FIRST = 0,
+enum class ItemFrameId : int {
+    Invalid = -1, // invalid frame id
+    Reserved = 0, // reserved.frm
 };
 
-inline constexpr ItemFrameId operator-(ItemFrameId lhs, int rhs)
-{
-    return static_cast<ItemFrameId>(static_cast<int>(lhs) - rhs);
-}
-
-inline ItemFrameId itemFrameIdFromPid(int pid)
-{
-    return static_cast<ItemFrameId>(frameIdFromPid(pid));
-}
-
-enum TileFrameId : int {
-    TILE_FRM_ID_FIRST = 0,
-    TILE_FRM_ID_1 = 1,
-    TILE_FRM_ID_LAST = 4095
+enum class TileFrameId : int {
+    Invalid = -1, // invalid frame id
+    Reserved = 0, // reserved.frm
+    Grid = 1, // grid000.frm
 };
 
-inline constexpr TileFrameId operator+(TileFrameId lhs, int rhs)
-{
-    return static_cast<TileFrameId>(static_cast<int>(lhs) + rhs);
-}
-
-inline constexpr TileFrameId operator-(TileFrameId lhs, int rhs)
-{
-    return static_cast<TileFrameId>(static_cast<int>(lhs) - rhs);
-}
-
-inline TileFrameId operator++(TileFrameId& e, int)
-{
-    TileFrameId result = e;
-    e = e + 1;
-    return result;
-}
-
-inline TileFrameId tileFrameIdFromFid(int fid)
-{
-    return static_cast<TileFrameId>(frameIdFromFid(fid));
-}
-
-inline TileFrameId tileFrameIdFromPid(int pid)
-{
-    return static_cast<TileFrameId>(frameIdFromPid(pid));
-}
-
-enum MiscFrameId : int {
-    MISC_FRM_ID_INVALID = -1,
-    MISC_FRM_ID_FIRST = 0,
-    MISC_FRM_ID_2 = 2,
-    MISC_FRM_ID_10 = 10, // roktxpd.frm
-    MISC_FRM_ID_12 = 12,
-    MISC_FRM_ID_29 = 29,
-    MISC_FRM_ID_31 = 31,
+enum class MiscFrameId : int {
+    Invalid = -1, // invalid frame id
+    Reserved = 0, // reserved.frm
+    EmpExplosion = 2, // empxpld.frm
+    RocketExplosion = 10, // roktxpd.frm
+    ScrollBlocker = 12, // scrblk.frm
+    FireExplosion = 29, // expa.frm
+    PlasmaExplosion = 31, // expp.frm
+    Exit2Grid1 = 33, // ext2grd1.frm
+    Exit3Grid8 = 48, // ext3grd8.frm
 };
-
-inline constexpr MiscFrameId operator+(MiscFrameId lhs, int rhs)
-{
-    return static_cast<MiscFrameId>(static_cast<int>(lhs) + rhs);
-}
-
-inline constexpr MiscFrameId operator-(MiscFrameId lhs, int rhs)
-{
-    return static_cast<MiscFrameId>(static_cast<int>(lhs) - rhs);
-}
-
-inline MiscFrameId miscFrameIdFromFid(int fid)
-{
-    return static_cast<MiscFrameId>(frameIdFromFid(fid));
-}
-
-inline MiscFrameId miscFrameIdFromPid(int pid)
-{
-    return static_cast<MiscFrameId>(frameIdFromPid(pid));
-}
 
 enum class InterfaceFrameId : int {
     Invalid = -1, // invalid frame id

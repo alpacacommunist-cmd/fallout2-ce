@@ -457,8 +457,12 @@ int objectRead(Object* obj, File* stream)
 
     if (isExitGridPid(obj->pid)) {
         if (obj->data.misc.map <= 0) {
-            if (miscFrameIdFromFid(obj->fid) < 33) {
-                obj->fid = FrmId(miscFrameIdFromFid(obj->fid) + 16, animationTypeFromFid(obj->fid)).fid();
+            constexpr int kExit2Grid1FrameId = MiscFrmId(MiscFrameId::Exit2Grid1).frameId().id;
+            constexpr int kExit3Grid8FrameId = MiscFrmId(MiscFrameId::Exit3Grid8).frameId().id;
+            constexpr int kExitGridCount = kExit3Grid8FrameId - kExit2Grid1FrameId + 1;
+            const FrmId frmId = FrmId(obj->fid);
+            if (frmId.valid() && frmId.frameId().id < kExit2Grid1FrameId) {
+                obj->fid = MiscFrmId(static_cast<MiscFrameId>(frmId.frameId().id + kExitGridCount), animationTypeFromFid(obj->fid)).fid();
             }
         }
     } else {
@@ -1469,12 +1473,12 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
         int roofY = tile / 200 / 2;
         if (roofX != _obj_last_roof_x || roofY != _obj_last_roof_y || elevation != _obj_last_elev) {
             int currentSquare = _square[elevation]->fid[roofX + 100 * roofY];
-            FrmId currentSquareFid = FrmId(tileFrameIdFromFid(currentSquare >> 16));
+            const TileFrmId currentSquareFrmId = static_cast<TileFrameId>(frameIdFromFid(currentSquare >> 16));
             // CE: Add additional checks for -1 to prevent array lookup at index -101.
             int previousSquare = _obj_last_roof_x != -1 && _obj_last_roof_y != -1
                 ? _square[elevation]->fid[_obj_last_roof_x + 100 * _obj_last_roof_y]
                 : 0;
-            bool isEmpty = FrmId(TILE_FRM_ID_1) == currentSquareFid;
+            bool isEmpty = TileFrmId(TileFrameId::Grid) == currentSquareFrmId;
 
             if (isEmpty != _obj_last_is_empty || (((currentSquare >> 16) & 0xF000) >> 12) != (((previousSquare >> 16) & 0xF000) >> 12)) {
                 if (!_obj_last_is_empty) {
@@ -1526,8 +1530,8 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
 // 0x48A9A0 obj_reset_roof
 int _obj_reset_roof()
 {
-    FrmId fid = FrmId(tileFrameIdFromFid(_square[gDude->elevation]->fid[_obj_last_roof_x + 100 * _obj_last_roof_y] >> 16));
-    if (fid != FrmId(TILE_FRM_ID_1)) {
+    const TileFrmId frmId = static_cast<TileFrameId>(frameIdFromFid(_square[gDude->elevation]->fid[_obj_last_roof_x + 100 * _obj_last_roof_y] >> 16));
+    if (frmId != TileFrmId(TileFrameId::Grid)) {
         tile_fill_roof(_obj_last_roof_x, _obj_last_roof_y, gDude->elevation, 1);
     }
     return 0;
@@ -3194,7 +3198,7 @@ void _obj_preload_art_cache(MapHeaderFlags flags)
         return;
     }
 
-    unsigned char arr[4096];
+    unsigned char arr[FrmId::kMaxFrameId + 1];
     memset(arr, 0, sizeof(arr));
 
     if ((flags & MAP_HEADER_ELEVATION_0) == MAP_HEADER_NONE) {
@@ -3249,9 +3253,9 @@ void _obj_preload_art_cache(MapHeaderFlags flags)
         }
     }
 
-    for (TileFrameId i = TILE_FRM_ID_FIRST; i <= TILE_FRM_ID_LAST; i++) {
+    for (int i = FrmId::kMinFrameId; i <= FrmId::kMaxFrameId; i++) {
         if (arr[i] != 0) {
-            if (artLock(FrmId(i), &cache_handle) != nullptr) {
+            if (artLock(TileFrmId(static_cast<TileFrameId>(i)), &cache_handle) != nullptr) {
                 artUnlock(cache_handle);
             }
         }
@@ -3602,7 +3606,7 @@ static int _obj_load_obj(File* stream, Object** objectPtr, int elevation, Object
 
     _obj_fix_violence_settings(&(obj->fid));
 
-    if (!_art_fid_valid(obj->fid)) {
+    if (!FrmId(obj->fid).exist()) {
         debugPrint("\nError: invalid object art fid: %u\n", obj->fid);
         // NOTE: Uninline.
         objectDeallocate(&obj);
@@ -5199,7 +5203,7 @@ void _obj_fix_violence_settings(int* fid)
         anim = (anim == ANIM_FALL_BACK_BLOOD_SF)
             ? ANIM_FALL_BACK_SF
             : ANIM_FALL_FRONT_SF;
-        *fid = FrmId(critterFrameIdFromFid(*fid), anim, weaponAnimationFromFid(*fid), rotationFromFid(*fid)).fid();
+        *fid = CritterFrmId(FrmId(*fid).frameId().critter, anim, weaponAnimationFromFid(*fid), rotationFromFid(*fid)).fid();
     }
 
     if (shouldResetViolenceLevel) {
