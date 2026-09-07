@@ -1948,11 +1948,6 @@ out:
     artUnlock(cacheEntry);
 }
 
-void tileRenderFloorExternal(int fid, int x, int y, Rect* rect)
-{
-    tileRenderFloor(fid, x, y, rect);
-}
-
 // 0x4B372C tile_make_line
 static int _tile_make_line(int from, int to, int* tiles, int tilesCapacity)
 {
@@ -2111,7 +2106,14 @@ int tileGetHexGridHeight() { return gHexGridHeight; }
 void tileRenderRoofExternal(int fid, int x, int y, Rect* rect)
 {
     int light = lightGetAmbientIntensity();
-    tileRenderRoof(fid, x, y, rect, light);
+    const TileFrmId frmId = static_cast<TileFrameId>(frameIdFromFid(fid));
+    tileRenderRoof(frmId, x, y, rect, light);
 }
+void tileRenderFloorExternal(int fid, int x, int y, Rect* rect)
+{
+    const TileFrmId frmId = static_cast<TileFrameId>(frameIdFromFid(fid));
+    tileRenderFloor(frmId, x, y, rect);
+}
+
 
 } // namespace fallout
