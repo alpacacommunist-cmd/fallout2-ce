@@ -31,6 +31,7 @@
 #include "item.h"
 #include "kb.h"
 #include "lips.h"
+#include "map.h"
 #include "memory.h"
 #include "mouse.h"
 #include "object.h"
@@ -257,7 +258,7 @@ static CacheEntry* gGameDialogFidgetFrmHandle = nullptr;
 static Art* gGameDialogFidgetFrm = nullptr;
 
 // 0x518700 backgroundFrmId
-static FrmId gGameDialogBackgroundFrmId = FrmId(BackgroundFrameId::RustyMetal);
+static BackgroundFrmId gGameDialogBackgroundFrmId = BackgroundFrameId::RustyMetal;
 
 // 0x518704 lipsFID
 static HeadFrmId _lipsFrmId = HeadFrameId::None;
@@ -375,9 +376,6 @@ static int gameDialogGetBackgroundWindowY()
 
     return (screenGetHeight() - GAME_DIALOG_WINDOW_HEIGHT) / 2;
 }
-
-// 0x5187C8 talk_need_to_center
-static bool _talk_need_to_center = true;
 
 // 0x5187CC can_start_new_fidget
 static bool _can_start_new_fidget = false;
@@ -726,6 +724,8 @@ static void _gdProcessUpdate();
 static int _gdCreateHeadWindow();
 static void _gdDestroyHeadWindow();
 static void _gdSetupFidget(const HeadFrmId& headFrmId, HeadFidget reaction);
+static void gameDialogBlitIsoWindowToDisplayBuffer();
+static void gameDialogRenderMapInDisplayBuffer();
 static void gameDialogWaitForFidgetToComplete();
 static void _gdPlayTransition(HeadAnimation animation);
 static void _reply_arrow_up(int btn, int keyCode);
@@ -810,6 +810,10 @@ int gameDialogExit()
 
 static void gameDialogRestoreCenterTile()
 {
+    if (gGameDialogOldCenterTile == -1) {
+        return;
+    }
+
     if (gGameDialogOldDudeTile != gDude->tile) {
         gGameDialogOldCenterTile = gDude->tile;
     }
@@ -981,7 +985,7 @@ void gameDialogStartLips(const char* audioFileName)
     }
 
     char name[16];
-    if (artCopyFileName(OBJ_TYPE_HEAD, gGameDialogHeadFrmId.frameId().id, name) == -1) {
+    if (artCopyFileName(gGameDialogHeadFrmId, name) == -1) {
         return;
     }
 
@@ -1053,12 +1057,6 @@ int _gdialogInitFromScript(const HeadFrmId& headFrmId, HeadFidget reaction)
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
     textObjectsReset();
 
-    if (objectTypeFromPid(gGameDialogSpeaker->pid) != OBJ_TYPE_ITEM) {
-        _tile_scroll_to(gGameDialogSpeaker->tile, 2);
-    }
-
-    _talk_need_to_center = true;
-
     // CE: Fix Barter button.
     _gdCreateHeadWindow();
     tickersAdd(gameDialogTicker);
@@ -1103,10 +1101,6 @@ int _gdialogExitFromScript()
     gameDialogEndLips();
     dialogReviewEntriesClear();
     tickersRemove(gameDialogTicker);
-
-    if (objectTypeFromPid(gGameDialogSpeaker->pid) != OBJ_TYPE_ITEM) {
-        gameDialogRestoreCenterTile();
-    }
 
     touch_set_touchscreen_mode(false);
 
@@ -1509,7 +1503,7 @@ int gameDialogReviewWindowInit(int* win)
     }
 
     FrmImage backgroundFrmImage;
-    if (!backgroundFrmImage.lock(FrmId(InterfaceFrameId::DialogReviewBackground))) {
+    if (!backgroundFrmImage.lock(InterfaceFrameId::DialogReviewBackground)) {
         windowDestroy(*win);
         *win = -1;
         return -1;
@@ -1604,7 +1598,7 @@ int gameDialogReviewWindowInit(int* win)
 
     tickersRemove(gameDialogTicker);
 
-    if (!_reviewBackgroundFrmImage.lock(FrmId(InterfaceFrameId::DialogReviewBackground))) {
+    if (!_reviewBackgroundFrmImage.lock(InterfaceFrameId::DialogReviewBackground)) {
         gameDialogReviewWindowFree(win);
         return -1;
     }
@@ -2610,7 +2604,7 @@ int _gdCreateHeadWindow()
         Rect rect = gameDialogGetBackgroundRect(index);
         int width = rect.right - rect.left;
         int height = rect.bottom - rect.top;
-        _backgrndBufs[index] = (unsigned char*)internal_malloc(width * height);
+        _backgrndBufs[index] = (unsigned char*)internal_malloc(static_cast<size_t>(width) * height);
         if (_backgrndBufs[index] == nullptr) {
             _gdDestroyHeadWindow();
             return -1;
@@ -2695,7 +2689,7 @@ void _gdSetupFidget(const HeadFrmId& headFrmId, HeadFidget reaction)
         break;
     }
 
-    if (_lipsFrmId != HeadFrmId(HeadFrameId::None)) {
+    if (_lipsFrmId != HeadFrameId::None) {
         if (anim != _phone_anim) {
             if (artUnlock(_lipsKey) == -1) {
                 debugPrint("failure unlocking lips frame!\n");
@@ -2710,7 +2704,7 @@ void _gdSetupFidget(const HeadFrmId& headFrmId, HeadFidget reaction)
         _lipsFrmId = HeadFrameId::None;
     }
 
-    if (_lipsFrmId == HeadFrmId(HeadFrameId::None)) {
+    if (_lipsFrmId == HeadFrameId::None) {
         _phone_anim = anim;
         _lipsFrmId = HeadFrmId(headFrmId.frameId().head, anim);
         _lipsFp = artLock(_lipsFrmId, &_lipsKey);
@@ -2777,6 +2771,62 @@ void _gdSetupFidget(const HeadFrmId& headFrmId, HeadFidget reaction)
     gGameDialogFidgetLastUpdateTimestamp = 0;
     gGameDialogFidgetReaction = reaction;
     gGameDialogFidgetUpdateDelay = 1000 / artGetFramesPerSecond(gGameDialogFidgetFrm);
+}
+
+static void gameDialogBlitIsoWindowToDisplayBuffer()
+{
+    unsigned char* src = windowGetBuffer(gIsoWindow);
+
+    // Usually rendering functions use `screenGetWidth`/`screenGetHeight` to
+    // determine rendering position. However in this case `windowGetHeight`
+    // is a must because isometric window's height can either include
+    // interface bar or not. Offset is updated accordingly (332 -> 232, the
+    // missing 100 is interface bar height, which is already accounted for
+    // when we're using `windowGetHeight`). `windowGetWidth` is used for
+    // consistency.
+    blitBufferToBuffer(
+        src + ((windowGetHeight(gIsoWindow) - 232) / 2) * windowGetWidth(gIsoWindow) + (windowGetWidth(gIsoWindow) - 388) / 2,
+        388,
+        200,
+        windowGetWidth(gIsoWindow),
+        gGameDialogDisplayBuffer,
+        GAME_DIALOG_WINDOW_WIDTH);
+}
+
+static void gameDialogRenderMapInDisplayBuffer()
+{
+    int oldCenterTile = gCenterTile;
+    bool changedCenter = false;
+    bool mapRefreshed = false;
+
+    if (gGameDialogSpeaker != nullptr
+        && objectTypeFromPid(gGameDialogSpeaker->pid) != OBJ_TYPE_ITEM
+        && gGameDialogSpeaker->elevation == gElevation
+        && gGameDialogSpeaker->tile != oldCenterTile) {
+        if (tileSetCenter(gGameDialogSpeaker->tile,
+                TILE_SET_CENTER_REFRESH_WINDOW | TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS)
+            == 0) {
+            mapRefreshed = true;
+            changedCenter = gCenterTile != oldCenterTile;
+        } else {
+            // Legacy map borders cannot be bypassed. Preserve the old
+            // progressive behavior and capture from the closest valid center.
+            _tile_scroll_to(gGameDialogSpeaker->tile, 2);
+            changedCenter = gCenterTile != oldCenterTile;
+            mapRefreshed = changedCenter;
+        }
+    }
+
+    if (!mapRefreshed) {
+        tileWindowRefresh();
+    }
+
+    gameDialogBlitIsoWindowToDisplayBuffer();
+
+    if (changedCenter) {
+        tileSetCenter(oldCenterTile,
+            TILE_SET_CENTER_REFRESH_WINDOW | TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS);
+    }
 }
 
 // 0x447598
@@ -3214,7 +3264,9 @@ void _gdialog_scroll_subwin(int windowIdx, bool scrollUp, const unsigned char* w
         }
 
         for (; strips >= 0; strips--) {
-            sharedFpsLimiter.mark();
+            if (!instantScrollUp) {
+                sharedFpsLimiter.mark();
+            }
 
             soundContinueAll();
             blitBufferToBuffer(windowFrmData,
@@ -3228,10 +3280,11 @@ void _gdialog_scroll_subwin(int windowIdx, bool scrollUp, const unsigned char* w
             height += stripHeight;
             dest -= stripHeight * (GAME_DIALOG_WINDOW_WIDTH);
 
-            delay_ms(delayMs);
-
-            renderPresent();
-            sharedFpsLimiter.throttle();
+            if (!instantScrollUp) {
+                delay_ms(delayMs);
+                renderPresent();
+                sharedFpsLimiter.throttle();
+            }
         }
     } else {
         rect.right = GAME_DIALOG_WINDOW_WIDTH - 1;
@@ -3476,9 +3529,9 @@ int gameDialogCreateBarterWindow()
     gBarterWindowExpanded = gExpandedBarterEnabled && backgroundFrmImage.lock(OBJ_TYPE_INTERFACE, expandedBarterFrmName());
 
     if (!gBarterWindowExpanded) {
-        const FrmId backgroundFid = gGameDialogSpeakerIsPartyMember
-            ? FrmId(InterfaceFrameId::TradeWindow)
-            : FrmId(InterfaceFrameId::BarterWindow);
+        const InterfaceFrmId backgroundFid = gGameDialogSpeakerIsPartyMember
+            ? InterfaceFrameId::TradeWindow
+            : InterfaceFrameId::BarterWindow;
         backgroundFrmImage.lock(backgroundFid);
     }
 
@@ -3524,15 +3577,15 @@ int gameDialogCreateBarterWindow()
     if (talkBtn == -1) return -1;
 
     UniqueObject playerTableObj;
-    if (objectCreateWithFidPid(playerTableObj, -1, -1) == -1) return -1;
+    if (objectCreateWithFrmIdPid(playerTableObj, FrmId::Empty(), -1) == -1) return -1;
     playerTableObj->flags |= OBJECT_HIDDEN;
 
     UniqueObject bartererTableObj;
-    if (objectCreateWithFidPid(bartererTableObj, -1, -1) == -1) return -1;
+    if (objectCreateWithFrmIdPid(bartererTableObj, FrmId::Empty(), -1) == -1) return -1;
     bartererTableObj->flags |= OBJECT_HIDDEN;
 
     UniqueObject bartererTempObj;
-    if (objectCreateWithFidPid(bartererTempObj, gGameDialogSpeaker->fid, -1) == -1) return -1;
+    if (objectCreateWithFrmIdPid(bartererTempObj, FrmId(gGameDialogSpeaker->fid), -1) == -1) return -1;
     bartererTempObj->flags |= OBJECT_HIDDEN | OBJECT_NO_SAVE;
     bartererTempObj->sid = -1;
 
@@ -3636,7 +3689,7 @@ void gameDialogBarterCleanupTables()
 int partyMemberControlWindowInit()
 {
     FrmImage backgroundFrmImage;
-    if (!backgroundFrmImage.lock(FrmId(InterfaceFrameId::PartyControlInterface))) {
+    if (!backgroundFrmImage.lock(InterfaceFrameId::PartyControlInterface)) {
         return -1;
     }
 
@@ -3702,10 +3755,8 @@ int partyMemberControlWindowInit()
 
     for (int index = 0; index < 5; index++) {
         GameDialogButtonData* buttonData = &(gGameDialogDispositionButtonsData[index]);
-        FrmId fid;
 
-        fid = FrmId(buttonData->upFrmId);
-        Art* upButtonFrm = artLock(fid, &(buttonData->upFrmHandle));
+        Art* upButtonFrm = artLock(buttonData->upFrmId, &(buttonData->upFrmHandle));
         if (upButtonFrm == nullptr) {
             partyMemberControlWindowFree();
             return -1;
@@ -3715,8 +3766,7 @@ int partyMemberControlWindowInit()
         int height = artGetHeight(upButtonFrm);
         unsigned char* upButtonFrmData = artGetFrameData(upButtonFrm);
 
-        fid = FrmId(buttonData->downFrmId);
-        Art* downButtonFrm = artLock(fid, &(buttonData->downFrmHandle));
+        Art* downButtonFrm = artLock(buttonData->downFrmId, &(buttonData->downFrmHandle));
         if (downButtonFrm == nullptr) {
             partyMemberControlWindowFree();
             return -1;
@@ -3724,8 +3774,7 @@ int partyMemberControlWindowInit()
 
         unsigned char* downButtonFrmData = artGetFrameData(downButtonFrm);
 
-        fid = FrmId(buttonData->disabledFrmId);
-        Art* disabledButtonFrm = artLock(fid, &(buttonData->disabledFrmHandle));
+        Art* disabledButtonFrm = artLock(buttonData->disabledFrmId, &(buttonData->disabledFrmHandle));
         if (disabledButtonFrm == nullptr) {
             partyMemberControlWindowFree();
             return -1;
@@ -3807,7 +3856,7 @@ void partyMemberControlWindowFree()
     }
 
     FrmImage backgroundFrmImage;
-    if (backgroundFrmImage.lock(FrmId(InterfaceFrameId::PartyControlInterface))) {
+    if (backgroundFrmImage.lock(InterfaceFrameId::PartyControlInterface)) {
         _gdialog_scroll_subwin(gGameDialogWindow, false, backgroundFrmImage.getData(), windowGetBuffer(gGameDialogWindow), windowGetBuffer(gGameDialogBackgroundWindow) + (GAME_DIALOG_WINDOW_WIDTH) * (480 - _dialogue_subwin_len), _dialogue_subwin_len);
     }
 
@@ -3825,7 +3874,7 @@ void partyMemberControlWindowUpdate()
     int windowWidth = windowGetWidth(gGameDialogWindow);
 
     FrmImage backgroundFrmImage;
-    if (backgroundFrmImage.lock(FrmId(InterfaceFrameId::PartyControlInterface))) {
+    if (backgroundFrmImage.lock(InterfaceFrameId::PartyControlInterface)) {
         int width = backgroundFrmImage.getWidth();
         unsigned char* buffer = backgroundFrmImage.getData();
 
@@ -4086,7 +4135,7 @@ int partyMemberCustomizationWindowInit()
     messageListRepositorySetStandardMessageList(STANDARD_MESSAGE_LIST_CUSTOM, &gCustomMessageList);
 
     FrmImage backgroundFrmImage;
-    if (!backgroundFrmImage.lock(FrmId(InterfaceFrameId::PartyCustomInterface))) {
+    if (!backgroundFrmImage.lock(InterfaceFrameId::PartyCustomInterface)) {
         partyMemberCustomizationMessageListReset();
         return -1;
     }
@@ -4139,8 +4188,7 @@ int partyMemberCustomizationWindowInit()
     for (auto& buttonDataRef : _custom_button_info) {
         GameDialogButtonData* buttonData = &buttonDataRef;
 
-        FrmId upButtonFid = FrmId(buttonData->upFrmId);
-        Art* upButtonFrm = artLock(upButtonFid, &(buttonData->upFrmHandle));
+        Art* upButtonFrm = artLock(buttonData->upFrmId, &(buttonData->upFrmHandle));
         if (upButtonFrm == nullptr) {
             partyMemberCustomizationWindowFree();
             return -1;
@@ -4150,8 +4198,7 @@ int partyMemberCustomizationWindowInit()
         int height = artGetHeight(upButtonFrm);
         unsigned char* upButtonFrmData = artGetFrameData(upButtonFrm);
 
-        FrmId downButtonFid = FrmId(buttonData->downFrmId);
-        Art* downButtonFrm = artLock(downButtonFid, &(buttonData->downFrmHandle));
+        Art* downButtonFrm = artLock(buttonData->downFrmId, &(buttonData->downFrmHandle));
         if (downButtonFrm == nullptr) {
             partyMemberCustomizationWindowFree();
             return -1;
@@ -4228,7 +4275,7 @@ void partyMemberCustomizationWindowFree()
     }
 
     FrmImage backgroundFrmImage;
-    if (backgroundFrmImage.lock(FrmId(InterfaceFrameId::PartyCustomInterface))) {
+    if (backgroundFrmImage.lock(InterfaceFrameId::PartyCustomInterface)) {
         _gdialog_scroll_subwin(gGameDialogWindow, false, backgroundFrmImage.getData(), windowGetBuffer(gGameDialogWindow), windowGetBuffer(gGameDialogBackgroundWindow) + (GAME_DIALOG_WINDOW_WIDTH) * (480 - _dialogue_subwin_len), _dialogue_subwin_len);
     }
 
@@ -4280,7 +4327,7 @@ void partyMemberCustomizationWindowUpdate()
     int windowWidth = windowGetWidth(gGameDialogWindow);
 
     FrmImage backgroundFrmImage;
-    if (!backgroundFrmImage.lock(FrmId(InterfaceFrameId::PartyCustomInterface))) {
+    if (!backgroundFrmImage.lock(InterfaceFrameId::PartyCustomInterface)) {
         return;
     }
 
@@ -4386,7 +4433,7 @@ int _gdCustomSelect(int option)
     int oldFont = fontGetCurrent();
 
     FrmImage backgroundFrmImage;
-    if (!backgroundFrmImage.lock(FrmId(InterfaceFrameId::PartyCustomSelect))) {
+    if (!backgroundFrmImage.lock(InterfaceFrameId::PartyCustomSelect)) {
         return -1;
     }
 
@@ -4628,8 +4675,8 @@ int _gdialog_window_create()
         btn = -1;
 
     FrmImage backgroundFrmImage;
-    const FrmId backgroundFid = gGameDialogSpeakerIsPartyMember ? FrmId(InterfaceFrameId::DialogTalkSubwindowParty) : FrmId(InterfaceFrameId::DialogTalkSubwindow);
-    if (!backgroundFrmImage.lock(backgroundFid)) return -1;
+    const InterfaceFrmId backgroundFrmId = gGameDialogSpeakerIsPartyMember ? InterfaceFrameId::DialogTalkSubwindowParty : InterfaceFrameId::DialogTalkSubwindow;
+    if (!backgroundFrmImage.lock(backgroundFrmId)) return -1;
 
     unsigned char* backgroundFrmData = backgroundFrmImage.getData();
     if (backgroundFrmData == nullptr) return -1;
@@ -4694,10 +4741,10 @@ void _gdialog_window_destroy()
     int offset = (GAME_DIALOG_WINDOW_WIDTH) * (480 - _dialogue_subwin_len);
     unsigned char* backgroundWindowBuffer = windowGetBuffer(gGameDialogBackgroundWindow) + offset;
 
-    const FrmId backgroundFid = gGameDialogSpeakerIsPartyMember ? FrmId(InterfaceFrameId::DialogTalkSubwindowParty) : FrmId(InterfaceFrameId::DialogTalkSubwindow);
+    const InterfaceFrmId backgroundFrmId = gGameDialogSpeakerIsPartyMember ? InterfaceFrameId::DialogTalkSubwindowParty : InterfaceFrameId::DialogTalkSubwindow;
 
     FrmImage backgroundFrmImage;
-    if (backgroundFrmImage.lock(backgroundFid)) {
+    if (backgroundFrmImage.lock(backgroundFrmId)) {
         unsigned char* windowBuffer = windowGetBuffer(gGameDialogWindow);
         _gdialog_scroll_subwin(gGameDialogWindow, false, backgroundFrmImage.getData(), windowBuffer, backgroundWindowBuffer, _dialogue_subwin_len);
         windowDestroy(gGameDialogWindow);
@@ -4755,7 +4802,7 @@ int gameDialogWindowRenderBackground()
     }
 
     if (!backgroundFrmImage.isLocked()) {
-        const FrmId backgroundFrmId(InterfaceFrameId::DialogScreenBackground);
+        const InterfaceFrmId backgroundFrmId = InterfaceFrameId::DialogScreenBackground;
         if (!backgroundFrmImage.lock(backgroundFrmId)) {
             return -1;
         }
@@ -4777,7 +4824,7 @@ int gameDialogWindowRenderBackground()
 int _talkToRefreshDialogWindowRect(Rect* rect)
 {
     FrmImage backgroundFrmImage;
-    const FrmId backgroundFrmId = gGameDialogSpeakerIsPartyMember ? FrmId(InterfaceFrameId::DialogTalkSubwindowParty) : FrmId(InterfaceFrameId::DialogTalkSubwindow);
+    const InterfaceFrmId backgroundFrmId = gGameDialogSpeakerIsPartyMember ? InterfaceFrameId::DialogTalkSubwindowParty : InterfaceFrameId::DialogTalkSubwindow;
     if (!backgroundFrmImage.lock(backgroundFrmId)) {
         return -1;
     }
@@ -4880,27 +4927,7 @@ void gameDialogRenderTalkingHead(Art* headFrm, int frame)
             debugPrint("\tError getting head data in display...\n");
         }
     } else {
-        if (_talk_need_to_center) {
-            _talk_need_to_center = false;
-            tileWindowRefresh();
-        }
-
-        unsigned char* src = windowGetBuffer(gIsoWindow);
-
-        // Usually rendering functions use `screenGetWidth`/`screenGetHeight` to
-        // determine rendering position. However in this case `windowGetHeight`
-        // is a must because isometric window's height can either include
-        // interface bar or not. Offset is updated accordingly (332 -> 232, the
-        // missing 100 is interface bar height, which is already accounted for
-        // when we're using `windowGetHeight`). `windowGetWidth` is used for
-        // consistency.
-        blitBufferToBuffer(
-            src + ((windowGetHeight(gIsoWindow) - 232) / 2) * windowGetWidth(gIsoWindow) + (windowGetWidth(gIsoWindow) - 388) / 2,
-            388,
-            200,
-            windowGetWidth(gIsoWindow),
-            gGameDialogDisplayBuffer,
-            GAME_DIALOG_WINDOW_WIDTH);
+        gameDialogRenderMapInDisplayBuffer();
     }
 
     int yOffset = gameDialogHrArtYOffset();
@@ -4968,8 +4995,8 @@ void gameDialogHighlightsInit()
     _light_BlendTable = _getColorBlendTable(COLOR_GREY);
     _dark_BlendTable = _getColorBlendTable(COLOR_OLIVE);
 
-    _upperHighlightFrmImage.lock(FrmId(InterfaceFrameId::DialogueUpperHighlight));
-    _lowerHighlightFrmImage.lock(FrmId(InterfaceFrameId::DialogueLowerHighlight));
+    _upperHighlightFrmImage.lock(InterfaceFrameId::DialogueUpperHighlight);
+    _lowerHighlightFrmImage.lock(InterfaceFrameId::DialogueLowerHighlight);
 }
 
 // NOTE: Inlined.

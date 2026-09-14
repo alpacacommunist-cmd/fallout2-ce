@@ -423,7 +423,7 @@ int correctFidForRemovedItem(Object* critter, Object* item, ObjectFlags flags)
     }
 
     WeaponAnimation weaponCode = weaponAnimationFromFid(critter->fid);
-    FrmId newFid = FrmId::Empty();
+    FrmId newFrmId;
 
     if ((flags & OBJECT_IN_ANY_HAND) != OBJECT_NONE) {
         if (critter == gDude) {
@@ -443,19 +443,19 @@ int correctFidForRemovedItem(Object* critter, Object* item, ObjectFlags flags)
         }
 
         if (weaponCode == WEAPON_ANIMATION_NONE) {
-            newFid = FrmId(critter, animationTypeFromFid(critter->fid), WEAPON_ANIMATION_NONE, rotationFromFid(critter->fid));
+            newFrmId = FrmId(critter, animationTypeFromFid(critter->fid), WEAPON_ANIMATION_NONE, rotationFromFid(critter->fid));
         }
     } else {
         if (critter == gDude) {
-            newFid = FrmId(_art_vault_guy_num, animationTypeFromFid(critter->fid), weaponCode, rotationFromFid(critter->fid));
+            newFrmId = FrmId(_art_vault_guy_num, animationTypeFromFid(critter->fid), weaponCode, rotationFromFid(critter->fid));
         }
 
         adjustCritterStatsOnArmorChange(critter, item, nullptr);
     }
 
-    if (!newFid.empty()) {
+    if (newFrmId.valid()) {
         Rect rect;
-        objectSetFid(critter, newFid.fid(), &rect);
+        objectSetFrmId(critter, newFrmId, &rect);
         tileWindowRefreshRect(&rect, gElevation);
     }
 
@@ -879,7 +879,7 @@ static void opCreateObject(Program* program)
 
     Proto* proto;
     if (protoGetProto(pid, &proto) != -1) {
-        if (objectCreateWithFidPid(&object, proto->fid, pid) != -1) {
+        if (objectCreateWithFrmIdPid(&object, FrmId(proto->fid), pid) != -1) {
             if (tile == -1) {
                 tile = 0;
             }
@@ -2063,19 +2063,19 @@ static void opMetarule3(Program* program)
                 break;
             }
 
-            int frmId = param2.integerValue;
-            if (frmId > FrmId::kMaxFrameId) {
-                frmId = frameIdFromFid(frmId);
+            int frameId = param2.integerValue;
+            if (frameId > FrmId::kMaxFrameId) {
+                frameId = frameIdFromFid(frameId);
             }
 
-            FrmId fid = FrmId(objectTypeFromFid(obj->fid),
-                frmId,
+            const FrmId frmId = FrmId(objectTypeFromFid(obj->fid),
+                frameId,
                 animationTypeFromFid(obj->fid),
                 weaponAnimationFromFid(obj->fid),
                 rotationFromFid(obj->fid));
 
             Rect updatedRect;
-            objectSetFid(obj, fid.fid(), &updatedRect);
+            objectSetFrmId(obj, frmId, &updatedRect);
             tileWindowRefreshRect(&updatedRect, gElevation);
         }
         break;
@@ -3358,7 +3358,7 @@ static void opMetarule(Program* program)
                     break;
                 }
             } else {
-                if (MiscFrmId(MiscFrameId::RocketExplosion) == FrmId(object->fid)) {
+                if (FrmId(object->fid) == MiscFrameId::RocketExplosion) {
                     result = DAMAGE_TYPE_EXPLOSION;
                     break;
                 }
@@ -3450,28 +3450,28 @@ static void opAnim(Program* program)
         if (frame == 0) { // ANIMATE_FORWARD
             animationRegisterAnimate(obj, anim, 0);
             if (anim >= ANIM_FALL_BACK && anim <= ANIM_FALL_FRONT_BLOOD) {
-                FrmId fid = FrmId(obj, static_cast<AnimationType>(anim + 28), weaponAnimationFromFid(obj->fid), rotationFromFid(obj->fid));
-                animationRegisterSetFid(obj, fid.fid(), -1);
+                const FrmId frmId = FrmId(obj, static_cast<AnimationType>(anim + 28), weaponAnimationFromFid(obj->fid), rotationFromFid(obj->fid));
+                animationRegisterSetFrmId(obj, frmId, -1);
             }
 
             if (combatData != nullptr) {
                 combatData->results &= ~DAM_KNOCKED_DOWN;
             }
         } else { // ANIMATE_REVERSE == 1
-            FrmId fid = FrmId(obj, anim, weaponAnimationFromFid(obj->fid), rotationFromFid(obj->fid));
+            FrmId frmId = FrmId(obj, anim, weaponAnimationFromFid(obj->fid), rotationFromFid(obj->fid));
             animationRegisterAnimateReversed(obj, anim, 0);
 
             if (anim == ANIM_PRONE_TO_STANDING) {
-                fid = FrmId(obj, ANIM_FALL_FRONT_SF, weaponAnimationFromFid(obj->fid), rotationFromFid(obj->fid));
+                frmId = FrmId(obj, ANIM_FALL_FRONT_SF, weaponAnimationFromFid(obj->fid), rotationFromFid(obj->fid));
             } else if (anim == ANIM_BACK_TO_STANDING) {
-                fid = FrmId(obj, ANIM_FALL_BACK_SF, weaponAnimationFromFid(obj->fid), rotationFromFid(obj->fid));
+                frmId = FrmId(obj, ANIM_FALL_BACK_SF, weaponAnimationFromFid(obj->fid), rotationFromFid(obj->fid));
             }
 
             if (combatData != nullptr) {
                 combatData->results |= DAM_KNOCKED_DOWN;
             }
 
-            animationRegisterSetFid(obj, fid.fid(), -1);
+            animationRegisterSetFrmId(obj, frmId, -1);
         }
 
         reg_anim_end();

@@ -9,6 +9,7 @@
 
 #include "actions.h"
 #include "animation.h"
+#include "animation_defs.h"
 #include "art.h"
 #include "automap.h"
 #include "character_editor.h"
@@ -1305,7 +1306,7 @@ void edit_mapper()
                             if (objectTypeFromPid(selectedPid) == OBJ_TYPE_TILE) {
                                 placeTile(selectedPid, FrmId(gGameMouseBouncingCursor->fid));
                             } else {
-                                placeObject(selectedPid, gGameMouseBouncingCursor->fid);
+                                placeObject(selectedPid, FrmId(gGameMouseBouncingCursor->fid));
                             }
                         }
                     } else if (_screen_obj != nullptr) {
@@ -1347,7 +1348,7 @@ void edit_mapper()
                             if (objectTypeFromPid(selectedPid) == OBJ_TYPE_TILE) {
                                 placeTile(selectedPid, FrmId(gGameMouseBouncingCursor->fid));
                             } else {
-                                placeObject(selectedPid, gGameMouseBouncingCursor->fid);
+                                placeObject(selectedPid, FrmId(gGameMouseBouncingCursor->fid));
                             }
                         }
                     } else {
@@ -1366,7 +1367,7 @@ void edit_mapper()
                             update_high_obj_name(_screen_obj);
 
                             Object* hlObj;
-                            if (objectCreateWithFidPid(&hlObj, FrmId(InterfaceFrameId::HexMouseCursor).fid(), -1) != -1) {
+                            if (objectCreateWithFrmIdPid(&hlObj, InterfaceFrameId::HexMouseCursor, -1) != -1) {
                                 hlObj->flags |= OBJECT_SHOOT_THRU | OBJECT_LIGHT_THRU | OBJECT_NO_SAVE;
                                 _obj_toggle_flat(hlObj, nullptr);
 
@@ -2531,7 +2532,7 @@ void update_art(ObjectType type, int offset)
             if (protoGetProto(pid, &proto) == -1) continue;
             frmId = FrmId(proto->fid);
         }
-        artRender(frmId.fid(), p, art_scale_width, art_scale_height, screen_width);
+        artRender(frmId, p, art_scale_width, art_scale_height, screen_width);
     }
 
     // Draw selection box around the active slot.
@@ -2604,7 +2605,7 @@ static int mapperPickTile(int* outOffset)
     } else {
         tileFrmId = static_cast<TileFrameId>(frameIdFromFid(packedTile));
     }
-    const FrmId artFrmId = FrmId(tileFrmId);
+    const TileFrmId artFrmId = tileFrmId;
 
     for (int idx = 0; idx < maxId; idx++) {
         int pid = (OBJ_TYPE_TILE << 24) | idx;
@@ -2673,7 +2674,7 @@ int mapper_inven_unwield(Object* obj, int right_hand)
     animationRegisterAnimate(obj, ANIM_PUT_AWAY, 0);
 
     const FrmId frmId = FrmId(obj, ANIM_STAND, WEAPON_ANIMATION_NONE, rotationFromFid(obj->fid));
-    animationRegisterSetFid(obj, frmId.fid(), 0);
+    animationRegisterSetFrmId(obj, frmId, 0);
 
     return reg_anim_end();
 }

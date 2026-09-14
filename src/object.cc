@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "animation.h"
+#include "animation_defs.h"
 #include "art.h"
 #include "color.h"
 #include "combat.h"
@@ -303,7 +304,7 @@ static char _obj_seen[5001];
 int objectsInit(unsigned char* buf, int width, int height, int pitch)
 {
     const FrmId dudeFrmId = FrmId(_art_vault_guy_num, ANIM_STAND, WEAPON_ANIMATION_NONE, ROTATION_NE);
-    const FrmId eggFrmId = FrmId(InterfaceFrameId::Egg);
+    const InterfaceFrmId eggFrmId = InterfaceFrameId::Egg;
 
     memset(_obj_seen, 0, 5001);
     gObjectsUpdateAreaPixelBounds.right = width + 320;
@@ -353,7 +354,7 @@ int objectsInit(unsigned char* buf, int width, int height, int pitch)
     gObjectsWindowBufferSize = height * width;
     gObjectsWindowPitch = pitch;
 
-    objectCreateWithFidPid(&gDude, dudeFrmId.fid(), 0x1000000);
+    objectCreateWithFrmIdPid(&gDude, dudeFrmId, 0x1000000);
 
     gDude->flags |= OBJECT_NO_REMOVE;
     gDude->flags |= OBJECT_NO_SAVE;
@@ -366,7 +367,7 @@ int objectsInit(unsigned char* buf, int width, int height, int pitch)
         exit(1);
     }
 
-    objectCreateWithFidPid(&gEgg, eggFrmId.fid(), -1);
+    objectCreateWithFrmIdPid(&gEgg, eggFrmId, -1);
     gEgg->flags |= OBJECT_NO_REMOVE;
     gEgg->flags |= OBJECT_NO_SAVE;
     gEgg->flags |= OBJECT_HIDDEN;
@@ -909,7 +910,7 @@ void _obj_render_post_roof(Rect* rect, int elevation)
 }
 
 // 0x489A84 obj_new
-int objectCreateWithFidPid(Object** objectPtr, int fid, int pid)
+int objectCreateWithFrmIdPid(Object** objectPtr, const FrmId& frmId, int pid)
 {
     ObjectListNode* objectListNode;
 
@@ -924,7 +925,11 @@ int objectCreateWithFidPid(Object** objectPtr, int fid, int pid)
         return -1;
     }
 
-    objectListNode->obj->fid = fid;
+    if (frmId.valid()) {
+        assert(frmId.hasFid() && "objectCreateWithFrmIdPid(Object** objectPtr, const FrmId& frmId, int pid) called with path based FrmId which is not supported!");
+    }
+
+    objectListNode->obj->fid = frmId.fid();
     _obj_insert(objectListNode);
 
     if (objectPtr) {
@@ -1010,7 +1015,7 @@ int objectCreateWithPid(Object** objectPtr, int pid)
         return -1;
     }
 
-    return objectCreateWithFidPid(objectPtr, proto->fid, pid);
+    return objectCreateWithFrmIdPid(objectPtr, FrmId(proto->fid), pid);
 }
 
 // 0x489CCC obj_copy
@@ -1341,7 +1346,7 @@ int _obj_move(Object* a1, int a2, int a3, int elevation, Rect* a5)
     CacheEntry* cacheHandle;
     int width;
     int height;
-    Art* art = artLock(a1->fid, &cacheHandle);
+    Art* art = artLock(FrmId(a1->fid), &cacheHandle);
     if (art != nullptr) {
         artGetSize(art, a1->frame, a1->rotation, &width, &height);
         a1->sx = a2 - width / 2;
@@ -1478,7 +1483,7 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
             int previousSquare = _obj_last_roof_x != -1 && _obj_last_roof_y != -1
                 ? _square[elevation]->fid[_obj_last_roof_x + 100 * _obj_last_roof_y]
                 : 0;
-            bool isEmpty = TileFrmId(TileFrameId::Grid) == currentSquareFrmId;
+            bool isEmpty = currentSquareFrmId == TileFrameId::Grid;
 
             if (isEmpty != _obj_last_is_empty || (((currentSquare >> 16) & 0xF000) >> 12) != (((previousSquare >> 16) & 0xF000) >> 12)) {
                 if (!_obj_last_is_empty) {
@@ -1531,7 +1536,7 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
 int _obj_reset_roof()
 {
     const TileFrmId frmId = static_cast<TileFrameId>(frameIdFromFid(_square[gDude->elevation]->fid[_obj_last_roof_x + 100 * _obj_last_roof_y] >> 16));
-    if (frmId != TileFrmId(TileFrameId::Grid)) {
+    if (frmId != TileFrameId::Grid) {
         tile_fill_roof(_obj_last_roof_x, _obj_last_roof_y, gDude->elevation, 1);
     }
     return 0;
@@ -1540,7 +1545,7 @@ int _obj_reset_roof()
 // Sets object fid.
 //
 // 0x48AA3C obj_change_fid
-int objectSetFid(Object* obj, int fid, Rect* dirtyRect)
+int objectSetFrmId(Object* obj, const FrmId& frmId, Rect* dirtyRect)
 {
     Rect new_rect;
 
@@ -1548,15 +1553,19 @@ int objectSetFid(Object* obj, int fid, Rect* dirtyRect)
         return -1;
     }
 
+    if (frmId.valid()) {
+        assert(frmId.hasFid() && "objectSetFrmId(Object* obj, const FrmId& frmId, Rect* dirtyRect) called with path based FrmId which is not supported!");
+    }
+
     if (dirtyRect != nullptr) {
         objectGetRect(obj, dirtyRect);
 
-        obj->fid = fid;
+        obj->fid = frmId.fid();
 
         objectGetRect(obj, &new_rect);
         rectUnion(dirtyRect, &new_rect, dirtyRect);
     } else {
-        obj->fid = fid;
+        obj->fid = frmId.fid();
     }
 
     return 0;
@@ -1576,7 +1585,7 @@ int objectSetFrame(Object* obj, int frame, Rect* rect)
         return -1;
     }
 
-    art = artLock(obj->fid, &cache_entry);
+    art = artLock(FrmId(obj->fid), &cache_entry);
     if (art == nullptr) {
         return -1;
     }
@@ -1613,7 +1622,7 @@ int objectSetNextFrame(Object* obj, Rect* dirtyRect)
         return -1;
     }
 
-    art = artLock(obj->fid, &cache_entry);
+    art = artLock(FrmId(obj->fid), &cache_entry);
     if (art == nullptr) {
         return -1;
     }
@@ -1657,7 +1666,7 @@ int objectSetPrevFrame(Object* obj, Rect* dirtyRect)
         return -1;
     }
 
-    art = artLock(obj->fid, &cache_entry);
+    art = artLock(FrmId(obj->fid), &cache_entry);
     if (art == nullptr) {
         return -1;
     }
@@ -2353,7 +2362,7 @@ void objectGetRect(Object* obj, Rect* rect)
     bool isOutlined = objectHasOutline(obj);
 
     CacheEntry* artHandle;
-    Art* art = artLock(obj->fid, &artHandle);
+    Art* art = artLock(FrmId(obj->fid), &artHandle);
     if (art == nullptr) {
         rect->left = 0;
         rect->top = 0;
@@ -2949,7 +2958,7 @@ ObjectFlags _obj_intersects_with(Object* object, int x, int y)
 
     if (object == gEgg || (object->flags & OBJECT_HIDDEN) == OBJECT_NONE) {
         CacheEntry* handle;
-        Art* art = artLock(object->fid, &handle);
+        Art* art = artLock(FrmId(object->fid), &handle);
         if (art != nullptr) {
             int width;
             int height;
@@ -3241,13 +3250,13 @@ void _obj_preload_art_cache(MapHeaderFlags flags)
     }
 
     CacheEntry* cache_handle;
-    if (artLock(*gObjectFids, &cache_handle) != nullptr) {
+    if (artLock(FrmId(*gObjectFids), &cache_handle) != nullptr) {
         artUnlock(cache_handle);
     }
 
     for (int i = 1; i < v11; i++) {
         if (gObjectFids[i - 1] != gObjectFids[i]) {
-            if (artLock(gObjectFids[i], &cache_handle) != nullptr) {
+            if (artLock(FrmId(gObjectFids[i]), &cache_handle) != nullptr) {
                 artUnlock(cache_handle);
             }
         }
@@ -3255,7 +3264,7 @@ void _obj_preload_art_cache(MapHeaderFlags flags)
 
     for (int i = FrmId::kMinFrameId; i <= FrmId::kMaxFrameId; i++) {
         if (arr[i] != 0) {
-            if (artLock(TileFrmId(static_cast<TileFrameId>(i)), &cache_handle) != nullptr) {
+            if (artLock(static_cast<TileFrameId>(i), &cache_handle) != nullptr) {
                 artUnlock(cache_handle);
             }
         }
@@ -3263,7 +3272,7 @@ void _obj_preload_art_cache(MapHeaderFlags flags)
 
     for (int i = v11; i < gObjectFidsLength; i++) {
         if (gObjectFids[i - 1] != gObjectFids[i]) {
-            if (artLock(gObjectFids[i], &cache_handle) != nullptr) {
+            if (artLock(FrmId(gObjectFids[i]), &cache_handle) != nullptr) {
                 artUnlock(cache_handle);
             }
         }
@@ -3913,11 +3922,11 @@ static void _obj_insert(ObjectListNode* objectListNode)
                 if ((obj->flags & OBJECT_FLAT) == (objectListNode->obj->flags & OBJECT_FLAT)) {
                     bool v11 = false;
                     CacheEntry* a2;
-                    Art* v12 = artLock(obj->fid, &a2);
+                    Art* v12 = artLock(FrmId(obj->fid), &a2);
                     if (v12 != nullptr) {
 
                         if (art == nullptr) {
-                            art = artLock(objectListNode->obj->fid, &cacheHandle);
+                            art = artLock(FrmId(objectListNode->obj->fid), &cacheHandle);
                         }
 
                         // TODO: Incomplete.
@@ -4687,7 +4696,7 @@ static int _obj_adjust_light(Object* obj, int a2, Rect* rect)
 static void objectDrawOutline(Object* object, Rect* rect)
 {
     CacheEntry* cacheEntry;
-    Art* art = artLock(object->fid, &cacheEntry);
+    Art* art = artLock(FrmId(object->fid), &cacheEntry);
     if (art == nullptr) {
         return;
     }
@@ -4958,7 +4967,7 @@ static void _obj_render_object(Object* object, Rect* rect, int light)
     }
 
     CacheEntry* cacheEntry;
-    Art* art = artLock(object->fid, &cacheEntry);
+    Art* art = artLock(FrmId(object->fid), &cacheEntry);
     if (art == nullptr) {
         return;
     }
@@ -5053,7 +5062,7 @@ static void _obj_render_object(Object* object, Rect* rect, int light)
 
             if (v17) {
                 CacheEntry* eggHandle;
-                Art* egg = artLock(gEgg->fid, &eggHandle);
+                Art* egg = artLock(FrmId(gEgg->fid), &eggHandle);
                 if (egg == nullptr) {
                     return;
                 }
@@ -5303,10 +5312,10 @@ void UniqueObject::reset(Object* p)
     _ptr = p;
 }
 
-int objectCreateWithFidPid(UniqueObject& obj, int fid, int pid)
+int objectCreateWithFrmIdPid(UniqueObject& obj, const FrmId& frmId, int pid)
 {
     Object* raw;
-    int rc = objectCreateWithFidPid(&raw, fid, pid);
+    int rc = objectCreateWithFrmIdPid(&raw, frmId, pid);
     if (rc != -1) obj.reset(raw);
     return rc;
 }

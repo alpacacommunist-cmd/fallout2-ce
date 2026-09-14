@@ -10,6 +10,7 @@
 #include <string>
 
 #include "animation.h"
+#include "animation_defs.h"
 #include "art.h"
 #include "color.h"
 #include "combat.h"
@@ -640,7 +641,7 @@ int objectPickup(Object* critter, Object* item)
 static int _obj_remove_from_inven(Object* critter, Object* item)
 {
     Rect updatedRect;
-    FrmId fid;
+    FrmId frmId;
     int appearanceUpdateType = 0;
     InvenSlot slot = InvenSlot::Armor;
     bool hasSlot = false;
@@ -660,16 +661,16 @@ static int _obj_remove_from_inven(Object* critter, Object* item)
         scriptHooks_InvenWield(critter, item, slot, 0, 1);
         if (slot == InvenSlot::RightHand) {
             if (critter != gDude || interfaceGetCurrentHand() == HAND_RIGHT) {
-                fid = FrmId(critter, animationTypeFromFid(critter->fid), WEAPON_ANIMATION_NONE, critter->rotation);
-                objectSetFid(critter, fid.fid(), &updatedRect);
+                frmId = FrmId(critter, animationTypeFromFid(critter->fid), WEAPON_ANIMATION_NONE, critter->rotation);
+                objectSetFrmId(critter, frmId, &updatedRect);
                 appearanceUpdateType = 2;
             } else {
                 appearanceUpdateType = 1;
             }
         } else if (slot == InvenSlot::LeftHand) {
             if (critter == gDude && interfaceGetCurrentHand() == HAND_LEFT) {
-                fid = FrmId(critter, animationTypeFromFid(critter->fid), WEAPON_ANIMATION_NONE, critter->rotation);
-                objectSetFid(critter, fid.fid(), &updatedRect);
+                frmId = FrmId(critter, animationTypeFromFid(critter->fid), WEAPON_ANIMATION_NONE, critter->rotation);
+                objectSetFrmId(critter, frmId, &updatedRect);
                 appearanceUpdateType = 2;
             } else {
                 appearanceUpdateType = 1;
@@ -683,8 +684,8 @@ static int _obj_remove_from_inven(Object* critter, Object* item)
                     defaultFrameId = FrmId(proto->fid).frameId().critter;
                 }
 
-                fid = FrmId(defaultFrameId, animationTypeFromFid(critter->fid), weaponAnimationFromFid(critter->fid), critter->rotation);
-                objectSetFid(critter, fid.fid(), &updatedRect);
+                frmId = FrmId(defaultFrameId, animationTypeFromFid(critter->fid), weaponAnimationFromFid(critter->fid), critter->rotation);
+                objectSetFrmId(critter, frmId, &updatedRect);
                 appearanceUpdateType = 3;
             }
         }
@@ -1682,7 +1683,7 @@ static int _check_door_state(Object* door, Object* obj2)
         }
 
         CacheEntry* artHandle;
-        Art* art = artLock(door->fid, &artHandle);
+        Art* art = artLock(FrmId(door->fid), &artHandle);
         if (art == nullptr) {
             return -1;
         }
@@ -1716,7 +1717,7 @@ static int _check_door_state(Object* door, Object* obj2)
         tileWindowRefresh();
 
         CacheEntry* artHandle;
-        Art* art = artLock(door->fid, &artHandle);
+        Art* art = artLock(FrmId(door->fid), &artHandle);
         if (art == nullptr) {
             return -1;
         }
@@ -2084,7 +2085,7 @@ bool objectIsOpenable(Object* obj)
 
     // Sfall: stricter "openable" check.  In Sfall it is implemented in the obj_is_openable opcode.
     CacheEntry* artHandle;
-    Art* art = artLock(obj->fid, &artHandle);
+    Art* art = artLock(FrmId(obj->fid), &artHandle);
     if (art == nullptr) {
         return false;
     }

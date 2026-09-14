@@ -6,7 +6,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include "animation.h"
+#include "animation_defs.h"
 #include "art.h"
 #include "art_defs.h"
 #include "automap.h"
@@ -681,7 +681,7 @@ int itemDropAll(Object* critter, int tile)
     if (hasEquippedItems) {
         Rect updatedRect;
         const CritterFrmId frmId = CritterFrmId(frameId, animationTypeFromFid(critter->fid), WEAPON_ANIMATION_NONE, rotationFromFid(critter->fid));
-        objectSetFid(critter, frmId.fid(), &updatedRect);
+        objectSetFrmId(critter, frmId, &updatedRect);
         if (animationTypeFromFid(critter->fid) == ANIM_STAND) {
             tileWindowRefreshRect(&updatedRect, gElevation);
         }
@@ -1056,16 +1056,16 @@ bool dudeIsWeaponDisabled(Object* weapon)
 }
 
 // 0x477FB0
-int itemGetInventoryFid(Object* item)
+FrmId itemGetInventoryFrmId(Object* item)
 {
     if (item == nullptr) {
-        return -1;
+        return FrmId::Empty();
     }
 
     Proto* proto;
     protoGetProto(item->pid, &proto);
 
-    return proto->item.inventoryFid;
+    return FrmId(proto->item.inventoryFid);
 }
 
 // 0x477FF8

@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "animation.h"
+#include "animation_defs.h"
 #include "art.h"
 #include "character_editor.h"
 #include "combat.h"
@@ -897,7 +898,7 @@ void critterKill(Object* critter, AnimationType anim, bool refreshRect)
     if (shouldChangeFid) {
         objectSetFrame(critter, 0, &updatedRect);
 
-        objectSetFid(critter, frmId.fid(), &tempRect);
+        objectSetFrmId(critter, frmId, &tempRect);
         rectUnion(&updatedRect, &tempRect, &updatedRect);
     }
 
@@ -1397,8 +1398,8 @@ int knockoutClear(Object* obj, void* data)
 
     obj->data.critter.combat.results &= ~(DAM_KNOCKED_OUT | DAM_KNOCKED_DOWN);
 
-    FrmId fid = FrmId(obj, ANIM_STAND, weaponAnimationFromFid(obj->fid), obj->rotation + 1);
-    objectSetFid(obj, fid.fid(), nullptr);
+    const FrmId frmId = FrmId(obj, ANIM_STAND, weaponAnimationFromFid(obj->fid), obj->rotation + 1);
+    objectSetFrmId(obj, frmId, nullptr);
 
     return 0;
 }

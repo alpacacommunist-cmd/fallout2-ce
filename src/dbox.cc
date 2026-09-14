@@ -222,26 +222,26 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
     }
 
     unsigned char* windowBuf = windowGetBuffer(win);
-    memcpy(windowBuf, backgroundFrmImage.getData(), backgroundFrmImage.getWidth() * backgroundFrmImage.getHeight());
+    memcpy(windowBuf, backgroundFrmImage.getData(), static_cast<size_t>(backgroundFrmImage.getWidth()) * backgroundFrmImage.getHeight());
 
     FrmImage doneBoxFrmImage;
     FrmImage buttonNormalFrmImage;
     FrmImage buttonPressedFrmImage;
 
     if ((flags & DIALOG_BOX_NO_BUTTONS) == 0) {
-        if (!doneBoxFrmImage.lock(FrmId(InterfaceFrameId::DoneBox))) {
+        if (!doneBoxFrmImage.lock(InterfaceFrameId::DoneBox)) {
             fontSetCurrent(savedFont);
             windowDestroy(win);
             return -1;
         }
 
-        if (!buttonPressedFrmImage.lock(FrmId(InterfaceFrameId::LittleRedButtonDown))) {
+        if (!buttonPressedFrmImage.lock(InterfaceFrameId::LittleRedButtonDown)) {
             fontSetCurrent(savedFont);
             windowDestroy(win);
             return -1;
         }
 
-        if (!buttonNormalFrmImage.lock(FrmId(InterfaceFrameId::LittleRedButtonUp))) {
+        if (!buttonNormalFrmImage.lock(InterfaceFrameId::LittleRedButtonUp)) {
             fontSetCurrent(savedFont);
             windowDestroy(win);
             return -1;
@@ -343,19 +343,19 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
                 buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
             }
         } else {
-            if (!doneBoxFrmImage.lock(FrmId(InterfaceFrameId::DoneBox))) {
+            if (!doneBoxFrmImage.lock(InterfaceFrameId::DoneBox)) {
                 fontSetCurrent(savedFont);
                 windowDestroy(win);
                 return -1;
             }
 
-            if (!buttonPressedFrmImage.lock(FrmId(InterfaceFrameId::LittleRedButtonDown))) {
+            if (!buttonPressedFrmImage.lock(InterfaceFrameId::LittleRedButtonDown)) {
                 fontSetCurrent(savedFont);
                 windowDestroy(win);
                 return -1;
             }
 
-            if (!buttonNormalFrmImage.lock(FrmId(InterfaceFrameId::LittleRedButtonUp))) {
+            if (!buttonNormalFrmImage.lock(InterfaceFrameId::LittleRedButtonUp)) {
                 fontSetCurrent(savedFont);
                 windowDestroy(win);
                 return -1;
@@ -599,7 +599,7 @@ int showLoadFileDialog(char* title, char** fileList, char* dest, int fileListLen
     }
 
     unsigned char* windowBuffer = windowGetBuffer(win);
-    memcpy(windowBuffer, frmImages[FILE_DIALOG_FRM_BACKGROUND].getData(), backgroundWidth * backgroundHeight);
+    memcpy(windowBuffer, frmImages[FILE_DIALOG_FRM_BACKGROUND].getData(), static_cast<size_t>(backgroundWidth) * backgroundHeight);
 
     MessageList messageList;
     MessageListItem messageListItem;
@@ -963,7 +963,7 @@ int showSaveFileDialog(char* title, char** fileList, char* dest, int fileListLen
     }
 
     unsigned char* windowBuffer = windowGetBuffer(win);
-    memcpy(windowBuffer, frmImages[FILE_DIALOG_FRM_BACKGROUND].getData(), backgroundWidth * backgroundHeight);
+    memcpy(windowBuffer, frmImages[FILE_DIALOG_FRM_BACKGROUND].getData(), static_cast<size_t>(backgroundWidth) * backgroundHeight);
 
     MessageList messageList;
     MessageListItem messageListItem;

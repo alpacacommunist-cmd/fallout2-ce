@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "animation.h"
+#include "animation_defs.h"
 #include "art.h"
 #include "art_defs.h"
 #include "audio.h"
@@ -1334,11 +1334,11 @@ int _gsound_compute_relative_volume(Object* obj)
 // 0x451604
 char* sfxBuildCharName(Object* a1, AnimationType anim, WeaponAnimation weaponType)
 {
-    char artName[13];
+    char artName[ART_NAME_SIZE];
     char weaponCode;
     char animationCode;
 
-    if (artCopyFileName(objectTypeFromFid(a1->fid), frameIdFromFid(a1->fid), artName) == -1) {
+    if (artCopyFileName(FrmId(a1->fid), artName) == -1) {
         return nullptr;
     }
 

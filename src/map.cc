@@ -407,7 +407,7 @@ int mapSetElevation(int elevation)
     gElevation = elevation;
 
     reg_anim_clear(gDude);
-    _dude_stand(gDude, gDude->rotation, gDude->fid);
+    _dude_stand(gDude, gDude->rotation, FrmId(gDude->fid));
     _partyMemberSyncPosition();
 
     if (gMapSid != -1) {
@@ -1081,7 +1081,7 @@ static int mapLoad(File* stream)
         }
 
         Object* object;
-        objectCreateWithFidPid(&object, MiscFrmId(MiscFrameId::ScrollBlocker).fid(), -1);
+        objectCreateWithFrmIdPid(&object, MiscFrameId::ScrollBlocker, -1);
         object->flags |= (OBJECT_LIGHT_THRU | OBJECT_NO_SAVE | OBJECT_HIDDEN);
         objectSetLocation(object, 1, 0, nullptr);
         object->sid = gMapSid;
@@ -1502,12 +1502,12 @@ static int _map_save_file(File* stream)
             TileFrmId frmId;
 
             frmId = static_cast<TileFrameId>(frameIdFromFid(_square[elevation]->fid[tile]));
-            if (frmId != TileFrmId(TileFrameId::Grid)) {
+            if (frmId != TileFrameId::Grid) {
                 break;
             }
 
             frmId = static_cast<TileFrameId>(frameIdFromFid(_square[elevation]->fid[tile] >> 16));
-            if (frmId != TileFrmId(TileFrameId::Grid)) {
+            if (frmId != TileFrameId::Grid) {
                 break;
             }
         }
@@ -1829,7 +1829,7 @@ static void _map_place_dude_and_mouse()
         objectSetLight(gDude, 4, 0x10000, nullptr);
         gDude->flags |= OBJECT_NO_SAVE;
 
-        _dude_stand(gDude, gDude->rotation, gDude->fid);
+        _dude_stand(gDude, gDude->rotation, FrmId(gDude->fid));
         _partyMemberSyncPosition();
     }
 

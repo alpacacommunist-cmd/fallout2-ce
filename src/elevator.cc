@@ -541,10 +541,10 @@ static int elevatorWindowInit(int elevator)
     const ElevatorBackground* elevatorBackground = &(gElevatorBackgrounds[elevator]);
     bool backgroundsLoaded = true;
 
-    const FrmId backgroundFrmId = FrmId(elevatorBackground->backgroundFrmId);
+    const InterfaceFrmId backgroundFrmId = elevatorBackground->backgroundFrmId;
     if (_elevatorBackgroundFrmImage.lock(backgroundFrmId)) {
         if (elevatorBackground->panelFrmId != InterfaceFrameId::Invalid) {
-            const FrmId panelFrmId = FrmId(elevatorBackground->panelFrmId);
+            const InterfaceFrmId panelFrmId = elevatorBackground->panelFrmId;
             if (!_elevatorPanelFrmImage.lock(panelFrmId)) {
                 backgroundsLoaded = false;
             }
@@ -597,14 +597,14 @@ static int elevatorWindowInit(int elevator)
     }
 
     gElevatorWindowBuffer = windowGetBuffer(gElevatorWindow);
-    memcpy(gElevatorWindowBuffer, _elevatorBackgroundFrmImage.getData(), _elevatorBackgroundFrmImage.getWidth() * _elevatorBackgroundFrmImage.getHeight());
+    memcpy(gElevatorWindowBuffer, _elevatorBackgroundFrmImage.getData(), static_cast<size_t>(_elevatorBackgroundFrmImage.getWidth()) * _elevatorBackgroundFrmImage.getHeight());
 
     if (_elevatorPanelFrmImage.isLocked()) {
         blitBufferToBuffer(_elevatorPanelFrmImage.getData(),
             _elevatorPanelFrmImage.getWidth(),
             _elevatorPanelFrmImage.getHeight(),
             _elevatorPanelFrmImage.getWidth(),
-            gElevatorWindowBuffer + _elevatorBackgroundFrmImage.getWidth() * (_elevatorBackgroundFrmImage.getHeight() - _elevatorPanelFrmImage.getHeight()),
+            gElevatorWindowBuffer + static_cast<size_t>(_elevatorBackgroundFrmImage.getWidth()) * (_elevatorBackgroundFrmImage.getHeight() - _elevatorPanelFrmImage.getHeight()),
             _elevatorBackgroundFrmImage.getWidth());
     }
 

@@ -224,14 +224,14 @@ int falloutMain(int argc, char** argv)
                 break;
             case MAIN_MENU_CREDITS:
                 mainMenuWindowHide(true);
-                creditsOpen("credits.txt", -1, false);
+                creditsOpen("credits.txt", InterfaceFrameId::Invalid, false);
                 break;
             case MAIN_MENU_QUOTES:
                 // NOTE: There is a strange cmp at 0x480C50. Both operands are
                 // zero, set before the loop and do not modify afterwards. For
                 // clarity this condition is omitted.
                 mainMenuWindowHide(true);
-                creditsOpen("quotes.txt", -1, true);
+                creditsOpen("quotes.txt", InterfaceFrameId::Invalid, true);
                 break;
             case MAIN_MENU_EXIT:
             case -1:
@@ -501,7 +501,7 @@ static void showDeath()
             }
 
             FrmImage backgroundFrmImage;
-            if (!backgroundFrmImage.lock(FrmId(InterfaceFrameId::DeathScene))) {
+            if (!backgroundFrmImage.lock(InterfaceFrameId::DeathScene)) {
                 break;
             }
 

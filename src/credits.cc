@@ -45,7 +45,7 @@ static int gCreditsWindowNameFont;
 static Color gCreditsWindowTitleColor;
 
 // 0x42C860 credits
-void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
+void creditsOpen(const char* filePath, const InterfaceFrmId& backgroundFrmId, bool useReversedStyle)
 {
     int oldFont = fontGetCurrent();
 
@@ -86,13 +86,12 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
             if (window != -1) {
                 unsigned char* windowBuffer = windowGetBuffer(window);
                 if (windowBuffer != nullptr) {
-                    unsigned char* backgroundBuffer = (unsigned char*)internal_malloc(windowWidth * windowHeight);
+                    unsigned char* backgroundBuffer = (unsigned char*)internal_malloc(static_cast<size_t>(windowWidth) * windowHeight);
                     if (backgroundBuffer) {
                         soundContinueAll();
 
-                        memset(backgroundBuffer, COLOR_BLACK, windowWidth * windowHeight);
-                        FrmId backgroundFrmId = FrmId(backgroundFid);
-                        if (!backgroundFrmId.empty()) {
+                        memset(backgroundBuffer, COLOR_BLACK, static_cast<size_t>(windowWidth) * windowHeight);
+                        if (backgroundFrmId.valid()) {
                             FrmImage backgroundFrmImage;
                             if (backgroundFrmImage.lock(backgroundFrmId)) {
                                 blitBufferToBuffer(backgroundFrmImage.getData(),
@@ -105,9 +104,9 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
                             }
                         }
 
-                        unsigned char* intermediateBuffer = (unsigned char*)internal_malloc(windowWidth * windowHeight);
+                        unsigned char* intermediateBuffer = (unsigned char*)internal_malloc(static_cast<size_t>(windowWidth) * windowHeight);
                         if (intermediateBuffer != nullptr) {
-                            memset(intermediateBuffer, 0, windowWidth * windowHeight);
+                            memset(intermediateBuffer, 0, static_cast<size_t>(windowWidth) * windowHeight);
 
                             fontSetCurrent(gCreditsWindowTitleFont);
                             int titleFontLineHeight = fontGetLineHeight();
