@@ -748,7 +748,7 @@ void MapperInit()
 
 static int loadMapperLbm(int lbmBufWidth, int lbmBufHeight)
 {
-    lbm_buf = (unsigned char*)internal_malloc(lbmBufWidth * lbmBufHeight);
+    lbm_buf = (unsigned char*)internal_malloc(static_cast<size_t>(lbmBufWidth) * lbmBufHeight);
     return load_lbm_to_buf("data\\mapper2.lbm",
         lbm_buf,
         0,
@@ -816,7 +816,7 @@ int mapper_edit_init(int argc, char** argv)
 
     setup_map_dirs();
     mapper_load_toolbar(OBJ_TYPE_TILE, nullptr);
-    art_shape = (unsigned char*)internal_malloc(art_scale_height * art_scale_width);
+    art_shape = (unsigned char*)internal_malloc(static_cast<size_t>(art_scale_height) * art_scale_width);
     if (art_shape == nullptr) {
         printf("Can't malloc memory!!\n");
         exit(1);
@@ -1304,9 +1304,9 @@ void edit_mapper()
                     if (tool_active != -1) {
                         if (selectedPid != -1) {
                             if (objectTypeFromPid(selectedPid) == OBJ_TYPE_TILE) {
-                                placeTile(selectedPid, FrmId(gGameMouseBouncingCursor->fid));
+                                placeTile(selectedPid, FrmId(gGameMouseBouncingCursor));
                             } else {
-                                placeObject(selectedPid, FrmId(gGameMouseBouncingCursor->fid));
+                                placeObject(selectedPid, FrmId(gGameMouseBouncingCursor));
                             }
                         }
                     } else if (_screen_obj != nullptr) {
@@ -1346,9 +1346,9 @@ void edit_mapper()
                     } else if (tool_active != -1) {
                         if (selectedPid != -1) {
                             if (objectTypeFromPid(selectedPid) == OBJ_TYPE_TILE) {
-                                placeTile(selectedPid, FrmId(gGameMouseBouncingCursor->fid));
+                                placeTile(selectedPid, FrmId(gGameMouseBouncingCursor));
                             } else {
-                                placeObject(selectedPid, FrmId(gGameMouseBouncingCursor->fid));
+                                placeObject(selectedPid, FrmId(gGameMouseBouncingCursor));
                             }
                         }
                     } else {
@@ -1469,7 +1469,7 @@ void edit_mapper()
                         // Set mouse cursor to proto's art FID
                         Proto* proto;
                         if (protoGetProto(pid, &proto) != -1) {
-                            const FrmId artFrmId = FrmId(proto->fid);
+                            const FrmId artFrmId = FrmId(proto);
                             if (artFrmId.exist()) {
                                 gGameMouseBouncingCursor->fid = artFrmId.fid();
                                 Rect mouseRect;
@@ -2530,7 +2530,7 @@ void update_art(ObjectType type, int offset)
             Proto* proto;
             int pid = toolbar_proto(type, i);
             if (protoGetProto(pid, &proto) == -1) continue;
-            frmId = FrmId(proto->fid);
+            frmId = FrmId(proto);
         }
         artRender(frmId, p, art_scale_width, art_scale_height, screen_width);
     }
@@ -2673,7 +2673,7 @@ int mapper_inven_unwield(Object* obj, int right_hand)
 
     animationRegisterAnimate(obj, ANIM_PUT_AWAY, 0);
 
-    const FrmId frmId = FrmId(obj, ANIM_STAND, WEAPON_ANIMATION_NONE, rotationFromFid(obj->fid));
+    const FrmId frmId = FrmId(obj, ANIM_STAND, WEAPON_ANIMATION_NONE);
     animationRegisterSetFrmId(obj, frmId, 0);
 
     return reg_anim_end();

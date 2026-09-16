@@ -407,7 +407,7 @@ int mapSetElevation(int elevation)
     gElevation = elevation;
 
     reg_anim_clear(gDude);
-    _dude_stand(gDude, gDude->rotation, FrmId(gDude->fid));
+    _dude_stand(gDude, gDude->rotation, FrmId(gDude));
     _partyMemberSyncPosition();
 
     if (gMapSid != -1) {
@@ -1816,9 +1816,9 @@ static void _map_place_dude_and_mouse()
     _obj_clear_seen();
 
     if (gDude != nullptr) {
-        if (animationTypeFromFid(gDude->fid) != ANIM_STAND) {
+        if (FrmId(gDude).animationType() != ANIM_STAND) {
             objectSetFrame(gDude, 0, nullptr);
-            gDude->fid = FrmId(gDude, ANIM_STAND, weaponAnimationFromFid(gDude->fid), gDude->rotation + 1).fid();
+            gDude->fid = FrmId(gDude, ANIM_STAND, gDude->rotation + 1).fid();
         }
 
         if (gDude->tile == -1) {
@@ -1829,7 +1829,7 @@ static void _map_place_dude_and_mouse()
         objectSetLight(gDude, 4, 0x10000, nullptr);
         gDude->flags |= OBJECT_NO_SAVE;
 
-        _dude_stand(gDude, gDude->rotation, FrmId(gDude->fid));
+        _dude_stand(gDude, gDude->rotation, FrmId(gDude));
         _partyMemberSyncPosition();
     }
 

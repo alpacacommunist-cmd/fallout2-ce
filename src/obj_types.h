@@ -52,12 +52,6 @@ constexpr inline bool rotationIsValid(int rotation)
     return rotation >= ROTATION_FIRST && rotation < ROTATION_COUNT;
 }
 
-inline Rotation rotationFromFid(int fid)
-{
-    int rotation = (fid & 0x70000000) >> 28;
-    return static_cast<Rotation>(rotation);
-}
-
 enum ObjectType : int {
     OBJ_TYPE_INVALID = -1,
     OBJ_TYPE_ITEM,
@@ -86,12 +80,6 @@ inline ObjectType operator++(ObjectType& e, int)
 constexpr inline bool objectTypeIsValid(int type)
 {
     return type >= OBJ_TYPE_FIRST && type < OBJ_TYPE_COUNT;
-}
-
-constexpr inline ObjectType objectTypeFromFid(int fid)
-{
-    int objectType = (fid & 0xF000000) >> 24;
-    return static_cast<ObjectType>(objectType);
 }
 
 constexpr inline ObjectType objectTypeFromPid(int pid)

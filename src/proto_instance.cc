@@ -205,7 +205,7 @@ int objectLookAtFunc(Object* critter, Object* target, void (*fn)(const char* str
         return -1;
     }
 
-    if (objectTypeFromFid(target->fid) == OBJ_TYPE_TILE) {
+    if (FrmId(target).objectType() == OBJ_TYPE_TILE) {
         return -1;
     }
 
@@ -266,7 +266,7 @@ int objectExamineFunc(Object* critter, Object* target, void (*fn)(const char* st
         return -1;
     }
 
-    if (objectTypeFromFid(target->fid) == OBJ_TYPE_TILE) {
+    if (FrmId(target).objectType() == OBJ_TYPE_TILE) {
         return -1;
     }
 
@@ -661,7 +661,7 @@ static int _obj_remove_from_inven(Object* critter, Object* item)
         scriptHooks_InvenWield(critter, item, slot, 0, 1);
         if (slot == InvenSlot::RightHand) {
             if (critter != gDude || interfaceGetCurrentHand() == HAND_RIGHT) {
-                frmId = FrmId(critter, animationTypeFromFid(critter->fid), WEAPON_ANIMATION_NONE, critter->rotation);
+                frmId = FrmId(critter, WEAPON_ANIMATION_NONE, critter->rotation);
                 objectSetFrmId(critter, frmId, &updatedRect);
                 appearanceUpdateType = 2;
             } else {
@@ -669,7 +669,7 @@ static int _obj_remove_from_inven(Object* critter, Object* item)
             }
         } else if (slot == InvenSlot::LeftHand) {
             if (critter == gDude && interfaceGetCurrentHand() == HAND_LEFT) {
-                frmId = FrmId(critter, animationTypeFromFid(critter->fid), WEAPON_ANIMATION_NONE, critter->rotation);
+                frmId = FrmId(critter, WEAPON_ANIMATION_NONE, critter->rotation);
                 objectSetFrmId(critter, frmId, &updatedRect);
                 appearanceUpdateType = 2;
             } else {
@@ -681,10 +681,11 @@ static int _obj_remove_from_inven(Object* critter, Object* item)
 
                 Proto* proto;
                 if (protoGetProto(0x1000000, &proto) != -1) {
-                    defaultFrameId = FrmId(proto->fid).frameId().critter;
+                    defaultFrameId = FrmId(proto).frameId().critter;
                 }
 
-                frmId = FrmId(defaultFrameId, animationTypeFromFid(critter->fid), weaponAnimationFromFid(critter->fid), critter->rotation);
+                const FrmId dudeFrmId = FrmId(critter);
+                frmId = FrmId(defaultFrameId, dudeFrmId.animationType(), dudeFrmId.weaponAnimation(), critter->rotation);
                 objectSetFrmId(critter, frmId, &updatedRect);
                 appearanceUpdateType = 3;
             }
@@ -1480,7 +1481,7 @@ int checkSceneryUseActionPointCost(Object* obj, Object* _)
 // 0x49C740
 int objectUse(Object* user, Object* targetObj)
 {
-    ObjectType type = objectTypeFromFid(targetObj->fid);
+    ObjectType type = FrmId(targetObj).objectType();
     if (user == gDude) {
         if (type != OBJ_TYPE_SCENERY) {
             return -1;
@@ -1683,7 +1684,7 @@ static int _check_door_state(Object* door, Object* obj2)
         }
 
         CacheEntry* artHandle;
-        Art* art = artLock(FrmId(door->fid), &artHandle);
+        Art* art = artLock(FrmId(door), &artHandle);
         if (art == nullptr) {
             return -1;
         }
@@ -1717,7 +1718,7 @@ static int _check_door_state(Object* door, Object* obj2)
         tileWindowRefresh();
 
         CacheEntry* artHandle;
-        Art* art = artLock(FrmId(door->fid), &artHandle);
+        Art* art = artLock(FrmId(door), &artHandle);
         if (art == nullptr) {
             return -1;
         }
@@ -1829,7 +1830,7 @@ int objectUseDoor(Object* user, Object* door, bool animateOnly)
 // 0x49CE7C
 int objectUseContainer(Object* critter, Object* item)
 {
-    if (objectTypeFromFid(item->fid) != OBJ_TYPE_ITEM) {
+    if (FrmId(item).objectType() != OBJ_TYPE_ITEM) {
         return -1;
     }
 
@@ -2085,7 +2086,7 @@ bool objectIsOpenable(Object* obj)
 
     // Sfall: stricter "openable" check.  In Sfall it is implemented in the obj_is_openable opcode.
     CacheEntry* artHandle;
-    Art* art = artLock(FrmId(obj->fid), &artHandle);
+    Art* art = artLock(FrmId(obj), &artHandle);
     if (art == nullptr) {
         return false;
     }

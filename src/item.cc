@@ -273,7 +273,7 @@ int itemAttemptAdd(Object* owner, Object* itemToAdd, int quantity)
         return -1;
     }
 
-    ObjectType parentType = objectTypeFromFid(owner->fid);
+    ObjectType parentType = FrmId(owner).objectType();
     if (parentType == OBJ_TYPE_ITEM) {
         ItemType itemType = itemGetType(owner);
         if (itemType == ITEM_TYPE_CONTAINER) {
@@ -289,7 +289,7 @@ int itemAttemptAdd(Object* owner, Object* itemToAdd, int quantity)
 
             Object* containerOwner = objectGetOwner(owner);
             if (containerOwner != nullptr) {
-                if (objectTypeFromFid(containerOwner->fid) == OBJ_TYPE_CRITTER) {
+                if (FrmId(containerOwner).objectType() == OBJ_TYPE_CRITTER) {
                     int weightToAdd = itemGetWeight(itemToAdd);
                     weightToAdd *= quantity;
 
@@ -607,7 +607,7 @@ int itemDropAll(Object* critter, int tile)
 {
     bool hasEquippedItems = false;
 
-    CritterFrameId frameId = FrmId(critter->fid).frameId().critter;
+    CritterFrameId frameId = FrmId(critter).frameId().critter;
 
     Inventory* inventory = &(critter->data.inventory);
     while (inventory->length > 0) {
@@ -646,7 +646,7 @@ int itemDropAll(Object* critter, int tile)
                         return -1;
                     }
 
-                    frameId = FrmId(proto->fid).frameId().critter;
+                    frameId = FrmId(proto).frameId().critter;
                     adjustCritterStatsOnArmorChange(critter, item, nullptr);
                 }
             }
@@ -680,9 +680,10 @@ int itemDropAll(Object* critter, int tile)
 
     if (hasEquippedItems) {
         Rect updatedRect;
-        const CritterFrmId frmId = CritterFrmId(frameId, animationTypeFromFid(critter->fid), WEAPON_ANIMATION_NONE, rotationFromFid(critter->fid));
-        objectSetFrmId(critter, frmId, &updatedRect);
-        if (animationTypeFromFid(critter->fid) == ANIM_STAND) {
+        const FrmId frmId = FrmId(critter);
+        const CritterFrmId critterFrmId = CritterFrmId(frameId, frmId.animationType(), WEAPON_ANIMATION_NONE, frmId.rotation());
+        objectSetFrmId(critter, critterFrmId, &updatedRect);
+        if (FrmId(critter).animationType() == ANIM_STAND) {
             tileWindowRefreshRect(&updatedRect, gElevation);
         }
     }
@@ -962,7 +963,7 @@ int objectGetCost(Object* obj)
         }
     }
 
-    if (objectTypeFromFid(obj->fid) == OBJ_TYPE_CRITTER) {
+    if (FrmId(obj).objectType() == OBJ_TYPE_CRITTER) {
         Object* item2 = critterGetItem2(obj);
         if (item2 != nullptr && (item2->flags & OBJECT_IN_RIGHT_HAND) == OBJECT_NONE) {
             cost += itemGetCost(item2);
@@ -1000,7 +1001,7 @@ int objectGetInventoryWeight(Object* obj)
         weight += itemGetWeight(item) * inventoryItem->quantity;
     }
 
-    if (objectTypeFromFid(obj->fid) == OBJ_TYPE_CRITTER) {
+    if (FrmId(obj).objectType() == OBJ_TYPE_CRITTER) {
         Object* item2 = critterGetItem2(obj);
         if (item2 != nullptr) {
             if ((item2->flags & OBJECT_IN_RIGHT_HAND) == OBJECT_NONE) {
