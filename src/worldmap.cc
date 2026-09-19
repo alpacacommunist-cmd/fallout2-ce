@@ -61,6 +61,10 @@ namespace ck::skills {
     void on_worldmap_step(int difficulty);
 }
 
+namespace ck::events {
+    void worldmap_open();
+}
+
 namespace fallout {
 
 #define CITY_NAME_SIZE (40)
@@ -3439,6 +3443,8 @@ int wmMapMarkMapEntranceState(Map mapIdx, int elevation, int state)
 // 0x4BFE0C wmWorldMap
 void wmWorldMap()
 {
+    ck::events::worldmap_open();
+
     wmWorldMapFunc(0);
 }
 
