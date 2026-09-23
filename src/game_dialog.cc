@@ -38,6 +38,7 @@
 #include "party_member.h"
 #include "perk.h"
 #include "proto.h"
+#include "queue.h"
 #include "random.h"
 #include "scripts.h"
 #include "settings.h"
@@ -1291,6 +1292,10 @@ int gameDialogSetMessageReply(Program* program, int messageListId, int messageId
 // 0x44567C
 int gameDialogSetTextReply(Program* program, int messageListId, const char* text)
 {
+    if (text == nullptr) {
+        text = "";
+    }
+
     gameDialogAddReviewText(text);
 
     dialogReplyProgram = program;
@@ -1298,7 +1303,7 @@ int gameDialogSetTextReply(Program* program, int messageListId, const char* text
     dialogReplyMessageListId = -4;
     dialogReplyMessageId = -4;
 
-    strcpy(dialogReplyText, text);
+    snprintf(dialogReplyText, sizeof(dialogReplyText), "%s", text);
 
     gameDialogOptionEntriesLength = 0;
 
@@ -3953,6 +3958,24 @@ void partyMemberControlWindowUpdate()
     int maximumActionPoints = critterGetStat(gGameDialogSpeaker, STAT_MAXIMUM_ACTION_POINTS);
     snprintf(formattedText, sizeof(formattedText), "%d/%d ", actionPoints, maximumActionPoints);
     fontDrawText(windowBuffer + windowWidth * 167 + 240, formattedText, 115, windowWidth, COLOR_GREEN);
+
+    if (settings.ui.party_member_extra_info) {
+        int level = partyMemberGetCurrentLevel(gGameDialogSpeaker);
+        snprintf(formattedText, sizeof(formattedText), "Lvl: %d", level);
+        int width = fontGetStringWidth(formattedText);
+        fontDrawText(windowBuffer + windowWidth * 96 + 350 - width, formattedText, width, windowWidth, COLOR_GREEN);
+
+        int armorClass = critterGetStat(gGameDialogSpeaker, STAT_ARMOR_CLASS);
+        snprintf(formattedText, sizeof(formattedText), "AC: %d", armorClass);
+        int armorClassX = 350 - fontGetStringWidth("AC:") - 20;
+        fontDrawText(windowBuffer + windowWidth * 167 + armorClassX, formattedText, fontGetStringWidth(formattedText), windowWidth, COLOR_GREEN);
+
+        if (queueFindFirstEvent(gGameDialogSpeaker, EVENT_TYPE_WITHDRAWAL) != nullptr) {
+            const char* addictText = "Addict";
+            int addictTextWidth = fontGetStringWidth(addictText);
+            fontDrawText(windowBuffer + windowWidth * 148 + 350 - addictTextWidth, addictText, addictTextWidth, windowWidth, COLOR_RED);
+        }
+    }
 
     fontSetCurrent(oldFont);
     windowRefresh(gameDialogWindow);

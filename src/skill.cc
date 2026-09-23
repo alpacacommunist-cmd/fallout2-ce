@@ -31,6 +31,7 @@
 #include "sfall_config.h"
 #include "sfall_script_hooks.h"
 #include "stat.h"
+#include "string_utils.h"
 #include "trait.h"
 
 
@@ -958,7 +959,7 @@ int skillUse(Object* obj, Object* target, Skill skill, int skillBonus)
                 }
 
                 if (target == gDude) {
-                    strcpy(text, messageListItem.text);
+                    stringCopy(text, messageListItem.text);
                 } else {
                     snprintf(text, sizeof(text), messageListItem.text, objectGetName(target));
                 }
@@ -1119,7 +1120,7 @@ int skillUse(Object* obj, Object* target, Skill skill, int skillBonus)
                 }
 
                 if (target == gDude) {
-                    strcpy(text, messageListItem.text);
+                    stringCopy(text, messageListItem.text);
                 } else {
                     snprintf(text, sizeof(text), messageListItem.text, objectGetName(target));
                 }

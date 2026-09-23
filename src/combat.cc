@@ -133,7 +133,8 @@ static void _check_for_death(Object* object, int damage, Dam* flags);
 static void _set_new_results(Object* critter, Dam flags);
 static void _damage_object(Object* a1, int damage, bool animated, int a4, Object* a5);
 static void combatCopyDamageAmountDescription(char* dest, size_t size, Object* critter_obj, int damage);
-static void combatAddDamageFlagsDescription(char* dest, Dam flags, Object* critter);
+static void combatAppendText(char* dest, size_t size, const char* text);
+static void combatAddDamageFlagsDescription(char* dest, size_t size, Dam flags, Object* critter);
 static void _combat_standup(Object* a1);
 static void _print_tohit(unsigned char* dest, int dest_pitch, int a3);
 static char* hitLocationGetName(Object* critter, HitLocation hitLocation);
@@ -2107,21 +2108,35 @@ int _find_cid(int a1, int cid, Object** critterList, int critterListLength)
     return index;
 }
 
+static void combatClearWhoHitMeOutsideCombatList(Object** combatList, int combatListLength)
+{
+    for (Object* obj = objectFindFirst(); obj != nullptr; obj = objectFindNext()) {
+        if (objectTypeFromPid(obj->pid) != OBJ_TYPE_CRITTER) {
+            continue;
+        }
+
+        int index;
+        for (index = 0; index < combatListLength; index++) {
+            if (combatList[index] == obj) {
+                break;
+            }
+        }
+
+        if (index == combatListLength) {
+            obj->data.critter.combat.whoHitMe = nullptr;
+        }
+    }
+}
+
 // 0x420E4C
 int combatLoad(File* stream)
 {
     if (fileReadUInt32(stream, reinterpret_cast<unsigned int*>(&gCombatState)) == -1) return -1;
 
     if (!isInCombat()) {
-        Object* obj = objectFindFirst();
-        while (obj != nullptr) {
-            if (objectTypeFromPid(obj->pid) == OBJ_TYPE_CRITTER) {
-                if (obj->data.critter.combat.whoHitMeCid == -1) {
-                    obj->data.critter.combat.whoHitMe = nullptr;
-                }
-            }
-            obj = objectFindNext();
-        }
+        // Saved whoHitMe values are CIDs, not pointers. Without an active
+        // combat list there is nothing to resolve them against.
+        combatClearWhoHitMeOutsideCombatList(nullptr, 0);
         return 0;
     }
 
@@ -2152,6 +2167,11 @@ int combatLoad(File* stream)
             }
         }
     }
+
+    // objectListCreate excludes hidden critters and critters on other
+    // elevations. Their saved CIDs must not remain in the pointer member of
+    // the whoHitMe union.
+    combatClearWhoHitMeOutsideCombatList(_combat_list, _list_total);
 
     for (int index = 0; index < _list_total; index++) {
         int cid;
@@ -5071,8 +5091,7 @@ void _combat_display(Attack* attack)
 
     char* mainCritterName = _a_1;
 
-    char you[20];
-    you[0] = '\0';
+    char you[20] = {};
     if (critterGetStat(gDude, STAT_GENDER) == GENDER_MALE) {
         // You (male)
         messageListItem.num = 506;
@@ -5082,7 +5101,7 @@ void _combat_display(Attack* attack)
     }
 
     if (messageListGetItem(&gCombatMessageList, &messageListItem)) {
-        strcpy(you, messageListItem.text);
+        snprintf(you, sizeof(you), "%s", messageListItem.text);
     }
 
     int baseMessageId;
@@ -5102,7 +5121,7 @@ void _combat_display(Attack* attack)
         }
     }
 
-    char text[280];
+    char text[280] = {};
     if (attack->defender != nullptr
         && attack->intendedTarget != nullptr
         && attack->defender != attack->intendedTarget
@@ -5153,7 +5172,7 @@ void _combat_display(Attack* attack)
             }
         }
 
-        strcat(text, ".");
+        combatAppendText(text, sizeof(text), ".");
 
         displayMonitorAddMessage(text);
     }
@@ -5239,11 +5258,11 @@ void _combat_display(Attack* attack)
                 if (settings.preferences.combat_messages && (attack->attackerFlags & DAM_CRITICAL) != DAM_NONE && attack->criticalMessageId != -1) {
                     messageListItem.num = attack->criticalMessageId;
                     if (messageListGetItem(&gCombatMessageList, &messageListItem)) {
-                        strcat(text, messageListItem.text);
+                        combatAppendText(text, sizeof(text), messageListItem.text);
                     }
 
                     if ((attack->defenderFlags & DAM_DEAD) != DAM_NONE) {
-                        strcat(text, ".");
+                        combatAppendText(text, sizeof(text), ".");
                         displayMonitorAddMessage(text);
 
                         if (attack->defender == gDude) {
@@ -5269,10 +5288,10 @@ void _combat_display(Attack* attack)
                         }
                     }
                 } else {
-                    combatAddDamageFlagsDescription(text, attack->defenderFlags, attack->defender);
+                    combatAddDamageFlagsDescription(text, sizeof(text), attack->defenderFlags, attack->defender);
                 }
 
-                strcat(text, ".");
+                combatAppendText(text, sizeof(text), ".");
 
                 displayMonitorAddMessage(text);
             }
@@ -5309,9 +5328,9 @@ void _combat_display(Attack* attack)
                 }
             }
 
-            combatAddDamageFlagsDescription(text, attack->attackerFlags, attack->attacker);
+            combatAddDamageFlagsDescription(text, sizeof(text), attack->attackerFlags, attack->attacker);
 
-            strcat(text, ".");
+            combatAppendText(text, sizeof(text), ".");
 
             displayMonitorAddMessage(text);
         }
@@ -5319,8 +5338,8 @@ void _combat_display(Attack* attack)
         if ((attack->attackerFlags & DAM_HIT) != DAM_NONE || (attack->attackerFlags & DAM_CRITICAL) == DAM_NONE) {
             if (attack->attackerDamage > 0) {
                 combatCopyDamageAmountDescription(text, sizeof(text), attack->attacker, attack->attackerDamage);
-                combatAddDamageFlagsDescription(text, attack->attackerFlags, attack->attacker);
-                strcat(text, ".");
+                combatAddDamageFlagsDescription(text, sizeof(text), attack->attackerFlags, attack->attacker);
+                combatAppendText(text, sizeof(text), ".");
                 displayMonitorAddMessage(text);
             }
         }
@@ -5330,8 +5349,8 @@ void _combat_display(Attack* attack)
         Object* critter = attack->extras[index];
         if ((critter->data.critter.combat.results & DAM_DEAD) == DAM_NONE) {
             combatCopyDamageAmountDescription(text, sizeof(text), critter, attack->extrasDamage[index]);
-            combatAddDamageFlagsDescription(text, attack->extrasFlags[index], critter);
-            strcat(text, ".");
+            combatAddDamageFlagsDescription(text, sizeof(text), attack->extrasFlags[index], critter);
+            combatAppendText(text, sizeof(text), ".");
 
             displayMonitorAddMessage(text);
         }
@@ -5358,7 +5377,7 @@ static void combatCopyDamageAmountDescription(char* dest, size_t size, Object* c
         // 506 - You
         messageListItem.num = messageId + 6;
         if (messageListGetItem(&gCombatMessageList, &messageListItem)) {
-            strcpy(text, messageListItem.text);
+            snprintf(text, sizeof(text), "%s", messageListItem.text);
         }
 
         name = text;
@@ -5398,7 +5417,16 @@ static void combatCopyDamageAmountDescription(char* dest, size_t size, Object* c
 }
 
 // 0x425BA4
-static void combatAddDamageFlagsDescription(char* dest, Dam flags, Object* critter)
+static void combatAppendText(char* dest, size_t size, const char* text)
+{
+    size_t length = strlen(dest);
+    if (length < size) {
+        snprintf(dest + length, size - length, "%s", text);
+    }
+}
+
+// 0x425BA4
+static void combatAddDamageFlagsDescription(char* dest, size_t size, Dam flags, Object* critter)
 {
     MessageListItem messageListItem;
 
@@ -5425,13 +5453,13 @@ static void combatAddDamageFlagsDescription(char* dest, Dam flags, Object* critt
         // " and "
         messageListItem.num = 108;
         if (messageListGetItem(&gCombatMessageList, &messageListItem)) {
-            strcat(dest, messageListItem.text);
+            combatAppendText(dest, size, messageListItem.text);
         }
 
         // were killed
         messageListItem.num = num + 7;
         if (messageListGetItem(&gCombatMessageList, &messageListItem)) {
-            strcat(dest, messageListItem.text);
+            combatAppendText(dest, size, messageListItem.text);
         }
 
         return;
@@ -5449,23 +5477,23 @@ static void combatAddDamageFlagsDescription(char* dest, Dam flags, Object* critt
 
     if (flagsListLength != 0) {
         for (int index = 0; index < flagsListLength - 1; index++) {
-            strcat(dest, ", ");
+            combatAppendText(dest, size, ", ");
 
             messageListItem.num = num + flagsList[index];
             if (messageListGetItem(&gCombatMessageList, &messageListItem)) {
-                strcat(dest, messageListItem.text);
+                combatAppendText(dest, size, messageListItem.text);
             }
         }
 
         // " and "
         messageListItem.num = 108;
         if (messageListGetItem(&gCombatMessageList, &messageListItem)) {
-            strcat(dest, messageListItem.text);
+            combatAppendText(dest, size, messageListItem.text);
         }
 
         messageListItem.num = num + flagsList[flagsListLength - 1];
         if (messageListGetItem(&gCombatMessageList, &messageListItem)) {
-            strcat(dest, messageListItem.text);
+            combatAppendText(dest, size, messageListItem.text);
         }
     }
 }

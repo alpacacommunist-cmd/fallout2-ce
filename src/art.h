@@ -2,6 +2,7 @@
 #define ART_H
 
 #include <cassert>
+#include <cstddef>
 #include <cstring>
 #include <memory>
 #include <type_traits>
@@ -125,6 +126,14 @@ public:
         : _objectType(objectTypeFromFid(fid))
         , _fid(fid)
         , _frameId { buildFrameId(fid) }
+        , _path(nullptr)
+    {
+    }
+
+    constexpr explicit FrmId(TileFID fid)
+        : _objectType(OBJ_TYPE_TILE)
+        , _fid(static_cast<int>(fid))
+        , _frameId { buildFrameId(static_cast<int>(fid)) }
         , _path(nullptr)
     {
     }
@@ -281,6 +290,18 @@ public:
         return !(*this == frameId);
     }
 
+protected:
+    static constexpr int kFrameIdMask = 0x00000FFF;
+    static constexpr int kWeaponAnimationMask = 0x0000F000;
+    static constexpr int kAnimationTypeMask = 0x00FF0000;
+    static constexpr int kObjectTypeMask = 0x0F000000;
+    static constexpr int kRotationMask = 0x70000000;
+
+    static constexpr int kWeaponAnimationMaskPosition = 12;
+    static constexpr int kAnimationTypeMaskPosition = 16;
+    static constexpr int kObjectTypeMaskPosition = 24;
+    static constexpr int kRotationMaskPosition = 28;
+
 private:
     ObjectType _objectType;
     int _fid;
@@ -292,29 +313,11 @@ private:
 
     bool empty() const { return (*this) == Empty(); }
 
-    static constexpr WeaponAnimation weaponAnimationFromFid(int fid)
-    {
-        int anim = (fid & 0xF000) >> 12;
-        return static_cast<WeaponAnimation>(anim);
-    }
-
-    static constexpr Rotation rotationFromFid(int fid)
-    {
-        int rotation = (fid & 0x70000000) >> 28;
-        return static_cast<Rotation>(rotation);
-    }
-
-    static constexpr AnimationType animationTypeFromFid(int fid)
-    {
-        int anim = (fid & 0xFF0000) >> 16;
-        return static_cast<AnimationType>(anim);
-    }
-
-    static constexpr ObjectType objectTypeFromFid(int fid)
-    {
-        int objectType = (fid & 0xF000000) >> 24;
-        return static_cast<ObjectType>(objectType);
-    }
+    static constexpr int frameIdFromFid(int fid) { return fid & kFrameIdMask; }
+    static constexpr WeaponAnimation weaponAnimationFromFid(int fid) { return static_cast<WeaponAnimation>((fid & kWeaponAnimationMask) >> kWeaponAnimationMaskPosition); }
+    static constexpr AnimationType animationTypeFromFid(int fid) { return static_cast<AnimationType>((fid & kAnimationTypeMask) >> kAnimationTypeMaskPosition); }
+    static constexpr ObjectType objectTypeFromFid(int fid) { return static_cast<ObjectType>((fid & kObjectTypeMask) >> kObjectTypeMaskPosition); }
+    static constexpr Rotation rotationFromFid(int fid) { return static_cast<Rotation>((fid & kRotationMask) >> kRotationMaskPosition); }
 
     static constexpr int buildFrameId(int id) { return id < kMinFrameId ? kInvalidFrameId : (id & kMaxFrameId); }
 
@@ -336,7 +339,7 @@ private:
 
         assert(frmId <= kMaxFrameId && "FrameId overflow, possible mismatch with Fid!");
 
-        return ((rotation << 28) & 0x70000000) | (objectType << 24) | ((animType << 16) & 0xFF0000) | ((weaponAnimation << 12) & 0xF000) | (frmId & kMaxFrameId);
+        return ((rotation << kRotationMaskPosition) & kRotationMask) | (objectType << kObjectTypeMaskPosition) & kObjectTypeMask | ((animType << kAnimationTypeMaskPosition) & kAnimationTypeMask) | ((weaponAnimation << kWeaponAnimationMaskPosition) & kWeaponAnimationMask) | (frmId & kFrameIdMask);
     }
 
     static int buildObjectFid(ObjectType objectType, int frmId, AnimationType animType, WeaponAnimation weaponCode, Rotation rotation);
@@ -426,7 +429,7 @@ public:
         if (!hasFid()) {
             return FIDGET_INVALID;
         }
-        int fidget = (fid() & 0xFF0000) >> 16;
+        int fidget = (fid() & kAnimationTypeMask) >> kAnimationTypeMaskPosition;
         return static_cast<HeadFidget>(fidget);
     }
 
@@ -487,7 +490,7 @@ CritterFrameId _art_alias_num(CritterFrameId index);
 int artCritterFrmIdShouldRun(const FrmId& frmId);
 int artListIndex(ObjectType objectType, const char* name);
 Art* artLoad(const char* path);
-int artRead(const char* path, unsigned char* data);
+int artRead(const char* path, unsigned char* data, size_t size);
 int artWrite(const char* path, unsigned char* data);
 
 using ArtPtr = InternalPtr<Art>;
