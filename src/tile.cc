@@ -2126,12 +2126,12 @@ int tileGetHexGridHeight() { return gHexGridHeight; }
 void tileRenderRoofExternal(int fid, int x, int y, Rect* rect)
 {
     int light = lightGetAmbientIntensity();
-    const TileFrmId frmId = static_cast<TileFrameId>(frameIdFromFid(fid));
+    TileFrameId frmId = FrmId(fid).frameId().tile;
     tileRenderRoof(frmId, x, y, rect, light);
 }
 void tileRenderFloorExternal(int fid, int x, int y, Rect* rect)
 {
-    const TileFrmId frmId = static_cast<TileFrameId>(frameIdFromFid(fid));
+    TileFrameId frmId = FrmId(fid).frameId().tile;
     tileRenderFloor(frmId, x, y, rect);
 }
 
