@@ -1704,7 +1704,7 @@ void inventoryOpen()
 
         _display_body(FrmId::Empty(), INVENTORY_WINDOW_TYPE_NORMAL);
 
-        if (gameGetState() == GAME_STATE_5) {
+        if (gameGetState() == GameState::DialogRequested) {
             break;
         }
 

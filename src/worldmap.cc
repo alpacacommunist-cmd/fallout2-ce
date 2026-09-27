@@ -976,7 +976,20 @@ const char* wmGetCurrentTerrainName()
         return "Error";
     }
 
-    return wmGetTerrainName(x, y);
+    const char* override = wmGetTerrainNameOverride(x, y);
+    if (override != nullptr) {
+        return override;
+    }
+
+    // Walking caches the subtile before moving, which is what sfall's
+    // get_current_terrain_name reads.
+    SubtileInfo* subtile = wmGenData.currentSubtile;
+    if (subtile == nullptr && wmFindCurSubTileFromPos(wmGenData.worldPosX, wmGenData.worldPosY, &subtile) == -1) {
+        return "Error";
+    }
+
+    MessageListItem messageListItem;
+    return getmsg(&wmMsgFile, &messageListItem, 1000 + subtile->terrain);
 }
 
 void wmSetTownTitle(City areaIdx, const char* title)
@@ -3715,14 +3728,9 @@ static int wmWorldMapFunc(int a1)
                 CityInfo* city = &(wmAreaInfoList[areaIdx]);
                 if (wmAreaIsKnown(city->areaId)) {
                     if (wmGenData.currentAreaId != areaIdx) {
-                        // SFALL: Fix the position of the destination marker for
-                        // small/medium location circles.
-                        // CE: Fix is slightly different. `wmPartyInitWalking`
-                        // assumes x/y are compensated for worldmap viewport
-                        // offset (as can be seen earlier in this function).
-                        CitySizeDescription* citySizeDescription = &(wmSphereData[city->size]);
-                        int destX = city->x + citySizeDescription->frmImage.getWidth() / 2 - WM_VIEW_X;
-                        int destY = city->y + citySizeDescription->frmImage.getHeight() / 2 - WM_VIEW_Y;
+                        int destX;
+                        int destY;
+                        wmAreaGetMarkWorldPos(city, &destX, &destY);
                         wmPartyInitWalking(destX, destY);
                         mousePressed = 0;
                     }
@@ -3896,6 +3904,8 @@ static int wmRndEncounterOccurred(Map* mapToLoadPtr)
             break;
         case GAME_DIFFICULTY_HARD:
             frequency += modifier;
+            break;
+        case GAME_DIFFICULTY_NORMAL:
             break;
         }
     }
@@ -4142,6 +4152,8 @@ static int wmRndEncounterPick()
         if (chance < 0) {
             chance = 0;
         }
+        break;
+    case GAME_DIFFICULTY_NORMAL:
         break;
     }
 
@@ -6679,11 +6691,9 @@ static int wmTownMapFunc(Map* mapIdxPtr)
                     }
 
                     if (areaIdx != wmGenData.currentAreaId) {
-                        // CE: Fix incorrect destination positioning. See
-                        // `wmWorldMapFunc` for explanation.
-                        CitySizeDescription* citySizeDescription = &(wmSphereData[city->size]);
-                        int destX = city->x + citySizeDescription->frmImage.getWidth() / 2 - WM_VIEW_X;
-                        int destY = city->y + citySizeDescription->frmImage.getHeight() / 2 - WM_VIEW_Y;
+                        int destX;
+                        int destY;
+                        wmAreaGetMarkWorldPos(city, &destX, &destY);
                         wmPartyInitWalking(destX, destY);
 
                         mousePressed = false;
@@ -7509,31 +7519,15 @@ int wmTeleportToArea(City areaIdx)
         return -1;
     }
 
+    if (wmGenData.currentAreaId != areaIdx) {
+        CityInfo* city = &(wmAreaInfoList[areaIdx]);
+        wmAreaGetMarkWorldPos(city, &wmGenData.worldPosX, &wmGenData.worldPosY);
+    }
+
     wmGenData.currentAreaId = areaIdx;
     wmGenData.walkDestinationX = 0;
     wmGenData.walkDestinationY = 0;
     wmGenData.isWalking = false;
-
-    CityInfo* city = &(wmAreaInfoList[areaIdx]);
-
-    // SFALL: Fix for incorrect positioning after exiting small/medium
-    // locations.
-    // CE: See `wmWorldMapFunc` for explanation.
-    CitySizeDescription* citySizeDescription = &(wmSphereData[city->size]);
-
-    // CE: This function might be called outside |wmWorldmapFunc|, so it's
-    // image might not be locked.
-    bool wasLocked = citySizeDescription->frmImage.isLocked();
-    if (!wasLocked) {
-        citySizeDescription->frmImage.lock(FrmId(citySizeDescription->fid));
-    }
-
-    wmGenData.worldPosX = city->x + citySizeDescription->frmImage.getWidth() / 2 - WM_VIEW_X;
-    wmGenData.worldPosY = city->y + citySizeDescription->frmImage.getHeight() / 2 - WM_VIEW_Y;
-
-    if (!wasLocked) {
-        citySizeDescription->frmImage.unlock();
-    }
 
     return 0;
 }
