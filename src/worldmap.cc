@@ -5501,8 +5501,8 @@ static void wmMouseBkProc()
         dy = -1;
     }
 
-    int oldMouseCursor = gameMouseGetCursor();
-    int newMouseCursor = oldMouseCursor;
+    MouseCursorType oldMouseCursor = gameMouseGetCursor();
+    MouseCursorType newMouseCursor = oldMouseCursor;
 
     if (dx != 0 || dy != 0) {
         if (dx > 0) {
@@ -5537,7 +5537,7 @@ static void wmMouseBkProc()
         }
 
         if (!couldScroll) {
-            newMouseCursor += 8;
+            newMouseCursor = newMouseCursor + MOUSE_CURSOR_SCROLL_OFFSET_INVALID;
         }
     } else {
         if (oldMouseCursor != MOUSE_CURSOR_ARROW) {

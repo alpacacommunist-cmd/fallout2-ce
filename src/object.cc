@@ -304,7 +304,7 @@ static char _obj_seen[5001];
 // 0x488780 obj_init
 int objectsInit(unsigned char* buf, int width, int height, int pitch)
 {
-    const FrmId dudeFrmId = FrmId(_art_vault_guy_num, ANIM_STAND, WEAPON_ANIMATION_NONE, ROTATION_NE);
+    const FrmId dudeFrmId = FrmId(_art_vault_guy_num, ANIM_STAND, WeaponAnimation::None, ROTATION_NE);
     const InterfaceFrmId eggFrmId = InterfaceFrameId::Egg;
 
     memset(_obj_seen, 0, 5001);
@@ -355,7 +355,7 @@ int objectsInit(unsigned char* buf, int width, int height, int pitch)
     gObjectsWindowBufferSize = height * width;
     gObjectsWindowPitch = pitch;
 
-    objectCreateWithFrmIdPid(&gDude, dudeFrmId, 0x1000000);
+    objectCreateWithFrmIdPid(&gDude, dudeFrmId, PROTO_ID_DUDE);
 
     gDude->flags |= OBJECT_NO_REMOVE;
     gDude->flags |= OBJECT_NO_SAVE;
@@ -2636,7 +2636,7 @@ int _obj_scroll_blocking_at(int tile, int elev)
             break;
         }
 
-        if (objectListNode->obj->elevation == elev && objectListNode->obj->pid == 0x500000C) {
+        if (objectListNode->obj->elevation == elev && objectListNode->obj->pid == PROTO_ID_0x500000C) {
             return 0;
         }
 
@@ -5281,7 +5281,7 @@ static int _obj_preload_sort(const void* fid1, const void* fid2)
         return cmp;
     }
 
-    cmp = frmId1.weaponAnimation() - frmId2.weaponAnimation();
+    cmp = static_cast<int>(frmId1.weaponAnimation()) - static_cast<int>(frmId2.weaponAnimation());
     if (cmp != 0) {
         return cmp;
     }
