@@ -1331,7 +1331,7 @@ void tileRenderRoofsInRect(Rect* rect, int elevation)
             const RoofTileFrmId roofTileFrmId = RoofTileFrmId(gTileSquares[elevation]->tileFid[squareTile]);
 
             if ((roofTileFrmId.flags() & TileFlags::TemporarilyHidden) == TileFlags::None) {
-                TileFrameId frameId = roofTileFrmId.frameId().tile;
+                TileFrameId frameId = roofTileFrmId.frameId<TileFrameId>();
                 if (frameId == TileFrameId::Invalid) {
                     frameId = TileFrameId::Last;
                 }
@@ -1363,7 +1363,7 @@ static void roof_fill_off_process_task(std::stack<roof_fill_task>& tasks_stack, 
     int squareTile = gTileSquares[elevation]->tileFid[squareTileIndex];
     const FloorTileFrmId floorTileFrmId = FloorTileFrmId(squareTile);
     const RoofTileFrmId roofTileFrmId = RoofTileFrmId(squareTile);
-    TileFrameId roofFrameId = roofTileFrmId.frameId().tile;
+    TileFrameId roofFrameId = roofTileFrmId.frameId<TileFrameId>();
     if (roofFrameId == TileFrameId::Invalid) {
         roofFrameId = TileFrameId::Last;
     }
@@ -1560,7 +1560,7 @@ void tileRenderFloorsInRect(Rect* rect, int elevation)
                 int tileScreenX;
                 int tileScreenY;
                 squareTileToScreenXY(squareTile, &tileScreenX, &tileScreenY, elevation);
-                TileFrameId frameId = floorTileFrmId.frameId().tile;
+                TileFrameId frameId = floorTileFrmId.frameId<TileFrameId>();
                 if (frameId == TileFrameId::Invalid) {
                     frameId = TileFrameId::Last;
                 }
@@ -1635,7 +1635,7 @@ bool _square_roof_intersect(int x, int y, int elevation)
     TileData* ptr = gTileSquares[elevation];
     int idx = gSquareGridWidth * tileY + tileX;
     const RoofTileFrmId roofTileFrmId = RoofTileFrmId(ptr->tileFid[gSquareGridWidth * tileY + tileX]);
-    TileFrameId frameId = roofTileFrmId.frameId().tile;
+    TileFrameId frameId = roofTileFrmId.frameId<TileFrameId>();
     if (frameId == TileFrameId::Invalid) {
         frameId = TileFrameId::Last;
     }
