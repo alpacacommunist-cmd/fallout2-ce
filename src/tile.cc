@@ -2148,8 +2148,17 @@ void tileRenderRoofExternal(int fid, int x, int y, Rect* rect)
 
 void tileRenderFloorExternal(int fid, int x, int y, Rect* rect)
 {
-    const FloorTileFrmId floorTileFrmId = FloorTileFrmId(fid);
+    // tile index
+    int pureTileIndex = fid & 0xFFFF;
+
+    // FidShift == 0 (floor), no need to shift
+    const FloorTileFrmId floorTileFrmId = FloorTileFrmId(pureTileIndex);
+
     TileFrameId frmId = floorTileFrmId.frameId<TileFrameId>();
+    if (frmId == TileFrameId::Invalid) {
+        frmId = TileFrameId::Last;
+    }
+
     tileRenderFloor(frmId, x, y, rect);
 }
 
