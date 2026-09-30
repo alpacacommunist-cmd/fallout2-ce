@@ -2124,17 +2124,33 @@ const Rect& tileWindowRect() { return gTileWindowRect; }
 int tileGetWindowPitch() { return gTileWindowPitch; }
 int tileGetHexGridWidth() { return gHexGridWidth; }
 int tileGetHexGridHeight() { return gHexGridHeight; }
+
 void tileRenderRoofExternal(int fid, int x, int y, Rect* rect)
 {
     int light = lightGetAmbientIntensity();
-    TileFrameId frmId = FrmId(fid).frameId().tile;
+
+    // tile index
+    int pureTileIndex = fid & 0xFFFF;
+
+    // roof
+    int packedFidForRoof = pureTileIndex << 16;
+
+    // RoofTileFrmId packedFidForRoof >> 16
+    const RoofTileFrmId roofTileFrmId = RoofTileFrmId(packedFidForRoof);
+
+    TileFrameId frmId = roofTileFrmId.frameId<TileFrameId>();
+    if (frmId == TileFrameId::Invalid) {
+        frmId = TileFrameId::Last;
+    }
+
     tileRenderRoof(frmId, x, y, rect, light);
 }
+
 void tileRenderFloorExternal(int fid, int x, int y, Rect* rect)
 {
-    TileFrameId frmId = FrmId(fid).frameId().tile;
+    const FloorTileFrmId floorTileFrmId = FloorTileFrmId(fid);
+    TileFrameId frmId = floorTileFrmId.frameId<TileFrameId>();
     tileRenderFloor(frmId, x, y, rect);
 }
-
 
 } // namespace fallout
