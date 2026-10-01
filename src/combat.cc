@@ -2328,7 +2328,7 @@ static bool _combat_safety_invalidate_weapon_func(Object* attacker, Object* weap
         *safeDistancePtr = 0;
     }
 
-    if (attacker->pid == PROTO_ID_0x10001E0) {
+    if (ProtoId(attacker) == CritterProtoTypeId::AutoCannon) {
         return false;
     }
 
@@ -2667,7 +2667,7 @@ static void _combat_begin(Object* attacker)
 
             scriptSetObjects(critter->sid, nullptr, nullptr);
             scriptSetFixedParam(critter->sid, 0);
-            if (critter->pid == PROTO_ID_GORIS && !critterIsDead(critter)) {
+            if (ProtoId(critter) == CritterProtoTypeId::Goris && !critterIsDead(critter)) {
                 goris = critter;
             }
         }
@@ -2832,7 +2832,7 @@ static void _combat_over()
         scriptSetObjects(critter->sid, nullptr, nullptr);
         scriptSetFixedParam(critter->sid, 0);
 
-        if (critter->pid == PROTO_ID_GORIS && !critterIsDead(critter) && !_isLoadingGame()) {
+        if (ProtoId(critter) == CritterProtoTypeId::Goris && !critterIsDead(critter) && !_isLoadingGame()) {
             waitForGorisAnimation(critter);
         }
     }
@@ -3583,7 +3583,7 @@ void _combat(CombatStartData* csd)
             // CE: start Goris animation before iface animations to reduce wait time
             for (int index = 0; index < _list_total; index++) {
                 Object* critter = _combat_list[index];
-                if (critter->pid == PROTO_ID_GORIS && !critterIsDead(critter) && !_isLoadingGame()) {
+                if (ProtoId(critter) == CritterProtoTypeId::Goris && !critterIsDead(critter) && !_isLoadingGame()) {
                     if (animationIsBusy(critter)) {
                         waitForGorisAnimation(critter);
                     }

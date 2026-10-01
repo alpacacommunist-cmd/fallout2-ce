@@ -233,6 +233,7 @@ static void pipboyWindowHandleStatus(int userInput);
 static void pipboyWindowRenderQuestLocationList(int a1);
 static void pipboyWindowQuestList(int a1);
 static void pipboyRenderHolodiskText();
+static void pipboyPlayHolodiskAudio();
 static int pipboyWindowRenderHolodiskList(int a1);
 static int _qscmp(const void* a1, const void* a2);
 static void pipboyWindowHandleAutomaps(int a1);
@@ -460,6 +461,9 @@ void handlePipboyPageNavigation(
 
 static int gPipboyPrevTab;
 
+// Nesting depth of `pipboyRest` (it calls itself for the heal options).
+static int pipboyRestDepth = 0;
+
 static int totalPages; // for tracking between pipboyWindowHandleAutomaps and _PrintAMelevList/_PrintAMList and others for pagination
 
 static int gPipboyWindowQuestsCurrentPageCount; // kludge for tracking number of buttons for 'status' page entries
@@ -580,6 +584,9 @@ int pipboyOpen(int intent)
             // CE: Save previous tab selected so that the underlying handlers
             // (alarm clock in particular) can fallback if something goes wrong.
             gPipboyPrevTab = gPipboyTab;
+
+            // Switching tabs leaves the holodisk, so stop its narration.
+            pipboySoundStop();
 
             gPipboyTab = keyCode - 500;
             _view_page_automap_main = 0; // ensures button click to automaps renders first page
@@ -847,6 +854,8 @@ static int pipboyWindowInit(int intent)
 // 0x497828
 static void pipboyWindowFree()
 {
+    pipboySoundStop();
+
     if (settings.debug.show_script_messages) {
         debugPrint("\nScript <Map Update>");
     }
@@ -1052,6 +1061,12 @@ int pipboyLoad(File* stream)
     return _save_pipboy(stream);
 }
 
+// True while the alarm clock is passing time.
+bool pipboyIsResting()
+{
+    return pipboyRestDepth > 0;
+}
+
 int pipboyGetWindow()
 {
     return windowGetWindow(gPipboyWindow) != nullptr ? gPipboyWindow : -1;
@@ -1074,6 +1089,8 @@ static void pipboyWindowHandleStatus(int userInput)
 
         _holo_flag = 0;
         _holodisk = -1;
+        // Back to the holodisk list, so stop the narration.
+        pipboySoundStop();
         gPipboyWindowHolodisksCount = 0;
         _view_page = 0;
         _view_page_questlist = 0;
@@ -1181,6 +1198,7 @@ static void pipboyWindowHandleStatus(int userInput)
                 inputPauseForTocks(200);
                 pipboyWindowDestroyButtons();
                 pipboyRenderHolodiskText();
+                pipboyPlayHolodiskAudio();
                 _holo_flag = 1;
             }
         }
@@ -1579,6 +1597,24 @@ static void pipboyRenderHolodiskText()
     renderNavigationButtons(_view_page, gPipboyHolodiskLastPage + 1, true);
 
     windowRefresh(gPipboyWindow);
+}
+
+// Plays the voiced narration attached to the holodisk's title entry in
+// pipboy.msg, if it has one. Turning pages keeps it playing, opening another
+// holodisk or closing the Pip-Boy stops it.
+static void pipboyPlayHolodiskAudio()
+{
+    pipboySoundStop();
+
+    MessageListItem messageListItem;
+    messageListItem.num = gHolodiskDescriptions[_holodisk].name;
+    if (!messageListGetItem(&gPipboyMessageList, &messageListItem)) {
+        return;
+    }
+
+    if (messageListItem.audio != nullptr && messageListItem.audio[0] != '\0') {
+        pipboySoundPlay(messageListItem.audio);
+    }
 }
 
 // 0x498C40
@@ -2275,6 +2311,11 @@ static bool pipboyRestSetGameTime(unsigned int newGameTime, RestEventType eventT
 // 0x499A24
 static bool pipboyRest(int hours, int minutes, int duration)
 {
+    struct RestDepthGuard {
+        RestDepthGuard() { pipboyRestDepth++; }
+        ~RestDepthGuard() { pipboyRestDepth--; }
+    } restDepthGuard;
+
     gameMouseSetCursor(MOUSE_CURSOR_WAIT_WATCH);
 
     bool rc = false;

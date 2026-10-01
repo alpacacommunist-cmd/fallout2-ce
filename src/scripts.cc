@@ -35,6 +35,7 @@
 #include "message.h"
 #include "object.h"
 #include "party_member.h"
+#include "pipboy.h"
 #include "platform_compat.h"
 #include "proto.h"
 #include "proto_instance.h"
@@ -1254,9 +1255,9 @@ static void scriptsCloseNearbyElevatorDoors()
 {
     Object* elevatorDoors = objectFindFirstAtElevation(gDude->elevation);
     while (elevatorDoors != nullptr) {
-        int pid = elevatorDoors->pid;
-        if (objectTypeFromPid(pid) == OBJ_TYPE_SCENERY
-            && (pid == PROTO_ID_BROTHERHOOD_DOOR || pid == PROTO_ID_ELEVATOR_DOOR || pid == PROTO_ID_ELEVATOR_DOOR_ALT)
+        const ProtoId elevatorProtoId = ProtoId(elevatorDoors);
+        if (elevatorProtoId.objectType() == OBJ_TYPE_SCENERY
+            && (elevatorProtoId == SceneryProtoTypeId::BrotherhoodDoor || elevatorProtoId == SceneryProtoTypeId::ElevatorDoor || elevatorProtoId == SceneryProtoTypeId::ElevatorDoorAlternate)
             && tileDistanceBetween(elevatorDoors->tile, gDude->tile) <= 4) {
             break;
         }
@@ -1491,7 +1492,7 @@ int scriptsRequestElevator(Object* obj, int elevatorType)
         for (int x = -5; x < 5; x++) {
             elevator = objectFindFirstAtElevation(obj->elevation);
             while (elevator != nullptr) {
-                if (tile == elevator->tile && elevator->pid == PROTO_ID_ELEVATOR_STUB) {
+                if (tile == elevator->tile && ProtoId(elevator) == SceneryProtoTypeId::ElevatorStub) {
                     break;
                 }
 
@@ -1858,7 +1859,7 @@ int scriptsSetDudeScript()
     }
 
     Proto* proto;
-    if (protoGetProto(PROTO_ID_DUDE, &proto) == -1) {
+    if (protoGetProto(ProtoId(CritterProtoTypeId::Dude).pid(), &proto) == -1) {
         debugPrint("Error in scr_set_dude_script: can't find obj_dude proto!");
         return -1;
     }
@@ -3253,7 +3254,7 @@ char* _scr_get_msg_str_speech(int messageListId, int messageId, int shouldStartS
     // This used to silence any speech call made outside dialogue (float_msg,
     // combat, timed events...) just because there was no head fid set. But a
     // head fid only matters for lip-sync, not for whether we should play
-    // audio at all, so below it only picks lip-sync vs. plain playback.
+    // audio at all, so below it only picks how the line is played.
 
     MessageListItem messageListItem;
     messageListItem.num = messageId;
@@ -3262,16 +3263,22 @@ char* _scr_get_msg_str_speech(int messageListId, int messageId, int shouldStartS
         return gErrorString;
     }
 
-    if (shouldStartSpeech) {
+    // Resting runs queued script events while time passes, so NPCs fire
+    // floats back to back. Show the text, but don't voice or bleep them.
+    if (shouldStartSpeech && !pipboyIsResting()) {
         if (messageListItem.audio != nullptr && messageListItem.audio[0] != '\0') {
             if (messageListItem.flags & 0x01) {
                 soundPlayFile("censor");
             } else if (gameDialogWindowActive() && gGameDialogHeadFrmId.valid()) {
                 gameDialogStartLips(messageListItem.audio);
-            } else {
-                // No talking head on screen, so just play the line without
-                // lip-sync instead of dropping it.
+            } else if (gameDialogWindowActive()) {
+                // Dialogue without a talking head, so just play the line
+                // without lip-sync instead of dropping it.
                 speechLoad(messageListItem.audio, GSOUND_LIMIT_AFTER, GSOUND_STREAM, GSOUND_NO_LOOP);
+            } else {
+                // Outside dialogue (float_msg barks, timed events...), so use
+                // the float channels and let several lines overlap.
+                floatSoundPlay(messageListItem.audio);
             }
         }
     }

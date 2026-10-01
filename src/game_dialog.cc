@@ -218,9 +218,9 @@ typedef enum PartyMemberCustomizationOption {
 
 // 0x444D10 Dogs
 static int _Dogs[3] = {
-    PROTO_ID_DOG_1,
-    PROTO_ID_DOG_2,
-    PROTO_ID_DOG_3,
+    ProtoId(CritterProtoTypeId::Cyberdog).pid(),
+    ProtoId(CritterProtoTypeId::Dogmeat).pid(),
+    ProtoId(CritterProtoTypeId::PariahDog).pid(),
 };
 
 static std::unordered_map<int, AiMessageRange> partyMemberCcMsgIds;
@@ -991,6 +991,12 @@ void gameDialogStartLips(const char* audioFileName)
     if (audioFileName == nullptr) {
         debugPrint("\nGDialog: Bleep!");
         soundPlayFile("censor");
+        return;
+    }
+
+    // speech=0 in fallout2.cfg turns off every voiced line, lip-synced ones
+    // included. The reply is still shown as text.
+    if (!speechIsEnabled()) {
         return;
     }
 
