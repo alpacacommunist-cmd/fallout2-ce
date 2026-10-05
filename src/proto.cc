@@ -2164,6 +2164,7 @@ int protoGetProto(const ProtoId& protoId, Proto** protoPtr)
 {
     *protoPtr = nullptr;
 
+    // CK_PATCH: allows hanling ck-side prototypes
     if (ck::ids::is_ck_pid(protoId.pid())) {
         return ck::proto::get_custom_proto(protoId.pid(), protoPtr);
     }
