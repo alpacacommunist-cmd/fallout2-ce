@@ -4715,7 +4715,7 @@ static void characterEditorRegisterInfoAreas()
 static void characterEditorSavePlayer()
 {
     Proto* proto;
-    protoGetProto(gDude->pid, &proto);
+    protoGetProto(gDude, &proto);
     critterProtoDataCopy(&gCharacterEditorDudeDataBackup, &(proto->critter.data));
 
     gCharacterEditorHitPointsBackup = critterGetHitPoints(gDude);
@@ -4754,7 +4754,7 @@ static void characterEditorRestorePlayer()
 
     _pop_perks();
 
-    protoGetProto(gDude->pid, &proto);
+    protoGetProto(gDude, &proto);
     critterProtoDataCopy(&(proto->critter.data), &gCharacterEditorDudeDataBackup);
 
     dudeSetName(gCharacterEditorNameBackup);

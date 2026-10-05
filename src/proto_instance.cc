@@ -100,13 +100,14 @@ int objectSetScriptFromProto(Object* object, int* sidPtr)
 {
     *sidPtr = -1;
 
+    const ProtoId protoId = object;
     Proto* proto;
-    if (protoGetProto(object->pid, &proto) == -1) {
+    if (protoGetProto(protoId, &proto) == -1) {
         return -1;
     }
 
     int sid;
-    int objectType = objectTypeFromPid(object->pid);
+    ObjectType objectType = protoId.objectType();
     if (objectType < OBJ_TYPE_TILE) {
         sid = proto->sid;
     } else if (objectType == OBJ_TYPE_TILE) {
@@ -211,7 +212,7 @@ int objectLookAtFunc(Object* critter, Object* target, void (*fn)(const char* str
     }
 
     Proto* proto;
-    if (protoGetProto(target->pid, &proto) == -1) {
+    if (protoGetProto(target, &proto) == -1) {
         return -1;
     }
 
@@ -229,7 +230,7 @@ int objectLookAtFunc(Object* critter, Object* target, void (*fn)(const char* str
     if (!scriptOverrides) {
         MessageListItem messageListItem;
 
-        if (objectTypeFromPid(target->pid) == OBJ_TYPE_CRITTER && critterIsDead(target)) {
+        if (ProtoId(target).objectType() == OBJ_TYPE_CRITTER && critterIsDead(target)) {
             messageListItem.num = 491 + randomBetween(0, 1);
         } else {
             messageListItem.num = 490;
@@ -354,8 +355,8 @@ int objectExamineFunc(Object* critter, Object* target, void (*fn)(const char* st
                 snprintf(format, sizeof(format), "%s%s", hpMessageListItem.text, weaponMessageListItem.text);
 
                 if (ammoGetCaliber(item2) != CALIBER_TYPE_NONE) {
-                    const int ammoTypePid = weaponGetAmmoTypePid(item2);
-                    const char* ammoName = protoGetName(ammoTypePid);
+                    const ProtoId ammoTypeProtoId = ProtoId(weaponGetAmmoTypePid(item2));
+                    const char* ammoName = protoGetName(ammoTypeProtoId);
                     const int ammoCapacity = ammoGetCapacity(item2);
                     const int ammoQuantity = ammoGetQuantity(item2);
                     const char* weaponName = objectGetName(item2);
@@ -516,8 +517,8 @@ int objectExamineFunc(Object* critter, Object* target, void (*fn)(const char* st
                     exit(1);
                 }
 
-                int ammoTypePid = weaponGetAmmoTypePid(target);
-                const char* ammoName = protoGetName(ammoTypePid);
+                const ProtoId ammoTypeProtoId = ProtoId(weaponGetAmmoTypePid(target));
+                const char* ammoName = protoGetName(ammoTypeProtoId);
                 int ammoCapacity = ammoGetCapacity(target);
                 int ammoQuantity = ammoGetQuantity(target);
                 snprintf(formattedText, sizeof(formattedText), weaponMessageListItem.text, ammoQuantity, ammoCapacity, ammoName);
@@ -681,7 +682,7 @@ static int _obj_remove_from_inven(Object* critter, Object* item)
                 CritterFrameId defaultFrameId = CritterFrameId::First;
 
                 Proto* proto;
-                if (protoGetProto(ProtoId(CritterProtoTypeId::Dude).pid(), &proto) != -1) {
+                if (protoGetProto(CritterProtoTypeId::Dude, &proto) != -1) {
                     defaultFrameId = FrmId(proto).frameId<CritterFrameId>();
                 }
 
@@ -1520,11 +1521,11 @@ int objectUse(Object* user, Object* targetObj)
     }
 
     Proto* sceneryProto;
-    if (protoGetProto(targetObj->pid, &sceneryProto) == -1) {
+    if (protoGetProto(targetObj, &sceneryProto) == -1) {
         return -1;
     }
 
-    if (objectTypeFromPid(targetObj->pid) == OBJ_TYPE_SCENERY && sceneryProto->scenery.type == SCENERY_TYPE_DOOR) {
+    if (ProtoId(targetObj).objectType() == OBJ_TYPE_SCENERY && sceneryProto->scenery.type == SCENERY_TYPE_DOOR) {
         return objectUseDoor(user, targetObj);
     }
 
@@ -1540,7 +1541,7 @@ int objectUse(Object* user, Object* targetObj)
     }
 
     if (!scriptOverrides) {
-        if (objectTypeFromPid(targetObj->pid) == OBJ_TYPE_SCENERY) {
+        if (ProtoId(targetObj).objectType() == OBJ_TYPE_SCENERY) {
             if (sceneryProto->scenery.type == SCENERY_TYPE_LADDER_DOWN) {
                 if (useLadderDown(user, targetObj) == 0) {
                     scriptOverrides = true;
@@ -1862,7 +1863,7 @@ int objectUseContainer(Object* critter, Object* item)
     }
 
     Proto* itemProto;
-    if (protoGetProto(item->pid, &itemProto) == -1) {
+    if (protoGetProto(item, &itemProto) == -1) {
         return -1;
     }
 
@@ -1949,7 +1950,7 @@ int objectUseSkillOn(Object* source, Object* target, Skill skill)
     }
 
     Proto* proto;
-    if (protoGetProto(target->pid, &proto) == -1) {
+    if (protoGetProto(target, &proto) == -1) {
         return -1;
     }
 
@@ -1983,7 +1984,7 @@ static bool _obj_is_portal(Object* obj)
     }
 
     Proto* proto;
-    if (protoGetProto(obj->pid, &proto) == -1) {
+    if (protoGetProto(obj, &proto) == -1) {
         return false;
     }
 
@@ -1994,16 +1995,16 @@ static bool _obj_is_portal(Object* obj)
 static bool _obj_is_lockable(Object* obj)
 {
     Proto* proto;
-
-    if (obj == nullptr) {
+    const ProtoId protoId = obj;
+    if (!protoId.valid()) {
         return false;
     }
 
-    if (protoGetProto(obj->pid, &proto) == -1) {
+    if (protoGetProto(protoId, &proto) == -1) {
         return false;
     }
 
-    switch (objectTypeFromPid(obj->pid)) {
+    switch (protoId.objectType()) {
     case OBJ_TYPE_ITEM:
         if (proto->item.type == ITEM_TYPE_CONTAINER) {
             return true;
@@ -2082,17 +2083,18 @@ int objectUnlock(Object* object)
 // 0x49D294
 bool objectIsOpenable(Object* obj)
 {
-    if (obj == nullptr) {
+    const ProtoId protoId = obj;
+    if (!protoId.valid()) {
         return false;
     }
 
     Proto* proto;
-    if (protoGetProto(obj->pid, &proto) == -1) {
+    if (protoGetProto(protoId, &proto) == -1) {
         return false;
     }
 
     bool couldBeOpenable = false;
-    switch (objectTypeFromPid(obj->pid)) {
+    switch (protoId.objectType()) {
     case OBJ_TYPE_ITEM:
         if (proto->item.type == ITEM_TYPE_CONTAINER) {
             couldBeOpenable = true;

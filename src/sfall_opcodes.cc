@@ -463,14 +463,15 @@ static void op_set_critter_skill_points(Program* program)
         return;
     }
 
-    if (critter == nullptr || objectTypeFromPid(critter->pid) != OBJ_TYPE_CRITTER) {
+    const ProtoId protoId = critter;
+    if (protoId.objectType() != OBJ_TYPE_CRITTER) {
         programPrintError("set_critter_skill_points: obj is not a critter");
         return;
     }
 
     Proto* proto;
-    if (protoGetProto(critter->pid, &proto) == -1) {
-        programPrintError("set_critter_skill_points: failed to get proto for pid %d", critter->pid);
+    if (protoGetProto(protoId, &proto) == -1) {
+        programPrintError("set_critter_skill_points: failed to get proto for pid %d", protoId.pid());
         return;
     }
 
@@ -488,15 +489,16 @@ static void op_get_critter_skill_points(Program* program)
         return;
     }
 
-    if (critter == nullptr || objectTypeFromPid(critter->pid) != OBJ_TYPE_CRITTER) {
+    const ProtoId protoId = critter;
+    if (protoId.objectType() != OBJ_TYPE_CRITTER) {
         programPrintError("get_critter_skill_points: obj is not a critter");
         programStackPushInteger(program, 0);
         return;
     }
 
     Proto* proto;
-    if (protoGetProto(critter->pid, &proto) == -1) {
-        programPrintError("get_critter_skill_points: failed to get proto for pid %d", critter->pid);
+    if (protoGetProto(protoId, &proto) == -1) {
+        programPrintError("get_critter_skill_points: failed to get proto for pid %d", protoId.pid());
         programStackPushInteger(program, 0);
         return;
     }
@@ -996,11 +998,11 @@ static void op_set_script(Program* program)
 static void op_get_proto_data(Program* program)
 {
     int rawOffset = programStackPopInteger(program);
-    int pid = programStackPopInteger(program);
+    const ProtoId protoId = programStackPopProtoId(program);
 
     Proto* proto;
-    if (protoGetProto(pid, &proto) != 0) {
-        programPrintError("get_proto_data: bad proto %d", pid);
+    if (protoGetProto(protoId, &proto) != 0) {
+        programPrintError("get_proto_data: bad proto %d", protoId.pid());
         programStackPushInteger(program, -1);
         return;
     }
@@ -1014,7 +1016,7 @@ static void op_get_proto_data(Program* program)
     }
 
     size_t offset = static_cast<size_t>(rawOffset);
-    size_t size = proto_size(objectTypeFromPid(pid));
+    size_t size = proto_size(protoId.objectType());
     if (offset > size || size - offset < sizeof(int)) {
         programPrintError("get_proto_data: bad offset %zu", offset);
         programStackPushInteger(program, -1);
@@ -1030,11 +1032,11 @@ static void op_set_proto_data(Program* program)
 {
     int value = programStackPopInteger(program);
     int rawOffset = programStackPopInteger(program);
-    int pid = programStackPopInteger(program);
+    const ProtoId protoId = programStackPopProtoId(program);
 
     Proto* proto;
-    if (protoGetProto(pid, &proto) != 0) {
-        programPrintError("set_proto_data: bad proto %d", pid);
+    if (protoGetProto(protoId, &proto) != 0) {
+        programPrintError("set_proto_data: bad proto %d", protoId.pid());
         return;
     }
 
@@ -1046,7 +1048,7 @@ static void op_set_proto_data(Program* program)
     }
 
     size_t offset = static_cast<size_t>(rawOffset);
-    size_t size = proto_size(objectTypeFromPid(pid));
+    size_t size = proto_size(protoId.objectType());
     if (offset > size || size - offset < sizeof(int)) {
         programPrintError("set_proto_data: bad offset %zu", offset);
         return;
@@ -1138,18 +1140,16 @@ static void op_get_weapon_ammo_pid(Program* program)
 // set_weapon_ammo_pid
 static void op_set_weapon_ammo_pid(Program* program)
 {
-    int ammoTypePid = programStackPopInteger(program);
+    const ProtoId ammoTypeProtoId = programStackPopProtoId(program);
     Object* obj = static_cast<Object*>(programStackPopPointer(program));
 
-    if (obj != nullptr) {
-        if (objectTypeFromPid(obj->pid) == OBJ_TYPE_ITEM) {
-            switch (itemGetType(obj)) {
-            case ITEM_TYPE_WEAPON:
-                obj->data.item.weapon.ammoTypePid = ammoTypePid;
-                break;
-            default:
-                break;
-            }
+    if (ProtoId(obj).objectType() == OBJ_TYPE_ITEM) {
+        switch (itemGetType(obj)) {
+        case ITEM_TYPE_WEAPON:
+            obj->data.item.weapon.ammoTypePid = ammoTypeProtoId.pid();
+            break;
+        default:
+            break;
         }
     }
 }
