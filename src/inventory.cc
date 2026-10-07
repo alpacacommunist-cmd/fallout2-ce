@@ -1421,7 +1421,7 @@ static bool tryEquipPartyItem(Object* item, bool fromLeftPane)
             displayMonitorAddMessage("I can't use that."); // TODO: translate
             return false;
         }
-    } else if (partySlot == InvenSlot::Armor && !partyMemberPidCanEquipArmor(partyBaseTarget->pid)) {
+    } else if (partySlot == InvenSlot::Armor && !partyMemberProtoIdCanEquipArmor(partyBaseTarget)) {
         displayMonitorAddMessage("I can't use that."); // TODO: translate
         return false;
     }
@@ -1543,10 +1543,10 @@ void inventoryResetInvenApCost()
 }
 
 // inven_set_dude
-void inventorySetDude(Object* obj, int pid)
+void inventorySetDude(Object* obj, const ProtoId& protoId)
 {
     _inven_dude = obj;
-    _inven_pid = pid;
+    _inven_pid = protoId.pid();
 }
 
 // TODO(CE): move to more generic location
@@ -3422,17 +3422,17 @@ static void inventorySetLeftPaneCritter(Object* critter, Object* target, int inv
 }
 
 // 0x471CA0
-Object* objectGetCarriedObjectByPid(Object* obj, int pid)
+Object* objectGetCarriedObjectByProtoId(Object* obj, const ProtoId& protoId)
 {
     Inventory* inventory = &(obj->data.inventory);
 
     for (int index = 0; index < inventory->length; index++) {
         InventoryItem* inventoryItem = &(inventory->items[index]);
-        if (inventoryItem->item->pid == pid) {
+        if (ProtoId(inventoryItem->item) == protoId) {
             return inventoryItem->item;
         }
 
-        Object* found = objectGetCarriedObjectByPid(inventoryItem->item, pid);
+        Object* found = objectGetCarriedObjectByProtoId(inventoryItem->item, protoId);
         if (found != nullptr) {
             return found;
         }
@@ -3442,18 +3442,18 @@ Object* objectGetCarriedObjectByPid(Object* obj, int pid)
 }
 
 // 0x471CDC
-int objectGetCarriedQuantityByPid(Object* object, int pid)
+int objectGetCarriedQuantityByProtoId(Object* object, const ProtoId& protoId)
 {
     int quantity = 0;
 
     Inventory* inventory = &(object->data.inventory);
     for (int index = 0; index < inventory->length; index++) {
         InventoryItem* inventoryItem = &(inventory->items[index]);
-        if (inventoryItem->item->pid == pid) {
+        if (ProtoId(inventoryItem->item) == protoId) {
             quantity += inventoryItem->quantity;
         }
 
-        quantity += objectGetCarriedQuantityByPid(inventoryItem->item, pid);
+        quantity += objectGetCarriedQuantityByProtoId(inventoryItem->item, protoId);
     }
 
     return quantity;
@@ -3716,7 +3716,7 @@ static void inventoryRenderSummary()
         offset += pitch * fontGetLineHeight();
 
         if (ammoGetCapacity(item) > 0) {
-            const ProtoId ammoTypeProtoId = ProtoId(weaponGetAmmoTypePid(item));
+            const ProtoId ammoTypeProtoId = weaponGetAmmoTypeProtoId(item);
 
             formattedText[0] = '\0';
 
@@ -4614,7 +4614,7 @@ static void inventoryWindowOpenContextMenu(int keyCode, int inventoryWindowType)
                     }
                 }
             }
-        } else if (explosiveIsActiveExplosive(item->pid)) {
+        } else if (explosiveIsActiveExplosive(item)) {
             if (inventoryMoveAlreadyChecked || scriptHooks_InventoryMove(HOOK_INVENTORYMOVE_GROUND, item, nullptr)) {
                 _dropped_explosive = 1;
                 objectDrop(owner, item);
@@ -4736,15 +4736,16 @@ int inventoryOpenLooting(Object* looter, Object* target)
         return 0;
     }
 
-    if (FrmId(target).objectType() == OBJ_TYPE_CRITTER && critterFlagCheck(target->pid, CRITTER_NO_STEAL)) {
+    const FrmId targetFrmId = target;
+    if (targetFrmId.objectType() == OBJ_TYPE_CRITTER && critterFlagCheck(target, CRITTER_NO_STEAL)) {
         inventoryDisplayMessage(50); // You can't find anything to take from that.
         return 0;
     }
 
-    if (FrmId(target).objectType() == OBJ_TYPE_ITEM && itemGetType(target) == ITEM_TYPE_CONTAINER) {
+    if (targetFrmId.objectType() == OBJ_TYPE_ITEM && itemGetType(target) == ITEM_TYPE_CONTAINER) {
         if (target->frame == 0) {
             CacheEntry* handle;
-            Art* frm = artLock(FrmId(target), &handle);
+            Art* frm = artLock(targetFrmId, &handle);
             if (frm != nullptr) {
                 int frameCount = artGetFrameCount(frm);
                 artUnlock(handle);
@@ -4773,7 +4774,7 @@ int inventoryOpenLooting(Object* looter, Object* target)
     }
 
     Object* hiddenBox = nullptr;
-    if (objectCreateWithFrmIdPid(&hiddenBox, FrmId::Empty(), ProtoId(ItemProtoTypeId::JesseContainer).pid()) == -1) {
+    if (objectCreateWithFrmIdProtoId(&hiddenBox, FrmId::Empty(), ItemProtoTypeId::JesseContainer) == -1) {
         return 0;
     }
     CritterEquipped stealTargetEquipped {};
@@ -5716,7 +5717,7 @@ void barterProcessUI(int win, Object* barterer, Object* playerTable, Object* bar
     }
 
     Object* hiddenBox = nullptr;
-    if (objectCreateWithFrmIdPid(&hiddenBox, FrmId::Empty(), ProtoId(ItemProtoTypeId::JesseContainer).pid()) == -1) {
+    if (objectCreateWithFrmIdProtoId(&hiddenBox, FrmId::Empty(), ItemProtoTypeId::JesseContainer) == -1) {
         return;
     }
 

@@ -4264,11 +4264,12 @@ void _compute_explosion_on_extras(Attack* attack, bool isFromAttacker, bool isGr
 static int attackComputeCriticalHit(Attack* attack)
 {
     Object* defender = attack->defender;
-    if (defender != nullptr && critterFlagCheck(defender->pid, CRITTER_INVULNERABLE)) {
+    const ProtoId& defenderProtoId = defender;
+    if (defender != nullptr && critterFlagCheck(defenderProtoId, CRITTER_INVULNERABLE)) {
         return 2;
     }
 
-    if (defender != nullptr && objectTypeFromPid(defender->pid) != OBJ_TYPE_CRITTER) {
+    if (defender != nullptr && defenderProtoId.objectType() != OBJ_TYPE_CRITTER) {
         return 2;
     }
 
@@ -4337,8 +4338,8 @@ static int attackComputeCriticalHit(Attack* attack)
 static Dam _attackFindInvalidFlags(Object* critter, Object* item)
 {
     Dam flags = DAM_NONE;
-
-    if (critter != nullptr && objectTypeFromPid(critter->pid) == OBJ_TYPE_CRITTER && critterFlagCheck(critter->pid, CRITTER_NO_DROP)) {
+    const ProtoId& critterProtoId = critter;
+    if (critterProtoId.objectType() == OBJ_TYPE_CRITTER && critterFlagCheck(critterProtoId, CRITTER_NO_DROP)) {
         flags |= DAM_DROP;
     }
 
@@ -4354,7 +4355,7 @@ static int attackComputeCriticalFailure(Attack* attack)
 {
     attack->attackerFlags &= ~DAM_HIT;
 
-    if (attack->attacker != nullptr && critterFlagCheck(attack->attacker->pid, CRITTER_INVULNERABLE)) {
+    if (attack->attacker != nullptr && critterFlagCheck(attack->attacker, CRITTER_INVULNERABLE)) {
         return 0;
     }
 
@@ -4816,11 +4817,12 @@ static void attackComputeDamage(Attack* attack, int numRounds, int baseDamageMul
         }
     }
 
+    const ProtoId& critterProtoId = critter;
     if (knockbackDistancePtr != nullptr
         && (critter->flags & OBJECT_MULTIHEX) == OBJECT_NONE
         && (damageType == DAMAGE_TYPE_EXPLOSION || attack->weapon == nullptr || weaponGetAttackTypeForHitMode(attack->weapon, attack->hitMode) == ATTACK_TYPE_MELEE)
-        && objectTypeFromPid(critter->pid) == OBJ_TYPE_CRITTER
-        && !critterFlagCheck(critter->pid, CRITTER_NO_KNOCKBACK)) {
+        && critterProtoId.objectType() == OBJ_TYPE_CRITTER
+        && !critterFlagCheck(critterProtoId, CRITTER_NO_KNOCKBACK)) {
         bool shouldKnockback = true;
         bool hasStonewall = false;
         if (critter == gDude) {
@@ -4942,8 +4944,9 @@ void _apply_damage(Attack* attack, bool animated)
 // 0x424EE8
 static void _check_for_death(Object* object, int damage, Dam* flags)
 {
-    if (object == nullptr || !critterFlagCheck(object->pid, CRITTER_INVULNERABLE)) {
-        if (object == nullptr || objectTypeFromPid(object->pid) == OBJ_TYPE_CRITTER) {
+    const ProtoId& protoId = object;
+    if (object == nullptr || !critterFlagCheck(protoId, CRITTER_INVULNERABLE)) {
+        if (object == nullptr || protoId.objectType() == OBJ_TYPE_CRITTER) {
             if (damage > 0) {
                 if (critterGetHitPoints(object) - damage <= 0) {
                     *flags |= DAM_DEAD;
@@ -4964,11 +4967,12 @@ static void _set_new_results(Object* critter, Dam flags)
         return;
     }
 
-    if (critterFlagCheck(critter->pid, CRITTER_INVULNERABLE)) {
+    const ProtoId& critterProtoId = critter;
+    if (critterFlagCheck(critterProtoId, CRITTER_INVULNERABLE)) {
         return;
     }
 
-    if (objectTypeFromPid(critter->pid) != OBJ_TYPE_CRITTER) {
+    if (critterProtoId.objectType() != OBJ_TYPE_CRITTER) {
         return;
     }
 
@@ -5005,7 +5009,7 @@ static void _damage_object(Object* target, int damage, bool animated, int hitUni
         return;
     }
 
-    if (critterFlagCheck(target->pid, CRITTER_INVULNERABLE)) {
+    if (critterFlagCheck(target, CRITTER_INVULNERABLE)) {
         return;
     }
 

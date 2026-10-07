@@ -880,7 +880,7 @@ void critterKill(Object* critter, AnimationType anim, bool refreshRect)
         rectUnion(&updatedRect, &tempRect, &updatedRect);
     }
 
-    if (!critterFlagCheck(critter->pid, CRITTER_FLAT)) {
+    if (!critterFlagCheck(critter, CRITTER_FLAT)) {
         critter->flags |= OBJECT_NO_BLOCK;
         if ((critter->flags & OBJECT_FLAT) == OBJECT_NONE) {
             _obj_toggle_flat(critter, &tempRect);
@@ -1498,10 +1498,8 @@ bool critterIsFleeing(Object* critter)
 // Checks proto critter flag.
 //
 // 0x42E6AC critter_flag_check
-bool critterFlagCheck(int pid, CritterFlags flag)
+bool critterFlagCheck(const ProtoId& protoId, CritterFlags flag)
 {
-    const ProtoId protoId = ProtoId(pid);
-
     if (!protoId.valid()) {
         return false;
     }
@@ -1519,10 +1517,8 @@ bool critterFlagCheck(int pid, CritterFlags flag)
 }
 
 // 0x42E6F0 critter_flag_set
-void critterFlagSet(int pid, CritterFlags flag)
+void critterFlagSet(const ProtoId& protoId, CritterFlags flag)
 {
-    const ProtoId protoId = ProtoId(pid);
-
     if (!protoId.valid()) {
         return;
     }
@@ -1540,10 +1536,8 @@ void critterFlagSet(int pid, CritterFlags flag)
 }
 
 // 0x42E71C critter_flag_unset
-void critterFlagUnset(int pid, CritterFlags flag)
+void critterFlagUnset(const ProtoId& protoId, CritterFlags flag)
 {
-    const ProtoId protoId = ProtoId(pid);
-
     if (!protoId.valid()) {
         return;
     }

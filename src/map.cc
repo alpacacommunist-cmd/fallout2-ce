@@ -1081,7 +1081,7 @@ static int mapLoad(File* stream)
         }
 
         Object* object;
-        objectCreateWithFrmIdPid(&object, MiscFrameId::ScrollBlocker, -1);
+        objectCreateWithFrmIdProtoId(&object, MiscFrameId::ScrollBlocker, ProtoId::Empty());
         object->flags |= (OBJECT_LIGHT_THRU | OBJECT_NO_SAVE | OBJECT_HIDDEN);
         objectSetLocation(object, 1, 0, nullptr);
         object->sid = gMapSid;
@@ -1236,12 +1236,13 @@ static int _map_age_dead_critters()
 
     Object* obj = objectFindFirst();
     while (obj != nullptr) {
-        if (objectTypeFromPid(obj->pid) == OBJ_TYPE_CRITTER
+        const ProtoId protoId = obj;
+        if (protoId.objectType() == OBJ_TYPE_CRITTER
             && obj != gDude
             && !objectIsPartyMember(obj)
             && !critterIsDead(obj)) {
             obj->data.critter.combat.maneuver &= ~CRITTER_MANUEVER_FLEEING;
-            if (critterGetKillType(obj) != KILL_TYPE_ROBOT && !critterFlagCheck(obj->pid, CRITTER_NO_HEAL)) {
+            if (critterGetKillType(obj) != KILL_TYPE_ROBOT && !critterFlagCheck(protoId, CRITTER_NO_HEAL)) {
                 critterHealByHours(obj, hoursSinceLastVisit);
             }
         }
@@ -1263,10 +1264,10 @@ static int _map_age_dead_critters()
 
     obj = objectFindFirst();
     while (obj != nullptr) {
-        ObjectType type = objectTypeFromPid(obj->pid);
-        if (type == OBJ_TYPE_CRITTER) {
+        const ProtoId protoId = obj;
+        if (protoId.objectType() == OBJ_TYPE_CRITTER) {
             if (obj != gDude && critterIsDead(obj)) {
-                if (critterGetKillType(obj) != KILL_TYPE_ROBOT && !critterFlagCheck(obj->pid, CRITTER_NO_AGE)) {
+                if (critterGetKillType(obj) != KILL_TYPE_ROBOT && !critterFlagCheck(protoId, CRITTER_NO_AGE)) {
                     objects[count++] = obj;
 
                     if (count >= capacity) {
@@ -1279,7 +1280,7 @@ static int _map_age_dead_critters()
                     }
                 }
             }
-        } else if (agingType == 2 && type == OBJ_TYPE_MISC && FrmId(obj) == MiscFrameId::BloodPool) {
+        } else if (agingType == 2 && protoId.objectType() == OBJ_TYPE_MISC && FrmId(obj) == MiscFrameId::BloodPool) {
             objects[count++] = obj;
             if (count >= capacity) {
                 capacity *= 2;
@@ -1296,7 +1297,8 @@ static int _map_age_dead_critters()
     int rc = 0;
     for (int index = 0; index < count; index++) {
         Object* obj = objects[index];
-        if (objectTypeFromPid(obj->pid) == OBJ_TYPE_CRITTER) {
+        const ProtoId protoId = obj;
+        if (protoId.objectType() == OBJ_TYPE_CRITTER) {
             // replace the dead critter bodies by the blood pool stain
             if (replaceDeadCritter(obj) == -1) {
                 debugPrint("\n%s: Could not replace dead body by the blood stain for the critter %d with pid %d.", __func__, obj->id, obj->pid);
@@ -1305,7 +1307,7 @@ static int _map_age_dead_critters()
             }
 
             // drop the critter owned items on top of the blood stain only when successfully replaced
-            if (!critterFlagCheck(obj->pid, CRITTER_NO_DROP)) {
+            if (!critterFlagCheck(protoId, CRITTER_NO_DROP)) {
                 itemDropAll(obj, obj->tile);
             }
         }
@@ -1326,7 +1328,7 @@ static int replaceDeadCritter(Object* critter)
     }
 
     Object* blood;
-    if (objectCreateWithPid(&blood, ProtoId(MiscProtoTypeId::Blood).pid()) == -1) {
+    if (objectCreateWithProtoId(&blood, MiscProtoTypeId::Blood) == -1) {
         return -1;
     }
 
