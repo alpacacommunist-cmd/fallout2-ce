@@ -1,4 +1,3 @@
-#include "ck_scripting.h"
 #include "ck_debug_overlay/ck_debug_overlay.h"
 
 #include "game.h"
@@ -82,7 +81,21 @@
 #include <TargetConditionals.h>
 #endif
 
-namespace ck { void init_ffi_manifest(); }
+namespace ck {
+    void init_ffi_manifest();
+
+    namespace events {
+        void init(int argc, char** argv);
+        void engine_ready();
+        void scripts_reset();
+        void exit();
+    }
+
+    namespace mods {
+        bool reload();
+    }
+}
+
 namespace fallout {
 
 #define HELP_SCREEN_WIDTH (640)
@@ -919,7 +932,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         break;
     case KEY_CTRL_R:
         debugPrint("[CK] Reloading mods...\n");
-        ck_reload_mods();
+        ck::mods::reload();
         break;
     case KEY_F9:
         ck::debug_overlay::toggle();
