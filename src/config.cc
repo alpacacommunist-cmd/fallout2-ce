@@ -16,8 +16,8 @@
 #include "memory.h"
 #include "platform_compat.h"
 
-namespace ck {
-    void config_patch_apply(fallout::Config* config, const char* file_path);
+namespace ck::config {
+    void apply(fallout::Config* config, const char* file_path);
 }
 
 namespace fallout {
@@ -413,7 +413,7 @@ bool configRead(Config* config, const char* filePath, bool isDb)
         fclose(stream);
     }
 
-    ck::config_patch_apply(config, filePath);
+    ck::config::apply(config, filePath);
     return true;
 }
 

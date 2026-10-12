@@ -324,7 +324,8 @@ void tile_hires_stencil_draw(Rect* rect, unsigned char* buffer, int windowWidth,
         return;
     }
 
-    if (ck::map_has_camera_borders(mapGetCurrentMap())) { return; }
+    // CK_PATCH: skips stencil draw if custom borders are set
+    if (ck::map::map_has_camera_borders(mapGetCurrentMap())) { return; }
 
     int minX = rect->left;
     int minY = rect->top;

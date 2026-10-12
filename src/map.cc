@@ -52,9 +52,11 @@
 #include "worldmap.h"
 
 namespace ck {
-    void on_map_enter(); void on_before_map_load();
-    bool map_has_camera_borders(int map_index);
-	bool map_is_camera_position_allowed(int tile);
+    namespace map {
+        void on_map_enter(); void on_before_map_load();
+        bool map_has_camera_borders(int map_index);
+        bool map_is_camera_position_allowed(int tile);
+    }
 
     const char* area_resolve_path(const char* name);
     void        area_on_map_header_set(fallout::MapHeader* header);
@@ -912,7 +914,7 @@ int mapLoadById(Map map)
 // 0x482B74 map_load_file
 static int mapLoad(File* stream)
 {
-    ck::on_before_map_load();
+    ck::map::on_before_map_load();
 
     int mapLoadSoundId = 0;
     if (!settings.system.executableIsMapper()) {
@@ -1032,7 +1034,7 @@ static int mapLoad(File* stream)
         goto err;
     }
 
-    if (!ck::map_has_camera_borders(mapGetCurrentMap())) {
+    if (!ck::map::map_has_camera_borders(mapGetCurrentMap())) {
         if (settings.system.executableIsMapper() || settings.ui.edg_support) {
             mapEdgeLoad(gMapHeader.name);
         }
@@ -1158,7 +1160,7 @@ err:
         rc = -1;
     }
 
-    if (!_isLoadingGame()) ck::on_map_enter();
+    if (!_isLoadingGame()) ck::map::on_map_enter();
 
     fileSetReadProgressHandler(nullptr, 0);
 

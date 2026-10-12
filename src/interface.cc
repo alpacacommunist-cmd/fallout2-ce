@@ -1,5 +1,5 @@
 // fallout2-ck
-#include "ck_scripting.h"
+#include "ck_events/ck_events.h"
 // fallout2-ck END
 
 #include "interface.h"
