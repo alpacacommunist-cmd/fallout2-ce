@@ -82,8 +82,6 @@
 #endif
 
 namespace ck {
-    void init_ffi_manifest();
-
     namespace events::system {
         void init(int argc, char** argv);
         void engine_ready();
@@ -181,7 +179,6 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int fl
         return -1;
     }
 
-    ck::init_ffi_manifest();
     ck::events::system::init(argc, argv);
 
     // Content config reads from the VFS, so it must be initialized after gameDbInit.
