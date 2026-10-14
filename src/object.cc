@@ -1,4 +1,3 @@
-#include "ck_events/ck_events.h"
 #include "object.h"
 
 #include <assert.h>
@@ -33,6 +32,10 @@
 #include "text_object.h"
 #include "tile.h"
 #include "worldmap.h"
+
+namespace ck::events::system {
+    void object_destroyed(fallout::Object* object);
+}
 
 namespace fallout {
 
@@ -2047,7 +2050,7 @@ int objectDestroy(Object* object, Rect* rect)
             return -1;
         }
 
-        ck::events::object_destroyed(object);
+        ck::events::system::object_destroyed(object);
 
         return 0;
     }
@@ -2063,7 +2066,7 @@ int objectDestroy(Object* object, Rect* rect)
         return -1;
     }
 
-    ck::events::object_destroyed(object);
+    ck::events::system::object_destroyed(object);
 
     return 0;
 }

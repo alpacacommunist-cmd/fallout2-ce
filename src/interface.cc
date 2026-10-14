@@ -644,7 +644,7 @@ int interfaceInit()
     quickToolbarInit();
 
     // Interface ready
-    ck::events::game_start();
+    ck::events::system::game_start();
 
     return 0;
 }

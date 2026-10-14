@@ -58,11 +58,12 @@
 
 
 namespace ck::skills {
+    // TODO: implement on_encounter
     void on_encounter(int difficulty_modifier, int frequency, bool special);
     void on_worldmap_step(int difficulty);
 }
 
-namespace ck::events {
+namespace ck::events::system {
     void worldmap_open();
 }
 
@@ -3428,8 +3429,7 @@ int wmMapMarkMapEntranceState(Map mapIdx, int elevation, int state)
 // 0x4BFE0C wmWorldMap
 void wmWorldMap()
 {
-    ck::events::worldmap_open();
-
+    ck::events::system::worldmap_open();
     wmWorldMapFunc(0);
 }
 
