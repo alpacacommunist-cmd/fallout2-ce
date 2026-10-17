@@ -894,7 +894,7 @@ int skillUse(Object* obj, Object* target, Skill skill, int skillBonus)
             // 514: It's dead, get over it.
             messageListItem.num = 512 + randomBetween(0, 2);
             if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
-                debugPrint(messageListItem.text);
+                debugPrint("%s", messageListItem.text);
             }
 
             break;
@@ -1317,7 +1317,7 @@ int skillUse(Object* obj, Object* target, Skill skill, int skillBonus)
     default:
         messageListItem.num = 510; // skill_use: invalid skill used.
         if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
-            debugPrint(messageListItem.text);
+            debugPrint("%s", messageListItem.text);
         }
 
         return -1;
