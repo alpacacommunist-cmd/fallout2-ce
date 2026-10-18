@@ -1,6 +1,7 @@
-#include "system/rendering.h" // CK_INCLUDE
-#include "map/ck_map.h" // CK_INCLUDE
-#include "debug/ck_debug_overlay.h" // CK_INCLUDE
+// CK_INCLUDE
+#include "ck/debug.h"
+#include "ck/rendering.h"
+#include "ck/map.h"
 
 #include "tile.h"
 
@@ -755,7 +756,7 @@ static void tileRefreshGame(Rect* rect, MapElevation elevation)
     }
 
     tileRenderFloorsInRect(&renderRect, elevation);
-    ck::rendering::floor(&renderRect); ck::debug_overlay::render(&renderRect);
+    ck::rendering::floor(&renderRect); ck::debug::render(&renderRect);
     _obj_render_pre_roof(&renderRect, elevation);
     tileRenderRoofsInRect(&renderRect, elevation);
     ck::rendering::roof(&renderRect);

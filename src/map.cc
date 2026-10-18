@@ -1,5 +1,7 @@
-#include "system/rendering.h" // CK_INCLUDE
-#include "debug/ck_debug_overlay.h" // CK_INCLUDE
+// CK_INCLUDE
+#include "ck/debug.h"
+#include "ck/rendering.h"
+#include "ck/map.h"
 
 #include "map.h"
 
@@ -52,15 +54,10 @@
 #include "worldmap.h"
 
 namespace ck {
-    namespace map {
-        void on_map_enter(); void on_before_map_load();
-        bool map_has_camera_borders(int map_index);
-        bool map_is_camera_position_allowed(int tile);
-    }
-
     const char* area_resolve_path(const char* name);
     void        area_on_map_header_set(fallout::MapHeader* header);
 }
+
 namespace fallout {
 
 const char* mapBuildPath(const char* name);
@@ -1679,7 +1676,7 @@ static void isoWindowRefreshRectGame(Rect* rect)
 
     tileRenderFloorsInRect(&rectToUpdate, gElevation);
     ck::rendering::floor(&rectToUpdate);
-    ck::debug_overlay::render(&rectToUpdate);
+    ck::debug::render(&rectToUpdate);
     _obj_render_pre_roof(&rectToUpdate, gElevation);
     tileRenderRoofsInRect(&rectToUpdate, gElevation);
     ck::rendering::roof(&rectToUpdate);

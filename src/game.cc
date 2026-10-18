@@ -1,4 +1,5 @@
-#include "debug/ck_debug_overlay.h" // CK_INCLUDE
+// CK_INCLUDE
+#include "ck/debug.h"
 
 #include "game.h"
 #include "platform/git_version.h"
@@ -942,8 +943,8 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         ck::mods::reload();
         break;
     case KEY_F9:
-        ck::debug_overlay::toggle();
-        debugPrint("[CK] Debug overlay: %s\n", ck::debug_overlay::enabled() ? "ON" : "OFF");
+        ck::debug::toggle();
+        debugPrint("[CK] Debug overlay: %s\n", ck::debug::enabled() ? "ON" : "OFF");
         break;
     case KEY_F6:
         if (1) {
