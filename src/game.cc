@@ -1,5 +1,6 @@
 // CK_INCLUDE
 #include "ck/debug.h"
+#include "ck/hooks.h"
 
 #include "game.h"
 #include "platform/git_version.h"
@@ -81,19 +82,6 @@
 #if __APPLE__
 #include <TargetConditionals.h>
 #endif
-
-namespace ck {
-    namespace hooks::system {
-        void init(int argc, char** argv);
-        void engine_ready();
-        void scripts_reset();
-        void exit();
-    }
-
-    namespace mods {
-        bool reload();
-    }
-}
 
 namespace fallout {
 
