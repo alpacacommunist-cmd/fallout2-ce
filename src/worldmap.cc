@@ -1,3 +1,5 @@
+#include "system/hooks.h"
+
 #include "worldmap.h"
 
 #include <assert.h>
@@ -61,10 +63,6 @@ namespace ck::skills {
     // TODO: implement on_encounter
     void on_encounter(int difficulty_modifier, int frequency, bool special);
     void on_worldmap_step(int difficulty);
-}
-
-namespace ck::events::system {
-    void worldmap_open();
 }
 
 namespace fallout {
@@ -3429,7 +3427,7 @@ int wmMapMarkMapEntranceState(Map mapIdx, MapElevation elevation, int state)
 // 0x4BFE0C wmWorldMap
 void wmWorldMap()
 {
-    ck::events::system::worldmap_open();
+    ck::hooks::system::worldmap_open();
     wmWorldMapFunc(0);
 }
 

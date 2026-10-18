@@ -1,4 +1,4 @@
-#include "ck_events/ck_events.h"
+#include "system/hooks.h"
 
 #include "loadsave.h"
 
@@ -1905,7 +1905,7 @@ EM_ASYNC_JS(void, do_save_idbfs_loadsave, (), {
 // 0x47D88C
 static int lsgPerformSaveGame()
 {
-    ck::events::system::before_game_save();
+    ck::hooks::system::before_game_save();
 
     _ls_error_code = 0;
     _map_backup_count = -1;
@@ -2000,7 +2000,7 @@ static int lsgPerformSaveGame()
     char local_ck_path[512];
     snprintf(local_ck_path, sizeof(local_ck_path), "%s\\%s%.2d\\%s", _patches,
             "SAVEGAME\\SLOT", _slot_cursor + 1, "ck_state.json");
-    ck::events::system::game_saved(local_ck_path);
+    ck::hooks::system::game_saved(local_ck_path);
 
     char ceSavePath[COMPAT_MAX_PATH];
     snprintf(ceSavePath, sizeof(ceSavePath), "%s\\SAVEGAME\\SLOT%.2d\\ce.sav", _patches, _slot_cursor + 1);
@@ -2060,7 +2060,7 @@ static int lsgLoadGameInSlot(int slot)
     char local_ck_path[512];
     snprintf(local_ck_path, sizeof(local_ck_path), "%s\\%s%.2d\\%s", _patches,
             "SAVEGAME\\SLOT", _slot_cursor + 1, "ck_state.json");
-    ck::events::system::before_game_load(local_ck_path);
+    ck::hooks::system::before_game_load(local_ck_path);
     // SFALL: Call "before start" event
     sfallOnBeforeGameStart();
 
@@ -2147,7 +2147,7 @@ static int lsgLoadGameInSlot(int slot)
     // SFALL: Call "after start" event
     sfallOnAfterGameStarted();
 
-    ck::events::system::game_loaded();
+    ck::hooks::system::game_loaded();
 
     gGameLoaded = true;
 

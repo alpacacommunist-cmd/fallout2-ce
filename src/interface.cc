@@ -1,5 +1,5 @@
 // fallout2-ck
-#include "ck_events/ck_events.h"
+#include "system/hooks.h"
 // fallout2-ck END
 
 #include "interface.h"
@@ -644,7 +644,7 @@ int interfaceInit()
     quickToolbarInit();
 
     // Interface ready
-    ck::events::system::game_start();
+    ck::hooks::system::game_start();
 
     return 0;
 }

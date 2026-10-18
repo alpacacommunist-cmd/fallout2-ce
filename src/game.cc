@@ -82,7 +82,7 @@
 #endif
 
 namespace ck {
-    namespace events::system {
+    namespace hooks::system {
         void init(int argc, char** argv);
         void engine_ready();
         void scripts_reset();
@@ -183,7 +183,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int fl
         return -1;
     }
 
-    ck::events::system::init(argc, argv);
+    ck::hooks::system::init(argc, argv);
 
     // Content config reads from the VFS, so it must be initialized after gameDbInit.
     contentConfigInit();
@@ -443,7 +443,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int fl
 
     // SFALL: Execute all code that should be executed AFTER game init
     sfallOnAfterGameInit();
-    ck::events::system::engine_ready();
+    ck::hooks::system::engine_ready();
 
     return 0;
 }
@@ -451,7 +451,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int fl
 // 0x442B84
 void gameReset()
 {
-    ck::events::system::scripts_reset();
+    ck::hooks::system::scripts_reset();
     tileDisable();
     paletteReset();
     randomReset();
@@ -514,7 +514,7 @@ void gameExit()
 
     sfallOnGameModeChange(1, GameMode::getCurrentGameMode());
 
-    ck::events::system::exit();
+    ck::hooks::system::exit();
 
     // SFALL
     scriptHooksExit();

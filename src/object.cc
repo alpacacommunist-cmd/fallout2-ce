@@ -33,7 +33,8 @@
 #include "tile.h"
 #include "worldmap.h"
 
-namespace ck::events::system {
+// CK_PATCH: forward declarations
+namespace ck::hooks::system {
     void object_destroyed(fallout::Object* object);
 }
 
@@ -2050,7 +2051,7 @@ int objectDestroy(Object* object, Rect* rect)
             return -1;
         }
 
-        ck::events::system::object_destroyed(object);
+        ck::hooks::system::object_destroyed(object);
 
         return 0;
     }
@@ -2066,7 +2067,7 @@ int objectDestroy(Object* object, Rect* rect)
         return -1;
     }
 
-    ck::events::system::object_destroyed(object);
+    ck::hooks::system::object_destroyed(object);
 
     return 0;
 }
