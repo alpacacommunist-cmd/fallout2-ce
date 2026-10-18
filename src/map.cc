@@ -1,5 +1,5 @@
 #include "system/rendering.h" // CK_INCLUDE
-#include "ck_debug_overlay/ck_debug_overlay.h" // CK_INCLUDE
+#include "debug/ck_debug_overlay.h" // CK_INCLUDE
 
 #include "map.h"
 

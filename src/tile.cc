@@ -1,7 +1,6 @@
 #include "system/rendering.h" // CK_INCLUDE
-
-#include "map/ck_map.h"
-#include "ck_debug_overlay/ck_debug_overlay.h"
+#include "map/ck_map.h" // CK_INCLUDE
+#include "debug/ck_debug_overlay.h" // CK_INCLUDE
 
 #include "tile.h"
 
