@@ -3438,7 +3438,7 @@ int ck_load_game_slot(int slot)
     }
 
     char path[COMPAT_MAX_PATH];
-    snprintf(path, sizeof(path), "%s%s", asc_5186C8, "LSGAME.MSG");
+    snprintf(path, sizeof(path), "%s%s", gGameMsgPath, "LSGAME.MSG");
     if (!messageListLoad(&gLoadSaveMessageList, path)) {
         return -1;
     }
