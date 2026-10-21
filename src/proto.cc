@@ -26,7 +26,9 @@
 
 namespace ck {
     namespace ids { bool is_ck_pid(int pid); }
-    namespace proto { int get_custom_proto(int pid, fallout::Proto** protoPtr); }
+    namespace proto::registry {
+        int get_custom_proto(int pid, void** protoPtr);
+    }
 }
 
 namespace fallout {
@@ -2166,7 +2168,7 @@ int protoGetProto(const ProtoId& protoId, Proto** protoPtr)
 
     // CK_PATCH: allows hanling ck-side prototypes
     if (ck::ids::is_ck_pid(protoId.pid())) {
-        return ck::proto::get_custom_proto(protoId.pid(), protoPtr);
+        return ck::proto::registry::get_custom_proto(protoId.pid(), (void**)protoPtr);
     }
 
     if (!protoId.valid()) {
