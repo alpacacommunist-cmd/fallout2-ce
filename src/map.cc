@@ -316,7 +316,7 @@ void mapInit()
 
     if (messageListInit(&gMapMessageList)) {
         char path[COMPAT_MAX_PATH];
-        snprintf(path, sizeof(path), "%smap.msg", asc_5186C8);
+        snprintf(path, sizeof(path), "%smap.msg", gGameMsgPath);
 
         if (!messageListLoad(&gMapMessageList, path)) {
             debugPrint("\nError loading map_msg_file!");
@@ -1199,9 +1199,11 @@ int mapLoadSaved(char* fileName)
             objectUnjamAll();
         }
 
+        // NOTE: The original fails the load here, and `mapLoadByName` loads
+        // the .MAP instead: the map as new. The saved map loads, the bodies
+        // the aging couldn't replace stay for the next visit.
         if (_map_age_dead_critters() == -1) {
             debugPrint("\nError: Critter aging failed on map load!");
-            return -1;
         }
     }
 
@@ -1253,10 +1255,12 @@ static int _map_age_dead_critters()
         return 0;
     }
 
+    // NOTE: The original (0x483334) replaces dead bodies by blood stains
+    // after 6 days and also removes the blood stains after 14 days.
     int agingType;
-    if (hoursSinceLastVisit > 21 * 24) {
+    if (hoursSinceLastVisit > 14 * 24) {
         agingType = 2;
-    } else if (hoursSinceLastVisit > 14 * 24) {
+    } else if (hoursSinceLastVisit > 6 * 24) {
         agingType = 1;
     } else {
         return 0;
@@ -1350,7 +1354,13 @@ static int replaceDeadCritter(Object* critter)
         }
     }
 
-    return objectSetFrame(blood, frame, nullptr);
+    // NOTE: The original (0x483545) ignores obj_set_frame's result. A multihex
+    // body's frame (6 to 9) can be past the stain art's last one (8), then the
+    // stain keeps its first frame. Failing here failed the critter aging, and
+    // with it the saved map's load: the map was loaded as new.
+    objectSetFrame(blood, frame, nullptr);
+
+    return 0;
 }
 
 // 0x48358C

@@ -1358,7 +1358,7 @@ static int characterEditorWindowInit()
         return -1;
     }
 
-    snprintf(path, sizeof(path), "%s%s", asc_5186C8, "editor.msg");
+    snprintf(path, sizeof(path), "%s%s", gGameMsgPath, "editor.msg");
 
     if (!messageListLoad(&gCharacterEditorMessageList, path)) {
         characterEditorMessageListReset();
