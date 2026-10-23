@@ -1,6 +1,5 @@
-// CK_INCLUDE
-#include "ck/debug.h"
-#include "ck/hooks.h"
+#include "ck_public/debug.h"
+#include "ck_public/hooks.h"
 
 #include "game.h"
 #include "platform/git_version.h"

@@ -1,6 +1,4 @@
-// fallout2-ck
-#include "system/hooks.h"
-// fallout2-ck END
+#include "ck_public/hooks.h"
 
 #include "interface.h"
 

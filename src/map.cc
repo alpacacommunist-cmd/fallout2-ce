@@ -1,7 +1,6 @@
-// CK_INCLUDE
-#include "ck/debug.h"
-#include "ck/rendering.h"
-#include "ck/map.h"
+#include "ck_public/debug.h"
+#include "ck_public/rendering.h"
+#include "ck_public/map.h"
 
 #include "map.h"
 

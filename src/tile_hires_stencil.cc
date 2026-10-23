@@ -1,4 +1,4 @@
-#include "map/ck_map.h"
+#include "ck_public/map.h"
 
 #include "tile_hires_stencil.h"
 #include "debug.h"
