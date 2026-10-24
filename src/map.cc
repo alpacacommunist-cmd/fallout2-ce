@@ -1,3 +1,4 @@
+#include "ck_public/hooks.h"
 #include "ck_public/debug.h"
 #include "ck_public/rendering.h"
 #include "ck_public/map.h"
@@ -910,7 +911,7 @@ int mapLoadById(Map map)
 // 0x482B74 map_load_file
 static int mapLoad(File* stream)
 {
-    ck::map::on_before_map_load();
+    ck::hooks::gameplay::before_map_load();
 
     int mapLoadSoundId = 0;
     if (!settings.system.executableIsMapper()) {
@@ -1156,7 +1157,7 @@ err:
         rc = -1;
     }
 
-    if (!_isLoadingGame()) ck::map::on_map_enter();
+    if (!_isLoadingGame()) ck::hooks::gameplay::map_enter();
 
     fileSetReadProgressHandler(nullptr, 0);
 

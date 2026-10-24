@@ -3427,7 +3427,7 @@ int wmMapMarkMapEntranceState(Map mapIdx, MapElevation elevation, int state)
 // 0x4BFE0C wmWorldMap
 void wmWorldMap()
 {
-    ck::hooks::system::worldmap_open();
+    ck::hooks::gameplay::worldmap_open();
     wmWorldMapFunc(0);
 }
 

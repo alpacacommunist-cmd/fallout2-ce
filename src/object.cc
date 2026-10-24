@@ -1,3 +1,4 @@
+#include "ck_public/hooks.h"
 #include "object.h"
 
 #include <assert.h>
@@ -32,11 +33,6 @@
 #include "text_object.h"
 #include "tile.h"
 #include "worldmap.h"
-
-// CK_PATCH: forward declarations
-namespace ck::hooks::system {
-    void object_destroyed(fallout::Object* object);
-}
 
 namespace fallout {
 
@@ -2051,7 +2047,7 @@ int objectDestroy(Object* object, Rect* rect)
             return -1;
         }
 
-        ck::hooks::system::object_destroyed(object);
+        ck::hooks::gameplay::object_destroyed(object);
 
         return 0;
     }
@@ -2067,7 +2063,7 @@ int objectDestroy(Object* object, Rect* rect)
         return -1;
     }
 
-    ck::hooks::system::object_destroyed(object);
+    ck::hooks::gameplay::object_destroyed(object);
 
     return 0;
 }
