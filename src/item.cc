@@ -1,3 +1,4 @@
+#include "ck_public/hooks.h"
 #include "item.h"
 
 #include <string.h>
@@ -699,8 +700,8 @@ static bool _item_identical(Object* item1, Object* item2)
         return true;
     }
 
-    if (ck::ids::is_ck_pid(item1->pid) && ck::ids::is_ck_pid(item2->pid)) {
-        return true;
+    if (ck::ids::is_ck_pid(item1->pid) || ck::ids::is_ck_pid(item2->pid)) {
+        return ck::hooks::gameplay::items_identical_check(item1, item2);
     }
 
     if (item1->pid != item2->pid) {
