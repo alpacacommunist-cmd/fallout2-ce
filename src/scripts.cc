@@ -1,4 +1,4 @@
-#include "script/ck_script.h"
+#include "ck_public/script.h"
 #include "ck_public/hooks.h"
 #include "scripts.h"
 
@@ -1006,8 +1006,7 @@ static void _doBkProcesses()
             _script_chk_critters();
             _script_chk_timed_events();
 
-            // CK_PATCH: ck map update
-            ck::script::on_map_update(gameTimeGetTime()); // 10 ticks = 1 sec
+            ck::hooks::gameplay::map_update(gameTimeGetTime()); // 10 ticks = 1 sec
         }
     }
 }
