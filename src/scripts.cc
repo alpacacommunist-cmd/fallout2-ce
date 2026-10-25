@@ -470,6 +470,7 @@ int gameTimeEventProcess(Object* obj, void* data)
         stopProcess = 1;
     }
 
+    // CK_PATCH: day_passed
     ck::hooks::gameplay::day_passed();
 
     return stopProcess;
@@ -1006,6 +1007,7 @@ static void _doBkProcesses()
             _script_chk_critters();
             _script_chk_timed_events();
 
+            // CK_PATCH: map_update
             ck::hooks::gameplay::map_update(gameTimeGetTime()); // 10 ticks = 1 sec
         }
     }
@@ -1809,9 +1811,10 @@ int _scr_find_str_run_info(int scriptIndex, int* /*unused*/, int sid)
         return -1;
     }
 
-    // CK_PATCH: check if sid is allocated by ck
+    // CK_PATCH: check if scriptIndex is allocated by ck
+    // set localVarsCount to 0 and return bc script is fake
     if (ck::script::owns_sid(scriptIndex)) {
-        script->localVarsCount = 0;
+        ck::hooks::gameplay::proto_script_requested(script);
 
         return 0;
     }
@@ -2558,7 +2561,7 @@ int scriptGetScript(int sid, Script** scriptPtr)
 
     // CK_PATCH: return ck-controller sid
     if (ck::script::owns_sid(sid)) {
-        *scriptPtr = ck::script::get_dummy(sid);
+        ck::hooks::gameplay::script_requested(scriptPtr, sid);
         return 0;
     }
 
