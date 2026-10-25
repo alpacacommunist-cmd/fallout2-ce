@@ -1,5 +1,5 @@
 #include "script/ck_script.h"
-#include "game_time/ck_game_time.h"
+#include "ck_public/hooks.h"
 #include "scripts.h"
 
 #include <assert.h>
@@ -470,8 +470,7 @@ int gameTimeEventProcess(Object* obj, void* data)
         stopProcess = 1;
     }
 
-    // CK_PATCH: on_day_passed hook
-    ck::on_day_passed();
+    ck::hooks::gameplay::day_passed();
 
     return stopProcess;
 }

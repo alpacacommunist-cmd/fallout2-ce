@@ -1,3 +1,4 @@
+#include "ck_public/hooks.h"
 #include "skill.h"
 
 #include <stdio.h>
@@ -35,8 +36,6 @@
 #include "string_utils.h"
 #include "trait.h"
 
-
-namespace ck { void on_time_advance(int hours, int minutes); }
 namespace ck::skills {
 	void on_use_complete(fallout::Object* obj, int skill, fallout::Object* target, int success_count, int bonus);
 }
@@ -973,7 +972,7 @@ int skillUse(Object* obj, Object* target, Skill skill, int skillBonus)
 
         if (obj == gDude) {
             gameTimeAddSeconds(1800);
-            ck::on_time_advance(0, 30);
+            ck::hooks::gameplay::time_advance(0, 30);
         }
 
         break;
@@ -1135,7 +1134,7 @@ int skillUse(Object* obj, Object* target, Skill skill, int skillBonus)
 
         if (obj == gDude) {
             gameTimeAddSeconds(3600 * damageHealingAttempts);
-            ck::on_time_advance(1, 0);
+            ck::hooks::gameplay::time_advance(1, 0);
         }
 
         break;
@@ -1310,7 +1309,7 @@ int skillUse(Object* obj, Object* target, Skill skill, int skillBonus)
 
         if (obj == gDude) {
             gameTimeAddSeconds(1800 * damageHealingAttempts);
-            ck::on_time_advance(0, 30);
+            ck::hooks::gameplay::time_advance(0, 30);
         }
 
         break;

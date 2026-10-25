@@ -1,4 +1,4 @@
-#include "game_time/ck_game_time.h"
+#include "ck_public/hooks.h"
 
 #include "proto_instance.h"
 
@@ -879,13 +879,6 @@ static UseItemResultCode _obj_use_book(Object* book)
     int intelligence = critterGetStat(gDude, STAT_INTELLIGENCE);
     gameTimeAddSeconds(3600 * (11 - intelligence));
 
-    // CK hook
-    int hoursToRead = 11 - intelligence;
-    if (hoursToRead < 1) hoursToRead = 1; // in case of drugs use?
-
-    ck::on_time_advance(hoursToRead, 0);
-    // CK hook END
-
     scriptsExecMapUpdateProc();
 
     paletteFadeTo(_cmap);
@@ -900,6 +893,8 @@ static UseItemResultCode _obj_use_book(Object* book)
     if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
         displayMonitorAddMessage(messageListItem.text);
     }
+
+    ck::hooks::gameplay::time_advance((11 - intelligence) < 1 ? 1 : 11 - intelligence, 0);
 
     return USE_ITEM_RESULT_REMOVE;
 }
