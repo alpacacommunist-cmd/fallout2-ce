@@ -1,5 +1,6 @@
 #include "ck_public/script.h"
 #include "ck_public/hooks.h"
+#include "ck_public/ids.h"
 #include "scripts.h"
 
 #include <assert.h>
@@ -1587,10 +1588,10 @@ int scriptExecProc(int sid, ScriptProc proc)
     }
 
     // CK_PATCH: global procs (e.g critter_killed)
-    ck::script::handle_global_proc_event(sid, proc);
+    // ck::script::handle_global_proc_event(sid, proc);
 
     // CK_PATCH: proc dispatcher
-    if (ck::script::try_handle(sid, proc)) return 0;
+    // if (ck::script::try_handle(sid, proc)) return 0;
 
     Script* script;
     if (scriptGetScript(sid, &script) == -1) {
@@ -1599,6 +1600,13 @@ int scriptExecProc(int sid, ScriptProc proc)
 
     script->scriptOverrides = 0;
 
+    if (ck::ids::is_ck_proto_sid(script->index)) {
+        return ck::script::handle_proc(sid, proc, script);
+    }
+
+    // if (ck::ids::is_ck_sid(script->index)) {
+    //     return ck::script::try_handle(sid, proc);
+    // }
 
     bool programLoaded = false;
     if ((script->flags & SCRIPT_FLAG_LOADED) == SCRIPT_FLAG_NONE) {
@@ -1813,7 +1821,7 @@ int _scr_find_str_run_info(int scriptIndex, int* /*unused*/, int sid)
 
     // CK_PATCH: check if scriptIndex is allocated by ck
     // set localVarsCount to 0 and return bc script is fake
-    if (ck::script::owns_sid(scriptIndex)) {
+    if (ck::ids::is_ck_proto_sid(scriptIndex)) {
         ck::hooks::gameplay::proto_script_requested(script);
 
         return 0;
@@ -2560,10 +2568,10 @@ int scriptGetScript(int sid, Script** scriptPtr)
     }
 
     // CK_PATCH: return ck-controller sid
-    if (ck::script::owns_sid(sid)) {
-        ck::hooks::gameplay::script_requested(scriptPtr, sid);
-        return 0;
-    }
+    // if (ck::script::owns_sid(sid)) {
+    //     ck::hooks::gameplay::script_requested(scriptPtr, sid);
+    //     return 0;
+    // }
 
     ScriptList* scriptList = &(gScriptLists[scriptTypeFromSid(sid)]);
     ScriptListExtent* scriptListExtent = scriptList->head;
