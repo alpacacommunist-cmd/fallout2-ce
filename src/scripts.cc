@@ -1593,6 +1593,10 @@ int scriptExecProc(int sid, ScriptProc proc)
     // CK_PATCH: proc dispatcher
     // if (ck::script::try_handle(sid, proc)) return 0;
 
+    if (ck::ids::is_ck_sid(sid)) {
+        return ck::script::handle_proc(sid, proc);
+    }
+
     Script* script;
     if (scriptGetScript(sid, &script) == -1) {
         return -1;
@@ -1600,13 +1604,9 @@ int scriptExecProc(int sid, ScriptProc proc)
 
     script->scriptOverrides = 0;
 
-    if (ck::ids::is_ck_proto_sid(script->index)) {
-        return ck::script::handle_proc(sid, proc, script);
+    if (ck::ids::is_ck_sid(script->index)) {
+        return ck::script::handle_proc(script, proc);
     }
-
-    // if (ck::ids::is_ck_sid(script->index)) {
-    //     return ck::script::try_handle(sid, proc);
-    // }
 
     bool programLoaded = false;
     if ((script->flags & SCRIPT_FLAG_LOADED) == SCRIPT_FLAG_NONE) {
@@ -1821,7 +1821,7 @@ int _scr_find_str_run_info(int scriptIndex, int* /*unused*/, int sid)
 
     // CK_PATCH: check if scriptIndex is allocated by ck
     // set localVarsCount to 0 and return bc script is fake
-    if (ck::ids::is_ck_proto_sid(scriptIndex)) {
+    if (ck::ids::is_ck_sid(scriptIndex)) {
         ck::hooks::gameplay::proto_script_requested(script);
 
         return 0;
