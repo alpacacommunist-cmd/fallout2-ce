@@ -1587,16 +1587,6 @@ int scriptExecProc(int sid, ScriptProc proc)
         return -1;
     }
 
-    // CK_PATCH: global procs (e.g critter_killed)
-    // ck::script::handle_global_proc_event(sid, proc);
-
-    // CK_PATCH: proc dispatcher
-    // if (ck::script::try_handle(sid, proc)) return 0;
-
-    if (ck::ids::is_ck_sid(sid)) {
-        return ck::script::handle_proc(sid, proc);
-    }
-
     Script* script;
     if (scriptGetScript(sid, &script) == -1) {
         return -1;
@@ -1604,9 +1594,7 @@ int scriptExecProc(int sid, ScriptProc proc)
 
     script->scriptOverrides = 0;
 
-    if (ck::ids::is_ck_sid(script->index)) {
-        return ck::script::handle_proc(script, proc);
-    }
+    if (ck::script::handle_proc(sid, script, proc)) return 0;
 
     bool programLoaded = false;
     if ((script->flags & SCRIPT_FLAG_LOADED) == SCRIPT_FLAG_NONE) {
