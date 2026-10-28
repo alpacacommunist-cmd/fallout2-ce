@@ -336,7 +336,7 @@ err:
 
     fileClose(file_ptr);
 
-    ck::messages_on_list_loaded(messageList, path);
+    ck::messages_on_list_loaded(messageList, localized_path);
 
     return success;
 }

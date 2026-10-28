@@ -4227,7 +4227,7 @@ static int attackCompute(Attack* attack)
     }
 
     ck::skills::on_attack_complete(attack->attacker, weaponGetSkillForHitMode(attack->weapon, attack->hitMode),
-            attack->defender, roll, accuracy);
+            attack->defender, static_cast<int>(roll), accuracy);
 
     attackComputeDeathFlags(attack);
 
