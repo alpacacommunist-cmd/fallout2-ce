@@ -2556,12 +2556,6 @@ int scriptGetScript(int sid, Script** scriptPtr)
         return -1;
     }
 
-    // CK_PATCH: return ck-controller sid
-    // if (ck::script::owns_sid(sid)) {
-    //     ck::hooks::gameplay::script_requested(scriptPtr, sid);
-    //     return 0;
-    // }
-
     ScriptList* scriptList = &(gScriptLists[scriptTypeFromSid(sid)]);
     ScriptListExtent* scriptListExtent = scriptList->head;
 
