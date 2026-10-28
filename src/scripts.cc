@@ -1594,7 +1594,8 @@ int scriptExecProc(int sid, ScriptProc proc)
 
     script->scriptOverrides = 0;
 
-    if (ck::script::handle_proc(sid, script, proc)) return 0;
+    // CK_PATCH: handle proc
+    if (ck::hooks::gameplay::proc(script, proc)) return 0;
 
     bool programLoaded = false;
     if ((script->flags & SCRIPT_FLAG_LOADED) == SCRIPT_FLAG_NONE) {
