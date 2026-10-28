@@ -1,4 +1,4 @@
-#include "script/ck_script.h"
+#include "ck_public/hooks.h"
 #include "game_dialog.h"
 
 #include <algorithm>
@@ -2247,7 +2247,10 @@ int _gdProcessChoice(int optionIndex)
     // same behaviour by extending dialogReplyText to 2700 bytes or introduce
     // new 1800 bytes buffer in between, at least not in debug builds. In order
     // to preserve original behaviour this dummy dialog option entry is used.
-    ck::script::gLastDialogChoice = optionIndex;
+
+    // CK_HOOK: last dialog choice
+    ck::hooks::gameplay::last_dialog_choice(optionIndex);
+
     GameDialogOptionEntry dummy;
     memset(&dummy, 0, sizeof(dummy));
 
