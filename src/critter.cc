@@ -243,9 +243,9 @@ char* critterGetName(Object* obj)
     }
 
     // CK_PATCH: gross workaround for keeping temp proto messages
-    if (obj->data.critter.radiation > 0) {
+    if (obj->cid > 1000) {
         Proto* proto;
-        ProtoId ckProtoID {obj->data.critter.radiation};
+        ProtoId ckProtoID {obj->cid};
 
         if (protoGetProto(ckProtoID, &proto) != -1) {
             name = protoGetName(ckProtoID);
