@@ -915,14 +915,14 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
     case KEY_CTRL_S:
     case KEY_F4:
         soundPlayFile("ib1p1xx1");
-        if (lsgSaveGame(1) == -1) {
+        if (lsgSaveGame(LoadSaveMode::Normal) == -1) {
             debugPrint("\n ** Error calling SaveGame()! **\n");
         }
         break;
     case KEY_CTRL_L:
     case KEY_F5:
         soundPlayFile("ib1p1xx1");
-        if (lsgLoadGame(LOAD_SAVE_MODE_NORMAL) == -1) {
+        if (lsgLoadGame(LoadSaveMode::Normal) == -1) {
             debugPrint("\n ** Error calling LoadGame()! **\n");
         }
         break;
@@ -938,7 +938,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         if (1) {
             soundPlayFile("ib1p1xx1");
 
-            int rc = lsgSaveGame(LOAD_SAVE_MODE_QUICK);
+            int rc = lsgSaveGame(LoadSaveMode::Quick);
             if (rc == -1) {
                 debugPrint("\n ** Error calling SaveGame()! **\n");
             } else if (rc == 1) {
@@ -953,7 +953,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         if (1) {
             soundPlayFile("ib1p1xx1");
 
-            int rc = lsgLoadGame(LOAD_SAVE_MODE_QUICK);
+            int rc = lsgLoadGame(LoadSaveMode::Quick);
             if (rc == -1) {
                 debugPrint("\n ** Error calling LoadGame()! **\n");
             } else if (rc == 1) {

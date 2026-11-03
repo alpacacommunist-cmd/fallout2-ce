@@ -581,11 +581,16 @@ int scriptsNewObjectId()
         }
     } while (ptr);
 
-    if (gObjectIdCounter >= 18000) {
-        debugPrint("\n    ERROR: new_obj_id() !!!! Picked PLAYER ID!!!!");
+    // SFALL: Skip party members' IDs ((pid & 0xFFFFFF) + 18000). The original
+    // only reports picking one; the new object could then share its ID with a
+    // party member, and items with IDs in that range don't stack.
+    if (gObjectIdCounter >= OBJECT_ID_PLAYER && gObjectIdCounter < OBJECT_ID_PARTY_MEMBER_END) {
+        gObjectIdCounter = OBJECT_ID_PARTY_MEMBER_END - 1;
+        return scriptsNewObjectId();
     }
 
-    gObjectIdCounter++;
+    // SFALL: The original increments the counter once more here, returning an
+    // ID that wasn't checked against the existing objects.
 
     return gObjectIdCounter;
 }
@@ -2378,10 +2383,28 @@ static int scriptListExtentRead(ScriptListExtent* scriptExtent, int expectedLeng
     }
 
     if (scriptExtent->length != expectedLength) {
-        debugPrint("\nError loading scripts: invalid extent length %d (expected %d).\n",
-            scriptExtent->length,
-            expectedLength);
-        return -1;
+        // Recover the legacy writer's overlong final extent only when every
+        // surplus record explicitly carries NO_SAVE. Other corruption fails.
+        bool recoverable = expectedLength > 0
+            && scriptExtent->length > expectedLength
+            && scriptExtent->length <= SCRIPT_LIST_EXTENT_SIZE;
+        if (recoverable) {
+            for (int index = expectedLength; index < scriptExtent->length; index++) {
+                if ((scriptExtent->scripts[index].flags & SCRIPT_FLAG_NO_SAVE) == SCRIPT_FLAG_NONE) {
+                    recoverable = false;
+                    break;
+                }
+            }
+        }
+        if (!recoverable) {
+            debugPrint("\nError loading scripts: invalid extent length %d (expected %d).\n",
+                scriptExtent->length,
+                expectedLength);
+            return -1;
+        }
+        debugPrint("\nRecovered legacy script extent length %d -> %d (NO_SAVE records only).\n",
+            scriptExtent->length, expectedLength);
+        scriptExtent->length = expectedLength;
     }
 
     int next;
