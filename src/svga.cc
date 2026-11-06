@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include <SDL.h>
+#include "ck_public/ui.h"
 
 #include "color.h"
 #include "config.h"
@@ -486,6 +487,10 @@ void renderPresent()
     SDL_RenderCopy(gSdlRenderer, gSdlTexture, nullptr, nullptr);
     // render movie SDL texture if present
     movieRenderDirectOverlay();
+    // ==========================================
+    // CK_PATCH: ImGui
+    ck::ui::render(gSdlRenderer);
+    // ==========================================
     SDL_RenderPresent(gSdlRenderer);
 }
 

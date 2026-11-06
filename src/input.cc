@@ -1,6 +1,7 @@
 #include "input.h"
 
 #include <SDL.h>
+#include "ck_public/ui.h"
 #include <lodepng.h>
 
 #include "audio_engine.h"
@@ -999,6 +1000,24 @@ void _GNW95_process_message()
     KeyboardData keyboardData;
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
+        // ==========================================
+        // CK_PATCH: ImGui
+        ck::ui::process_event(&e);
+
+        if (ck::ui::want_capture_mouse()) {
+            if (e.type == SDL_MOUSEMOTION || e.type == SDL_MOUSEBUTTONDOWN ||
+                    e.type == SDL_MOUSEBUTTONUP || e.type == SDL_MOUSEWHEEL) {
+                continue;
+            }
+        }
+
+        if (ck::ui::want_capture_keyboard()) {
+            if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
+                continue;
+            }
+        }
+        // ==========================================
+
         switch (e.type) {
         case SDL_MOUSEMOTION:
         case SDL_MOUSEBUTTONDOWN:
