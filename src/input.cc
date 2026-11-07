@@ -1,7 +1,7 @@
+#include "ck_public/debug.h"
 #include "input.h"
 
 #include <SDL.h>
-#include "ck_public/ui.h"
 #include <lodepng.h>
 
 #include "audio_engine.h"
@@ -1002,6 +1002,7 @@ void _GNW95_process_message()
     while (SDL_PollEvent(&e)) {
         // ==========================================
         // CK_PATCH: ImGui
+#ifdef CK_EDITOR_BUILD
         ck::debug::ui::process_event(&e);
 
         if (ck::debug::ui::want_capture_mouse()) {
@@ -1016,6 +1017,7 @@ void _GNW95_process_message()
                 continue;
             }
         }
+#endif
         // ==========================================
 
         switch (e.type) {

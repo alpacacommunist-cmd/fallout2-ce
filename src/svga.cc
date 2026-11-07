@@ -1,3 +1,4 @@
+#include "ck_public/debug.h"
 #include "svga.h"
 
 #include <limits.h>
@@ -5,7 +6,6 @@
 #include <string.h>
 
 #include <SDL.h>
-#include "ck_public/ui.h"
 
 #include "color.h"
 #include "config.h"
@@ -489,7 +489,9 @@ void renderPresent()
     movieRenderDirectOverlay();
     // ==========================================
     // CK_PATCH: ImGui
+#ifdef CK_EDITOR_BUILD
     ck::debug::ui::render(gSdlRenderer);
+#endif
     // ==========================================
     SDL_RenderPresent(gSdlRenderer);
 }

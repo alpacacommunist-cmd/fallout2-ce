@@ -1,4 +1,3 @@
-#include "ck_public/debug.h"
 #include "ck_public/hooks.h"
 
 #include "game.h"
@@ -83,6 +82,7 @@
 #include <TargetConditionals.h>
 #endif
 
+#include "ck_public/debug.h"
 namespace fallout {
 
 #define HELP_SCREEN_WIDTH (640)
@@ -927,12 +927,16 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         }
         break;
     case KEY_CTRL_R:
+#ifdef CK_EDITOR_BUILD
         debugPrint("[CK] Reloading mods...\n");
         ck::mods::reload();
+#endif
         break;
     case KEY_F9:
+#ifdef CK_EDITOR_BUILD
         ck::debug::toggle();
         debugPrint("[CK] Debug overlay: %s\n", ck::debug::enabled() ? "ON" : "OFF");
+#endif
         break;
     case KEY_F6:
         if (1) {
