@@ -490,7 +490,7 @@ void renderPresent()
     // ==========================================
     // CK_PATCH: ImGui
 #ifdef CK_EDITOR_BUILD
-    ck::debug::ui::render(gSdlRenderer);
+    ck::debug::ui::render();
 #endif
     // ==========================================
     SDL_RenderPresent(gSdlRenderer);
