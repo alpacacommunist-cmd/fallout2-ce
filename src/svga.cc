@@ -489,7 +489,7 @@ void renderPresent()
     movieRenderDirectOverlay();
     // ==========================================
     // CK_PATCH: ImGui
-    ck::ui::render(gSdlRenderer);
+    ck::debug::ui::render(gSdlRenderer);
     // ==========================================
     SDL_RenderPresent(gSdlRenderer);
 }

@@ -1002,16 +1002,16 @@ void _GNW95_process_message()
     while (SDL_PollEvent(&e)) {
         // ==========================================
         // CK_PATCH: ImGui
-        ck::ui::process_event(&e);
+        ck::debug::ui::process_event(&e);
 
-        if (ck::ui::want_capture_mouse()) {
+        if (ck::debug::ui::want_capture_mouse()) {
             if (e.type == SDL_MOUSEMOTION || e.type == SDL_MOUSEBUTTONDOWN ||
                     e.type == SDL_MOUSEBUTTONUP || e.type == SDL_MOUSEWHEEL) {
                 continue;
             }
         }
 
-        if (ck::ui::want_capture_keyboard()) {
+        if (ck::debug::ui::want_capture_keyboard()) {
             if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
                 continue;
             }
