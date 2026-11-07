@@ -1006,8 +1006,7 @@ void _GNW95_process_message()
         ck::debug::ui::process_event(&e);
 
         if (ck::debug::ui::want_capture_mouse()) {
-            if (e.type == SDL_MOUSEMOTION || e.type == SDL_MOUSEBUTTONDOWN ||
-                    e.type == SDL_MOUSEBUTTONUP || e.type == SDL_MOUSEWHEEL) {
+            if (e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP || e.type == SDL_MOUSEWHEEL) {
                 continue;
             }
         }

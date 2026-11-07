@@ -1,3 +1,4 @@
+#include "ck_public/debug.h"
 #include "mouse.h"
 
 #if __APPLE__
@@ -783,6 +784,12 @@ static void _mouse_clip()
 // 0x4CAAA0
 MouseButtonEvent mouseGetEvent()
 {
+    // CK_PATCH: blocks events when ui requested handle
+#ifdef CK_EDITOR_BUILD
+    if (ck::debug::ui::want_capture_mouse()) {
+        return MouseButtonEvent::None;
+    }
+#endif
     return gMouseEvent;
 }
 
