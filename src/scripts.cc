@@ -1,4 +1,3 @@
-#include "ck_public/script.h"
 #include "ck_public/hooks.h"
 #include "ck_public/ids.h"
 #include "scripts.h"
