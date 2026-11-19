@@ -31,6 +31,7 @@
 #include "game_mouse.h"
 #include "game_movie.h"
 #include "game_sound.h"
+#include "game_speed.h"
 #include "input.h"
 #include "interface.h"
 #include "inventory.h"
@@ -441,6 +442,8 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, Window
 void gameReset()
 {
     ck::hooks::system::scripts_reset();
+
+    gameSpeedGetTicks();
     tileDisable();
     paletteReset();
     randomReset();
@@ -494,6 +497,7 @@ void gameReset()
     sfall_ini_cache_clear();
     sfallOnGameReset();
     gGameLoaded = false;
+    gameSpeedReset();
 }
 
 // 0x442C34
@@ -788,7 +792,6 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
     case KEY_EXCLAMATION:
         if (interfaceBarEnabled()) {
             soundPlayFile("ib1p1xx1");
-            gameMouseSetCursor(MOUSE_CURSOR_USE_CROSSHAIR);
             _action_skill_use(SKILL_SNEAK);
         }
         break;
@@ -1714,8 +1717,10 @@ GameMode::Flags GameMode::currentGameMode = kNone;
 
 void GameMode::enterGameMode(GameMode::Flags gameMode)
 {
+    gameSpeedGetTicks();
     GameMode::Flags previousGameMode = currentGameMode;
     currentGameMode = currentGameMode | gameMode;
+    gameSpeedGetTicks();
     if (currentGameMode != previousGameMode) {
         sfallOnGameModeChange(0, previousGameMode);
     }
@@ -1723,8 +1728,10 @@ void GameMode::enterGameMode(GameMode::Flags gameMode)
 
 void GameMode::exitGameMode(GameMode::Flags gameMode)
 {
+    gameSpeedGetTicks();
     GameMode::Flags previousGameMode = currentGameMode;
     currentGameMode = currentGameMode & ~gameMode;
+    gameSpeedGetTicks();
     if (currentGameMode != previousGameMode) {
         sfallOnGameModeChange(0, previousGameMode);
     }
@@ -1733,7 +1740,9 @@ void GameMode::exitGameMode(GameMode::Flags gameMode)
 // remove game mode without triggering hooks
 void GameMode::exitGameModeQuietly(GameMode::Flags gameMode)
 {
+    gameSpeedGetTicks();
     currentGameMode = currentGameMode & ~gameMode;
+    gameSpeedGetTicks();
 }
 
 bool GameMode::isInGameMode(GameMode::Flags gameMode)
