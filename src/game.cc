@@ -742,7 +742,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
                 showDialogBox(title, nullptr, 0, 192, 116, COLOR_AMBER, nullptr, COLOR_AMBER, 0);
             } else {
                 soundPlayFile("ib1p1xx1");
-                pipboyOpen(PIPBOY_OPEN_INTENT_UNSPECIFIED);
+                pipboyOpen(PipboyOpenIntent::Unspecified);
             }
         }
         break;
@@ -772,7 +772,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
                 showDialogBox(title, nullptr, 0, 192, 116, COLOR_AMBER, nullptr, COLOR_AMBER, 0);
             } else {
                 soundPlayFile("ib1p1xx1");
-                pipboyOpen(PIPBOY_OPEN_INTENT_REST);
+                pipboyOpen(PipboyOpenIntent::Rest);
             }
         }
         break;
